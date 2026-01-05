@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
-import { register } from "@/redux/actions/userActions"
+import { register, clearError } from "@/redux/actions/userActions"
 
 export function KayitForm({
   className,
@@ -33,6 +33,11 @@ export function KayitForm({
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
 
+  // Clear any previous errors when component mounts
+  useEffect(() => {
+    dispatch(clearError())
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -48,10 +53,10 @@ export function KayitForm({
     }
 
     const result = await dispatch(register({
-      name: nick,
-      surname: nick,
+      nick,
       email,
       password,
+      gender: gender || undefined,
       birthDate
     }))
 

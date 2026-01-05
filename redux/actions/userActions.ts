@@ -17,10 +17,10 @@ axios.interceptors.response.use(
 );
 
 export interface RegisterPayload {
-  name: string;
-  surname: string;
+  nick: string;
   email: string;
   password: string;
+  gender?: string;
   birthDate?: string;
 }
 
@@ -31,8 +31,7 @@ export interface LoginPayload {
 
 export interface GoogleLoginPayload {
   email: string;
-  name: string;
-  surname: string;
+  nick: string;
   googleId: string;
   birthDate?: string;
 }
@@ -49,10 +48,10 @@ export interface ResetPasswordPayload {
 }
 
 export interface EditProfilePayload {
-  name: string;
-  surname: string;
+  nick: string;
   email: string;
   password: string;
+  gender?: string;
   birthDate?: string;
   address?: {
     street?: string;

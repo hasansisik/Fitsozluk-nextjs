@@ -126,7 +126,7 @@ export function VerificationForm() {
     if (isSubmitted) {
         return (
             <div className="w-full text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
                     <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
@@ -148,7 +148,7 @@ export function VerificationForm() {
     return (
         <div className="w-full">
             <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
                     <Mail className="h-8 w-8 text-[#4729ff]" />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
