@@ -1,0 +1,67 @@
+{
+    "logo": "ekşi sözlük",
+    "featuredTopics": [
+        {
+            "label": "gündem",
+            "href": "/",
+            "type": "home"
+        },
+        {
+            "label": "debe",
+            "href": "/debe",
+            "type": "special"
+        },
+        {
+            "label": "#spor",
+            "href": "/kanal/spor",
+            "type": "channel"
+        },
+        {
+            "label": "#ilişkiler",
+            "href": "/kanal/iliskiler",
+            "type": "channel"
+        },
+        {
+            "label": "#siyaset",
+            "href": "/kanal/siyaset",
+            "type": "channel"
+        },
+        {
+            "label": "#yaşam",
+            "href": "/kanal/yasam",
+            "type": "channel"
+        }
+    ],
+    "additionalTopics": [
+        {
+            "label": "sorunsallar",
+            "href": "/sorunsallar"
+        },
+        {
+            "label": "tarih",
+            "href": "/kanal/tarih"
+        },
+        {
+            "label": "bilim",
+            "href": "/kanal/bilim"
+        },
+        {
+            "label": "edebiyat",
+            "href": "/kanal/edebiyat"
+        },
+        {
+            "label": "teknoloji",
+            "href": "/kanal/teknoloji"
+        }
+    ],
+    "userActions": [
+        {
+            "label": "giriş",
+            "href": "/giris"
+        },
+        {
+            "label": "kayıt ol",
+            "href": "/kayitol"
+        }
+    ]
+}

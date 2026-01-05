@@ -1,0 +1,38 @@
+[
+    {
+        "id": "1",
+        "username": "ekşi sözlük",
+        "followers": 1368776,
+        "type": "dictionary",
+        "avatar": {
+            "type": "icon",
+            "icon": "droplet",
+            "color": "#4729ff"
+        },
+        "followButtonText": "Sayfayı Takip Et"
+    },
+    {
+        "id": "2",
+        "username": "ekşi şeyler",
+        "followers": 390963,
+        "type": "user",
+        "avatar": {
+            "type": "icon",
+            "icon": "droplet",
+            "color": "#4729ff"
+        },
+        "followButtonText": "Takip et"
+    },
+    {
+        "id": "3",
+        "username": "günün yazarı",
+        "followers": 125430,
+        "type": "user",
+        "avatar": {
+            "type": "icon",
+            "icon": "droplet",
+            "color": "#4729ff"
+        },
+        "followButtonText": "Takip et"
+    }
+]

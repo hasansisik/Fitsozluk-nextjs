@@ -1,0 +1,207 @@
+[
+    {
+        "id": "1",
+        "username": "bu başka bir şey mi?",
+        "displayName": "bu başka bir şey mi?",
+        "avatar": null,
+        "badges": [],
+        "stats": {
+            "entryCount": 156,
+            "followerCount": 23,
+            "followingCount": 45
+        },
+        "joinDate": "mart 2013",
+        "bio": "balık ve helva uzmanı",
+        "entries": [
+            {
+                "id": "101",
+                "title": "balık yedikten sonra helva yemek",
+                "content": "ülkemizde yaygın olarak pek çekiştirilmeyen ayrılamaz ikili. balık lezzetini tamamlamayı önemlilidir. yani sıra, balığın oldukça yüksek olduğunu unutmamak gerekir. helva yemek bu açıdan önemlilidir.",
+                "date": "26.03.2013",
+                "time": "21:37"
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "username": "bu#limskabulet",
+        "displayName": "bu#limskabulet",
+        "avatar": null,
+        "badges": [
+            {
+                "type": "caylak",
+                "title": "çaylak",
+                "icon": "🌱",
+                "color": "#4729ff"
+            }
+        ],
+        "stats": {
+            "entryCount": 89,
+            "followerCount": 12,
+            "followingCount": 34
+        },
+        "joinDate": "ağustos 2013",
+        "bio": "",
+        "entries": []
+    },
+    {
+        "id": "3",
+        "username": "sober",
+        "displayName": "sober",
+        "avatar": null,
+        "badges": [],
+        "stats": {
+            "entryCount": 234,
+            "followerCount": 56,
+            "followingCount": 23
+        },
+        "joinDate": "kasım 2022",
+        "bio": "",
+        "entries": []
+    },
+    {
+        "id": "4",
+        "username": "yazaradi",
+        "displayName": "yazaradi",
+        "avatar": null,
+        "badges": [],
+        "stats": {
+            "entryCount": 45,
+            "followerCount": 8,
+            "followingCount": 12
+        },
+        "joinDate": "aralık 2025",
+        "bio": "",
+        "entries": []
+    },
+    {
+        "id": "5",
+        "username": "kullanici123",
+        "displayName": "kullanici123",
+        "avatar": null,
+        "badges": [],
+        "stats": {
+            "entryCount": 67,
+            "followerCount": 15,
+            "followingCount": 28
+        },
+        "joinDate": "aralık 2025",
+        "bio": "",
+        "entries": []
+    },
+    {
+        "id": "6",
+        "username": "biliminsani",
+        "displayName": "biliminsani",
+        "avatar": null,
+        "badges": [
+            {
+                "type": "ukde",
+                "title": "ukde",
+                "icon": "📚",
+                "color": "#f39c12"
+            }
+        ],
+        "stats": {
+            "entryCount": 312,
+            "followerCount": 89,
+            "followingCount": 45
+        },
+        "joinDate": "ocak 2020",
+        "bio": "bilim ve teknoloji meraklısı",
+        "entries": []
+    },
+    {
+        "id": "7",
+        "username": "yemeksever",
+        "displayName": "yemeksever",
+        "avatar": null,
+        "badges": [],
+        "stats": {
+            "entryCount": 178,
+            "followerCount": 34,
+            "followingCount": 56
+        },
+        "joinDate": "haziran 2019",
+        "bio": "mutfak kültürü araştırmacısı",
+        "entries": []
+    },
+    {
+        "id": "8",
+        "username": "white vinegar",
+        "displayName": "white vinegar",
+        "avatar": "/avatars/white-vinegar.jpg",
+        "badges": [
+            {
+                "type": "mangal",
+                "title": "mangal yürekli (ileri düzey)",
+                "icon": "🔥",
+                "color": "#e74c3c"
+            },
+            {
+                "type": "ukde",
+                "title": "ukde",
+                "icon": "📚",
+                "color": "#f39c12"
+            },
+            {
+                "type": "caylak",
+                "title": "çaylak",
+                "icon": "🌱",
+                "color": "#27ae60"
+            },
+            {
+                "type": "tuzlu",
+                "title": "tuzlu",
+                "icon": "🧂",
+                "color": "#e67e22"
+            }
+        ],
+        "stats": {
+            "entryCount": 2792,
+            "followerCount": 63,
+            "followingCount": 1
+        },
+        "joinDate": "ocak 2009",
+        "bio": "",
+        "entries": [
+            {
+                "id": "101",
+                "title": "tuğyan ülkem gülter",
+                "content": "sultan'ın itiraf etmesi cinayeti kanıtlar mı?\n\nbelki sultan itti ve suçu tuğyan'a attıyor? ingilizce'de your word vs. my word denilen olay. yani senin sözünle karalık benim sözüm..\n\nmutlaka tuğyan'ı işaret eden başka deliller de olması gerekmez mi? bu deliller varsa itiraf o kadar da önemli mi?\n\nsavcılığın gizlilik kararını kaldırıp dosyayı dierhal açması gerekir.",
+                "date": "13.12.2025",
+                "time": "01:55"
+            }
+        ]
+    },
+    {
+        "id": "9",
+        "username": "tekbasinabirtekbas",
+        "displayName": "Tek Başına Bir Tekbaş",
+        "avatar": null,
+        "badges": [
+            {
+                "type": "caylak",
+                "title": "çaylak",
+                "icon": "🌱",
+                "color": "#4729ff"
+            }
+        ],
+        "stats": {
+            "entryCount": 5,
+            "followerCount": 2,
+            "followingCount": 3
+        },
+        "joinDate": "aralık 2025",
+        "bio": "yeni katıldım, henüz keşfediyorum.",
+        "entries": [
+            {
+                "id": "201",
+                "title": "ilk entry deneyimim",
+                "content": "buraya ilk defa entry yazıyorum. umarım güzel bir deneyim olur.",
+                "date": "17.12.2025",
+                "time": "15:30"
+            }
+        ]
+    }
+]

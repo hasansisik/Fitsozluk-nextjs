@@ -1,0 +1,58 @@
+[
+    {
+        "id": "1",
+        "content": "ülkemizde yaygın olarak pek çekiştirilmeyen ayrılamaz ikili. balık lezzetini tamamlamayı önemlilidir. yani sıra, balığın oldukça yüksek olduğunu unutmamak gerekir. helva yemek bu açıdan önemlilidir.",
+        "author": "bu başka bir şey mi?",
+        "date": "26.03.2013",
+        "time": "21:37",
+        "isSpecial": true
+    },
+    {
+        "id": "2",
+        "content": "biri bugün şöyle bir şey yazmış ki yazma \"can yücel yine okumuş\" şimdi kendisine can yücel'in ölüdüğünü söylesem, çektip acılarına yenisini eklemesinin tebalinı atacağımdan direkt listemden çıkardım. sanırım buna dayanabilir bi kadın ve bir bakar laf mı diye...",
+        "author": "bu#limskabulet",
+        "date": "02.08.2013",
+        "time": "15:52",
+        "isSpecial": false
+    },
+    {
+        "id": "3",
+        "content": "10 kasım 2022 anıtkabir'de yaşanan rezalet",
+        "author": "sober",
+        "date": "10.11.2022",
+        "time": "",
+        "isSpecial": false
+    },
+    {
+        "id": "4",
+        "content": "ülkemizde yaygın olarak pek çekiştirilmeyen ayrılamaz ikili. balık lezzetini tamamlamayı önemlilidir. yani sıra, balığın oldukça yüksek olduğunu unutmamak gerekir. helva yemek bu açıdan önemlilidir.",
+        "author": "yazaradi",
+        "date": "15.12.2025",
+        "time": "14:30",
+        "isSpecial": false
+    },
+    {
+        "id": "5",
+        "content": "erkeklerden kadınlara sorular başlığında çok güzel tartışmalar dönüyor. herkesin bir şeyler öğrendiği, paylaştığı güzel bir ortam.",
+        "author": "kullanici123",
+        "date": "16.12.2025",
+        "time": "09:15",
+        "isSpecial": false
+    },
+    {
+        "id": "6",
+        "content": "balık yedikten sonra helva yemenin sağlığa faydaları üzerine yapılan araştırmalar oldukça ilginç sonuçlar ortaya koyuyor.",
+        "author": "biliminsani",
+        "date": "14.12.2025",
+        "time": "18:45",
+        "isSpecial": false
+    },
+    {
+        "id": "7",
+        "content": "geleneksel türk mutfağında balık-helva ikilisi çok önemli bir yere sahiptir. özellikle kış aylarında bu kombinasyon tercih edilir.",
+        "author": "yemeksever",
+        "date": "13.12.2025",
+        "time": "12:20",
+        "isSpecial": false
+    }
+]
