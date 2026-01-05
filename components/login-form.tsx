@@ -39,8 +39,13 @@ export function LoginForm({
     const result = await dispatch(login({ email, password }))
 
     if (login.fulfilled.match(result)) {
-      // Login successful, redirect to dashboard
-      router.push("/dashboard")
+      // Login successful, redirect to user's profile page
+      const userNick = result.payload?.nick
+      if (userNick) {
+        router.push(`/biri/${userNick}`)
+      } else {
+        router.push("/")
+      }
     } else if (result.payload && typeof result.payload === 'object' && 'requiresVerification' in result.payload) {
       // User needs to verify email first
       router.push(`/dogrulama?email=${encodeURIComponent(email)}`)

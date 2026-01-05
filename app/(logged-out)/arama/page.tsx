@@ -41,11 +41,11 @@ export default function SearchPage() {
 
         // Search users
         usersData.forEach((user: any) => {
-            if (user.username.toLowerCase().includes(lowerQuery) ||
+            if ((user.nick || "").toLowerCase().includes(lowerQuery) ||
                 user.displayName.toLowerCase().includes(lowerQuery)) {
                 searchResults.push({
                     type: 'user',
-                    username: user.username,
+                    nick: user.nick,
                     displayName: user.displayName,
                     date: user.joinDate || "01.01.2024"
                 })
@@ -115,11 +115,11 @@ export default function SearchPage() {
                                                     </div>
                                                 </Link>
                                             ) : (
-                                                <Link href={`/biri/${result.username}`}>
+                                                <Link href={`/biri/${result.nick}`}>
                                                     <div className="flex items-start justify-between">
                                                         <div>
                                                             <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
-                                                                @{result.username}
+                                                                @{result.nick}
                                                             </h3>
                                                             <p className="text-sm text-muted-foreground mt-1">
                                                                 {result.displayName}

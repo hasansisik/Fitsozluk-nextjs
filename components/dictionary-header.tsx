@@ -80,11 +80,11 @@ export function DictionaryHeader() {
 
         // Search users
         usersData.forEach((user: any) => {
-            if (user.username.toLowerCase().includes(lowerQuery) ||
+            if (user.nick?.toLowerCase().includes(lowerQuery) ||
                 user.displayName.toLowerCase().includes(lowerQuery)) {
                 results.push({
                     type: 'user',
-                    username: user.username,
+                    nick: user.nick,
                     displayName: user.displayName
                 })
             }
@@ -269,7 +269,7 @@ export function DictionaryHeader() {
                                             {searchResults.map((result, index) => (
                                                 <Link
                                                     key={index}
-                                                    href={result.type === 'topic' ? `/baslik/${result.slug}` : `/biri/${result.username}`}
+                                                    href={result.type === 'topic' ? `/baslik/${result.slug}` : `/biri/${result.nick}`}
                                                     onClick={() => {
                                                         setShowSearchResults(false)
                                                         setSearchQuery("")
@@ -283,7 +283,7 @@ export function DictionaryHeader() {
                                                         </div>
                                                     ) : (
                                                         <div>
-                                                            <div className="text-sm font-medium text-foreground">@{result.username}</div>
+                                                            <div className="text-sm font-medium text-foreground">@{result.nick}</div>
                                                             <div className="text-xs text-muted-foreground mt-1">kullanıcı</div>
                                                         </div>
                                                     )}
@@ -301,7 +301,7 @@ export function DictionaryHeader() {
                                 // Logged in: Show profile and settings icons
                                 <>
                                     <Link
-                                        href={`/biri/${user.email?.split('@')[0] || 'user'}`}
+                                        href={`/biri/${user.nick}`}
                                         className="p-2 text-foreground hover:text-[#4729ff] transition-colors"
                                         title="Profilim"
                                     >
@@ -321,7 +321,7 @@ export function DictionaryHeader() {
                                         {showSettingsMenu && (
                                             <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[200px] z-50">
                                                 <Link
-                                                    href={`/biri/${user.email?.split('@')[0] || 'user'}`}
+                                                    href={`/biri/${user.nick}`}
                                                     className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
                                                     onClick={() => setShowSettingsMenu(false)}
                                                 >

@@ -21,9 +21,9 @@ export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug
         const end = textarea.selectionEnd
         const selectedText = content.substring(start, end)
         const newContent = content.substring(0, start) + before + selectedText + after + content.substring(end)
-        
+
         setContent(newContent)
-        
+
         // Set cursor position after insertion
         setTimeout(() => {
             textarea.focus()
@@ -46,7 +46,7 @@ export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug
         }
 
         const user = JSON.parse(mockUser)
-        
+
         // Create new entry with consistent date format
         const now = new Date()
         const day = String(now.getDate()).padStart(2, '0')
@@ -54,11 +54,11 @@ export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug
         const year = now.getFullYear()
         const hours = String(now.getHours()).padStart(2, '0')
         const minutes = String(now.getMinutes()).padStart(2, '0')
-        
+
         const newEntry = {
             id: `entry-${now.getTime()}`,
             content: content.trim(),
-            author: user.username,
+            author: user.nick,
             date: `${day}.${month}.${year}`,
             time: `${hours}:${minutes}`,
             isSpecial: false,
@@ -68,15 +68,15 @@ export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug
 
         // Get existing entries from localStorage or use empty array
         const existingEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-        
+
         // Add new entry to the beginning
         existingEntries.unshift(newEntry)
-        
+
         // Save to localStorage
         localStorage.setItem("userEntries", JSON.stringify(existingEntries))
-        
+
         setContent("")
-        
+
         // Call callback to refresh entries
         if (onEntrySubmit) {
             onEntrySubmit()

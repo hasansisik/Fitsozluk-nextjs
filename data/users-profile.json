@@ -1,7 +1,7 @@
 [
     {
         "id": "1",
-        "username": "bu başka bir şey mi?",
+        "nick": "bu başka bir şey mi?",
         "displayName": "bu başka bir şey mi?",
         "avatar": null,
         "badges": [],
@@ -24,7 +24,7 @@
     },
     {
         "id": "2",
-        "username": "bu#limskabulet",
+        "nick": "bu#limskabulet",
         "displayName": "bu#limskabulet",
         "avatar": null,
         "badges": [
@@ -46,7 +46,7 @@
     },
     {
         "id": "3",
-        "username": "sober",
+        "nick": "sober",
         "displayName": "sober",
         "avatar": null,
         "badges": [],
@@ -61,7 +61,7 @@
     },
     {
         "id": "4",
-        "username": "yazaradi",
+        "nick": "yazaradi",
         "displayName": "yazaradi",
         "avatar": null,
         "badges": [],
@@ -76,7 +76,7 @@
     },
     {
         "id": "5",
-        "username": "kullanici123",
+        "nick": "kullanici123",
         "displayName": "kullanici123",
         "avatar": null,
         "badges": [],
@@ -91,7 +91,7 @@
     },
     {
         "id": "6",
-        "username": "biliminsani",
+        "nick": "biliminsani",
         "displayName": "biliminsani",
         "avatar": null,
         "badges": [
@@ -113,7 +113,7 @@
     },
     {
         "id": "7",
-        "username": "yemeksever",
+        "nick": "yemeksever",
         "displayName": "yemeksever",
         "avatar": null,
         "badges": [],
@@ -128,7 +128,7 @@
     },
     {
         "id": "8",
-        "username": "white vinegar",
+        "nick": "white vinegar",
         "displayName": "white vinegar",
         "avatar": "/avatars/white-vinegar.jpg",
         "badges": [
@@ -176,7 +176,7 @@
     },
     {
         "id": "9",
-        "username": "tekbasinabirtekbas",
+        "nick": "tekbasinabirtekbas",
         "displayName": "Tek Başına Bir Tekbaş",
         "avatar": null,
         "badges": [

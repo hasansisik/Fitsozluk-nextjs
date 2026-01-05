@@ -36,7 +36,7 @@ export function EntryCard({ id, content, author, date, time, isSpecial, onDelete
 
         if (mockUser) {
             const user = JSON.parse(mockUser)
-            setCurrentUser(user.username)
+            setCurrentUser(user.nick)
         }
 
         // Check if this entry is liked
@@ -149,7 +149,7 @@ export function EntryCard({ id, content, author, date, time, isSpecial, onDelete
     const renderContent = () => {
         // Parse content for spoilers
         const spoilerRegex = /--\s*`spoiler`\s*--([\s\S]*?)--\s*`spoiler`\s*--/g
-        const parts: JSX.Element[] = []
+        const parts: React.ReactNode[] = []
         let lastIndex = 0
         let match
         let spoilerIndex = 0
