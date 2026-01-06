@@ -95,7 +95,7 @@ export default function TopicPage() {
                             {/* Left Column: Entries */}
                             <main className="flex-1 min-w-0">
                                 {/* Topic Header */}
-                                <div className="pb-2 sticky top-[6.5rem] bg-white z-20 border-b border-border/40 mb-4">
+                                <div className="pb-2 sticky top-[5.25rem] bg-white z-20 border-b border-border/40 mb-4 pt-2 -mt-2">
                                     <h1 className="text-lg lg:text-xl font-bold text-[#1a1a1a] leading-tight">
                                         {currentTopic?.title}
                                     </h1>
@@ -147,6 +147,20 @@ export default function TopicPage() {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Bottom Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="mt-8 pt-4 border-t border-border/40">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={(page) => {
+                                                setCurrentPage(page)
+                                                window.scrollTo({ top: 0, behavior: 'smooth' })
+                                            }}
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Entry Form */}
                                 {user && currentTopic && (
