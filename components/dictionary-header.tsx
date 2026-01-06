@@ -9,14 +9,12 @@ import topicsData from "@/data/topics.json"
 import usersData from "@/data/users-profile.json"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { loadUser, logout } from "@/redux/actions/userActions"
-import { getFeaturedMenus } from "@/redux/actions/menuActions"
 import { getFeaturedTopics } from "@/redux/actions/topicActions"
 
 export function DictionaryHeader() {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { user, isAuthenticated } = useAppSelector((state) => state.user)
-    const { featuredMenus, additionalMenus } = useAppSelector((state) => state.menu)
     const { featuredTopics, additionalTopics } = useAppSelector((state) => state.topic)
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -40,7 +38,6 @@ export function DictionaryHeader() {
         }
 
         // Load menus and topics from backend
-        dispatch(getFeaturedMenus())
         dispatch(getFeaturedTopics())
 
         // Click outside to close search results and filters
@@ -424,49 +421,6 @@ export function DictionaryHeader() {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
-            {mobileMenuOpen && (
-                <div className="md:hidden bg-white border-t border-border">
-                    <div className="px-6 py-4 space-y-3">
-                        {featuredMenus.map((menu) => (
-                            <Link
-                                key={menu._id}
-                                href={menu.href}
-                                className="block text-sm text-foreground hover:text-[#4729ff] transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                {menu.label}
-                            </Link>
-                        ))}
-                        {additionalMenus.map((menu) => (
-                            <Link
-                                key={menu._id}
-                                href={menu.href}
-                                className="block text-sm text-muted-foreground hover:text-[#4729ff] transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                {menu.label}
-                            </Link>
-                        ))}
-                        <div className="border-t border-border pt-3 mt-3 space-y-3">
-                            <Link
-                                href="/giris"
-                                className="block text-sm font-medium text-foreground hover:text-[#4729ff] transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                giriş
-                            </Link>
-                            <Link
-                                href="/kayitol"
-                                className="block text-sm font-medium text-[#4729ff] hover:text-[#3820cc] transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                kayıt ol
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            )}
         </header>
     )
 }
