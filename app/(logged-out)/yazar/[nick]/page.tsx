@@ -59,6 +59,7 @@ export default function UserProfilePage({ params }: PageProps) {
                 },
                 joinDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }) : "yeni",
                 bio: user.bio || "",
+                title: user.title,
                 entries: []
             }
         }
@@ -129,13 +130,13 @@ export default function UserProfilePage({ params }: PageProps) {
                     </main>
 
                     {/* Right Sidebar - Notes */}
-                    <div className="hidden xl:block w-80 border-l border-border">
+                    <div className="hidden xl:block w-80">
                         <div className="p-4">
                             <h3 className="text-sm font-medium text-foreground mb-3">notlar</h3>
                             <textarea
                                 value={noteText}
                                 onChange={(e) => setNoteText(e.target.value)}
-                                placeholder={isOwnProfile ? `${userData.nick} hakkındaki notlarım` : `${userData.nick} hakkındaki notlarım`}
+                                placeholder="yazar hakkındaki notlarım"
                                 className="w-full h-32 p-3 text-sm border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
                             />
                             <button

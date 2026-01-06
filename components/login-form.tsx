@@ -42,7 +42,7 @@ export function LoginForm({
       // Login successful, redirect to user's profile page
       const userNick = result.payload?.nick
       if (userNick) {
-        router.push(`/biri/${userNick}`)
+        router.push(`/yazar/${userNick}`)
       } else {
         router.push("/")
       }

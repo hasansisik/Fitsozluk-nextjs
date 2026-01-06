@@ -15,8 +15,9 @@ import {
   getAllUsers,
   deleteUser,
   updateUserRole,
-  updateTheme,
   clearError,
+  followUser,
+  unfollowUser,
 } from "../actions/userActions";
 
 interface UserState {
@@ -292,18 +293,17 @@ export const userReducer = createReducer(initialState, (builder) => {
       state.usersLoading = false;
       state.usersError = action.payload as string;
     })
-    // Update Theme - No loading state for instant UI updates
-    .addCase(updateTheme.pending, (state) => {
-      // No loading state - theme changes instantly
-    })
-    .addCase(updateTheme.fulfilled, (state, action) => {
-      // Update user theme silently
-      if (state.user) {
-        state.user.theme = action.payload.theme;
+    // Follow User
+    .addCase(followUser.fulfilled, (state, action) => {
+      if (state.user && state.user.following) {
+        state.user.following.push(action.payload.id);
       }
     })
-    .addCase(updateTheme.rejected, (state, action) => {
-      // Silent fail - don't show error to user
+    // Unfollow User
+    .addCase(unfollowUser.fulfilled, (state, action) => {
+      if (state.user && state.user.following) {
+        state.user.following = state.user.following.filter((id: string) => id !== action.payload.id);
+      }
     })
     // Clear Error
     .addCase(clearError.fulfilled, (state) => {

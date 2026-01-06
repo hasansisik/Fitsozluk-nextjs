@@ -115,7 +115,7 @@ export default function SearchPage() {
                                                     </div>
                                                 </Link>
                                             ) : (
-                                                <Link href={`/biri/${result.nick}`}>
+                                                <Link href={`/yazar/${result.nick}`}>
                                                     <div className="flex items-start justify-between">
                                                         <div>
                                                             <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">

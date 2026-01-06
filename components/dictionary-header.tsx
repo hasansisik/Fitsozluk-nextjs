@@ -313,7 +313,7 @@ export function DictionaryHeader() {
                                 // Logged in: Show profile and settings icons
                                 <>
                                     <Link
-                                        href={`/biri/${user.nick}`}
+                                        href={`/yazar/${user.nick}`}
                                         className="p-2 text-foreground hover:text-[#4729ff] transition-colors"
                                         title="Profilim"
                                     >
@@ -333,7 +333,7 @@ export function DictionaryHeader() {
                                         {showSettingsMenu && (
                                             <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[200px] z-50">
                                                 <Link
-                                                    href={`/biri/${user.nick}`}
+                                                    href={`/yazar/${user.nick}`}
                                                     className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
                                                     onClick={() => setShowSettingsMenu(false)}
                                                 >

@@ -304,7 +304,7 @@ export function EntryCard({
                         {/* Author Info */}
                         <div className="flex flex-col">
                             <Link
-                                href={`/biri/${encodeURIComponent(author)}`}
+                                href={`/yazar/${encodeURIComponent(author)}`}
                                 className="text-sm text-muted-foreground hover:text-[#4729ff] transition-colors"
                             >
                                 {author}

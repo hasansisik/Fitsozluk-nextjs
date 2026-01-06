@@ -152,7 +152,7 @@ export function TopicFilters({ topicTitle, topicCreator = "anonim" }: TopicFilte
                     {openDropdown === 'creator' && (
                         <div className="absolute top-full left-0 mt-1 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-10">
                             <Link
-                                href={`/biri/${encodeURIComponent(topicCreator)}`}
+                                href={`/yazar/${encodeURIComponent(topicCreator)}`}
                                 className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors"
                                 onClick={() => setOpenDropdown(null)}
                             >
