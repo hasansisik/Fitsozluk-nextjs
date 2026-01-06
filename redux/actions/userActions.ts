@@ -468,6 +468,19 @@ export const unfollowUser = createAsyncThunk(
   }
 );
 
+// Get User By Nick (Public)
+export const getUserByNick = createAsyncThunk(
+  "user/getUserByNick",
+  async (nick: string, thunkAPI) => {
+    try {
+      const { data } = await axios.get(`${server}/auth/users/${nick}`);
+      return data.user;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 // Clear Error Action
 export const clearError = createAsyncThunk(
   "user/clearError",

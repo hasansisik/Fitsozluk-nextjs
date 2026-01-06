@@ -44,44 +44,83 @@ export default function UserProfilePage({ params }: PageProps) {
         })
     }, [params, isAuthenticated, user])
 
+    // Fetch user data from backend
+    const [fetchedUser, setFetchedUser] = useState<any>(null)
+    const [userLoading, setUserLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (!nick) return
+
+            setUserLoading(true)
+            const normalizedNick = decodeURIComponent(nick).toLowerCase()
+
+            // 1. Check if viewing own profile
+            if (isAuthenticated && user && user.nick?.toLowerCase() === normalizedNick) {
+                setFetchedUser({
+                    id: user._id || "1",
+                    nick: user.nick || nick,
+                    displayName: user.nick || nick,
+                    picture: user.picture || null,
+                    badges: [],
+                    stats: {
+                        entryCount: 0,
+                        followerCount: user.followers?.length || 0,
+                        followingCount: user.following?.length || 0
+                    },
+                    joinDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }) : "yeni",
+                    bio: user.bio || "",
+                    title: user.title,
+                    entries: []
+                })
+                setUserLoading(false)
+                return
+            }
+
+            // 2. Try to fetch from backend
+            try {
+                const { getUserByNick } = await import('@/redux/actions/userActions')
+                const result = await dispatch(getUserByNick(decodeURIComponent(nick))).unwrap()
+
+                setFetchedUser({
+                    id: result._id,
+                    nick: result.nick,
+                    displayName: result.nick,
+                    picture: result.picture || null,
+                    badges: [],
+                    stats: {
+                        entryCount: 0,
+                        followerCount: result.followers?.length || 0,
+                        followingCount: result.following?.length || 0
+                    },
+                    joinDate: result.createdAt ? new Date(result.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }) : "yeni",
+                    bio: result.bio || "",
+                    title: result.title,
+                    entries: []
+                })
+            } catch (error) {
+                console.error("Error fetching user:", error)
+                // 3. Fallback to mock data
+                const mockUser = usersData.find(u => u.nick.toLowerCase() === normalizedNick)
+                if (mockUser) {
+                    setFetchedUser({
+                        ...mockUser,
+                        picture: mockUser.avatar
+                    })
+                } else {
+                    setFetchedUser(null)
+                }
+            }
+            setUserLoading(false)
+        }
+
+        fetchUserData()
+    }, [nick, isAuthenticated, user, dispatch])
+
     // 4. Create user data - Memoized to prevent re-calculations
     const userData = useMemo(() => {
-        if (!nick) return null
-
-        const normalizedNick = decodeURIComponent(nick).toLowerCase()
-
-        // 1. Try to match with authenticated user
-        if (isAuthenticated && user && user.nick?.toLowerCase() === normalizedNick) {
-            return {
-                id: user._id || "1",
-                nick: user.nick || nick,
-                displayName: user.nick || nick,
-                picture: user.picture || null,
-                badges: [],
-                stats: {
-                    entryCount: 0,
-                    followerCount: 0,
-                    followingCount: 0
-                },
-                joinDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }) : "yeni",
-                bio: user.bio || "",
-                title: user.title,
-                entries: []
-            }
-        }
-
-        // 2. Try to match with mock users
-        const mockUser = usersData.find(u => u.nick.toLowerCase() === normalizedNick)
-        if (mockUser) {
-            // Adapt mock user to UserProfileData format
-            return {
-                ...mockUser,
-                picture: mockUser.avatar // mock data uses 'avatar'
-            }
-        }
-
-        return null
-    }, [nick, isAuthenticated, user])
+        return fetchedUser
+    }, [fetchedUser])
 
     // 5. Detect if we are waiting for authentication (refreshing the page)
     const [isInitialAuthLoading, setIsInitialAuthLoading] = useState(true)
@@ -120,7 +159,7 @@ export default function UserProfilePage({ params }: PageProps) {
     }
 
     // FINAL RENDER LOGIC - Early returns only AFTER all hooks
-    if (loading || !nick || isInitialAuthLoading) {
+    if (loading || !nick || isInitialAuthLoading || userLoading) {
         return (
             <div className="w-full flex items-center justify-center min-h-[calc(100vh-6.5rem)] bg-white">
                 <div className="flex flex-col items-center gap-4">
