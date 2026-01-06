@@ -1,10 +1,13 @@
 "use client"
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
-import { UserInfoSidebar } from "@/components/user-info-sidebar"
+import { EntryCard } from "@/components/entry-card"
+import { TopAd } from "@/components/ads/top-ad"
+import { SidebarAd } from "@/components/ads/sidebar-ad"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getTopicsWithFirstEntry } from "@/redux/actions/topicActions"
+import { deleteEntry } from "@/redux/actions/entryActions"
 import Link from "next/link"
 import { Loader2, MessageSquare } from "lucide-react"
 
@@ -16,108 +19,86 @@ export default function Home() {
     dispatch(getTopicsWithFirstEntry(30))
   }, [dispatch])
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  }
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+  const handleDeleteEntry = async (entryId: string) => {
+    if (confirm("Bu entry'yi silmek istediğinize emin misiniz?")) {
+      await dispatch(deleteEntry(entryId))
+      dispatch(getTopicsWithFirstEntry(30))
+    }
   }
 
   return (
     <div className="w-full bg-white">
       <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-        <div className="flex min-h-[calc(100vh-6.5rem)]">
-          {/* Left Sidebar - Topics (Hidden on mobile) */}
+        <div className="flex min-h-[calc(100vh-6.5rem)] gap-8">
+          {/* Left Sidebar - Topics (Fixed Width) */}
           <div className="hidden lg:block">
             <TopicsSidebar />
           </div>
 
-          {/* Main Content Area */}
-          <main className="flex-1 w-full lg:max-w-4xl mx-auto bg-white">
-            <div className="border-b border-border px-4 lg:px-6 py-4">
-              <h1 className="text-xl lg:text-2xl font-normal text-foreground">
-                gündem
-              </h1>
-            </div>
+          {/* Right Section Group (Header Ad + Content/Sidebar) */}
+          <div className="flex-1 flex flex-col min-w-0">
 
-            {loading ? (
-              <div className="flex items-center justify-center py-24">
-                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {topics.map((topic: any) => (
-                  <div key={topic._id} className="py-6 px-4 lg:px-6 hover:bg-secondary/30 transition-colors">
-                    {/* Topic Title */}
-                    <Link href={`/baslik/${topic.slug}`}>
-                      <h2 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors mb-3 cursor-pointer">
-                        {topic.title}
-                      </h2>
-                    </Link>
+            {/* 1. Header Ad Area (Wide) */}
+            <TopAd />
 
-                    {/* First Entry */}
-                    {topic.firstEntry ? (
-                      <div className="space-y-3">
-                        <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                          {topic.firstEntry.content.length > 300
-                            ? `${topic.firstEntry.content.substring(0, 300)}...`
-                            : topic.firstEntry.content}
-                        </p>
+            {/* 2. Lower Area: 2 Columns (Listing + Right Ad) */}
+            <div className="flex gap-8">
 
-                        {/* Entry Footer */}
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <Link
-                              href={`/biri/${encodeURIComponent(topic.firstEntry.author.nick)}`}
-                              className="hover:text-[#4729ff] transition-colors"
-                            >
-                              {topic.firstEntry.author.nick}
-                            </Link>
-                            <span>•</span>
-                            <span>
-                              {formatDate(topic.firstEntry.createdAt)} {formatTime(topic.firstEntry.createdAt)}
-                            </span>
-                            {topic.firstEntry.favoriteCount > 0 && (
-                              <>
-                                <span>•</span>
-                                <span>❤️ {topic.firstEntry.favoriteCount}</span>
-                              </>
-                            )}
-                          </div>
-
-                          <Link
-                            href={`/baslik/${topic.slug}`}
-                            className="flex items-center gap-1 hover:text-[#4729ff] transition-colors"
-                          >
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            <span>{topic.entryCount}</span>
+              {/* Left Column: Listing */}
+              <main className="flex-1 min-w-0">
+                {loading ? (
+                  <div className="flex items-center justify-center py-24">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                  </div>
+                ) : (
+                  <div className="space-y-12">
+                    {topics.map((topic: any) => (
+                      <div key={topic._id} className="pb-4">
+                        {/* Topic Title */}
+                        <div className="mb-4">
+                          <Link href={`/${topic.slug}`} className="block group">
+                            <h2 className="text-xl lg:text-2xl font-bold text-[#1a1a1a] group-hover:text-[#4729ff] transition-colors cursor-pointer leading-tight">
+                              {topic.title}
+                            </h2>
                           </Link>
                         </div>
+
+                        {/* First Entry using EntryCard */}
+                        {topic.firstEntry ? (
+                          <div className="relative">
+                            <EntryCard
+                              id={topic.firstEntry._id}
+                              content={topic.firstEntry.content}
+                              author={topic.firstEntry.author.nick}
+                              date={new Date(topic.firstEntry.createdAt).toLocaleDateString('tr-TR')}
+                              time={new Date(topic.firstEntry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                              favoriteCount={topic.firstEntry.favoriteCount}
+                              onDelete={handleDeleteEntry}
+                              topicTitle={topic.title}
+                              topicSlug={topic.slug}
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground italic">
+                            Henüz entry yok
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground italic">
-                        Henüz entry yok
+                    ))}
+
+                    {topics.length === 0 && !loading && (
+                      <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                        <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
+                        <p className="text-sm">Henüz bir topic eklenmemiş.</p>
                       </div>
                     )}
                   </div>
-                ))}
-
-                {topics.length === 0 && !loading && (
-                  <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-                    <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
-                    <p className="text-sm">Henüz bir topic eklenmemiş.</p>
-                  </div>
                 )}
-              </div>
-            )}
-          </main>
+              </main>
 
-          {/* Right Sidebar - User Info (Hidden on mobile and tablet) */}
-          <div className="hidden xl:block">
-            <UserInfoSidebar />
+              {/* Right Column: Advertisement Sidebar Area */}
+              <SidebarAd />
+            </div>
           </div>
         </div>
       </div>

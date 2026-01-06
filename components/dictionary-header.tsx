@@ -105,7 +105,7 @@ export function DictionaryHeader() {
             {/* Top Row: Logo, Search, User Actions */}
             <div className="w-full bg-white">
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                    <div className="flex h-14 items-center relative">
+                    <div className="flex h-12 items-center relative">
                         {/* Logo */}
                         <Link href="/" className="mr-4 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
                             <div className="flex items-center">
@@ -269,7 +269,7 @@ export function DictionaryHeader() {
                                             {searchResults.map((result, index) => (
                                                 <Link
                                                     key={index}
-                                                    href={result.type === 'topic' ? `/baslik/${result.slug}` : `/biri/${result.nick}`}
+                                                    href={result.type === 'topic' ? `/${result.slug}` : `/biri/${result.nick}`}
                                                     onClick={() => {
                                                         setShowSearchResults(false)
                                                         setSearchQuery("")
@@ -378,7 +378,7 @@ export function DictionaryHeader() {
             {/* Bottom Row: Topic Navigation */}
             <div className="hidden md:block bg-white">
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                    <nav className="flex items-center justify-between h-10">
+                    <nav className="flex items-center justify-between h-9">
                         {/* Main Topics - Spread evenly across full width */}
                         {featuredMenus.map((menu) => (
                             <Link

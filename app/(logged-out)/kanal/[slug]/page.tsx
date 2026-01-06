@@ -2,9 +2,11 @@
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { UserInfoSidebar } from "@/components/user-info-sidebar"
+import { EntryCard } from "@/components/entry-card"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getTopicsWithFirstEntry } from "@/redux/actions/topicActions"
+import { deleteEntry } from "@/redux/actions/entryActions"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { Loader2, MessageSquare } from "lucide-react"
@@ -16,26 +18,21 @@ export default function ChannelPage() {
     const { topics, loading } = useAppSelector((state) => state.topic)
 
     useEffect(() => {
-        // In a real app, we would filter by channel slug here
-        // For now, we'll show the trending topics with entries
         dispatch(getTopicsWithFirstEntry(20))
     }, [dispatch, slug])
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    }
-
-    const formatTime = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+    const handleDeleteEntry = async (entryId: string) => {
+        if (confirm("Bu entry'yi silmek istediğinize emin misiniz?")) {
+            await dispatch(deleteEntry(entryId))
+            dispatch(getTopicsWithFirstEntry(20))
+        }
     }
 
     return (
         <div className="w-full bg-white">
             <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
                 <div className="flex min-h-[calc(100vh-6.5rem)]">
-                    {/* Left Sidebar - Topics */}
+                    {/* Left Sidebar - Topics (Hidden on mobile) */}
                     <div className="hidden lg:block">
                         <TopicsSidebar />
                     </div>
@@ -55,55 +52,42 @@ export default function ChannelPage() {
                         ) : (
                             <div className="divide-y divide-border">
                                 {topics.map((topic: any) => (
-                                    <div key={topic._id} className="py-6 px-4 lg:px-6 hover:bg-secondary/30 transition-colors">
+                                    <div key={topic._id} className="py-6 hover:bg-secondary/10 transition-colors">
                                         {/* Topic Title */}
-                                        <Link href={`/baslik/${topic.slug}`}>
-                                            <h2 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors mb-2 cursor-pointer">
-                                                {topic.title}
-                                            </h2>
-                                        </Link>
+                                        <div className="px-4 lg:px-6 mb-2">
+                                            <Link href={`/${topic.slug}`} className="block">
+                                                <h2 className="text-lg lg:text-xl font-bold text-foreground hover:text-[#4729ff] transition-colors cursor-pointer">
+                                                    {topic.title}
+                                                </h2>
+                                            </Link>
+                                        </div>
 
-                                        {/* First Entry */}
+                                        {/* First Entry using EntryCard */}
                                         {topic.firstEntry ? (
-                                            <div className="space-y-3">
-                                                <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                                                    {topic.firstEntry.content.length > 300
-                                                        ? `${topic.firstEntry.content.substring(0, 300)}...`
-                                                        : topic.firstEntry.content}
-                                                </p>
+                                            <div className="relative">
+                                                <EntryCard
+                                                    id={topic.firstEntry._id}
+                                                    content={topic.firstEntry.content}
+                                                    author={topic.firstEntry.author.nick}
+                                                    date={new Date(topic.firstEntry.createdAt).toLocaleDateString('tr-TR')}
+                                                    time={new Date(topic.firstEntry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                    favoriteCount={topic.firstEntry.favoriteCount}
+                                                    onDelete={handleDeleteEntry}
+                                                    topicTitle={topic.title}
+                                                    topicSlug={topic.slug}
+                                                />
 
-                                                {/* Entry Footer */}
-                                                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                                    <div className="flex items-center gap-2">
-                                                        <Link
-                                                            href={`/biri/${encodeURIComponent(topic.firstEntry.author.nick)}`}
-                                                            className="hover:text-[#4729ff] transition-colors"
-                                                        >
-                                                            {topic.firstEntry.author.nick}
-                                                        </Link>
-                                                        <span>•</span>
-                                                        <span>
-                                                            {formatDate(topic.firstEntry.createdAt)} {formatTime(topic.firstEntry.createdAt)}
-                                                        </span>
-                                                        {topic.firstEntry.favoriteCount > 0 && (
-                                                            <>
-                                                                <span>•</span>
-                                                                <span>❤️ {topic.firstEntry.favoriteCount}</span>
-                                                            </>
-                                                        )}
-                                                    </div>
-
-                                                    <Link
-                                                        href={`/baslik/${topic.slug}`}
-                                                        className="flex items-center gap-1 hover:text-[#4729ff] transition-colors"
-                                                    >
-                                                        <MessageSquare className="h-3.5 w-3.5" />
-                                                        <span>{topic.entryCount}</span>
-                                                    </Link>
-                                                </div>
+                                                {/* Entry Count Link */}
+                                                <Link
+                                                    href={`/${topic.slug}`}
+                                                    className="absolute right-6 bottom-4 flex items-center gap-1 text-xs text-muted-foreground hover:text-[#4729ff] transition-colors z-10"
+                                                >
+                                                    <MessageSquare className="h-3.5 w-3.5" />
+                                                    <span>{topic.entryCount}</span>
+                                                </Link>
                                             </div>
                                         ) : (
-                                            <div className="text-sm text-muted-foreground italic">
+                                            <div className="px-4 lg:px-6 text-sm text-muted-foreground italic">
                                                 Henüz entry yok
                                             </div>
                                         )}

@@ -496,7 +496,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                         {(isOwnProfile ? userEntries : userData.entries).length > 0 ? (
                             (isOwnProfile ? userEntries : userData.entries).map((entry: any) => (
                                 <div key={entry.id} className="mb-8">
-                                    <Link href={`/baslik/${entry.topicSlug || entry.topicTitle?.toLowerCase() || ''}`} className="text-base font-bold text-foreground hover:text-[#4729ff] block mb-2">{entry.topicTitle || entry.title}</Link>
+                                    <Link href={`/${entry.topicSlug || entry.topicTitle?.toLowerCase() || ''}`} className="text-base font-bold text-foreground hover:text-[#4729ff] block mb-2">{entry.topicTitle || entry.title}</Link>
                                     <div className="text-base text-foreground leading-relaxed whitespace-pre-wrap">{entry.content}</div>
                                 </div>
                             ))
@@ -513,7 +513,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                                 <div key={entry.id} className="mb-8">
                                     {entry.topicTitle && (
                                         <Link
-                                            href={`/baslik/${entry.topicSlug || entry.topicTitle.toLowerCase().replace(/\s+/g, '-')}`}
+                                            href={`/${entry.topicSlug || entry.topicTitle.toLowerCase().replace(/\s+/g, '-')}`}
                                             className="text-base font-bold text-foreground hover:text-[#4729ff] block mb-2"
                                         >
                                             {entry.topicTitle}

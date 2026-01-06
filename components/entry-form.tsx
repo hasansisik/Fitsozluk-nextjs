@@ -66,7 +66,7 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
     }
 
     return (
-        <div className="border-t border-border bg-[#f8f9fa] p-6">
+        <div className="p-6">
             {/* Entry count */}
             {remainingEntries > 0 && (
                 <div className="text-center text-sm text-muted-foreground mb-4">

@@ -15,7 +15,7 @@ export function TopicsSidebar() {
     }, [dispatch])
 
     return (
-        <aside className="w-64 border-r border-border h-[calc(100vh-6.5rem)] overflow-y-auto sticky top-[6.5rem]">
+        <aside className="w-64 bg-white h-[calc(100vh-6.5rem)] overflow-y-auto sticky top-[6.5rem]">
             <div className="p-4">
                 <h2 className="text-sm font-medium text-muted-foreground mb-4">gündem</h2>
 
@@ -28,7 +28,7 @@ export function TopicsSidebar() {
                         {topics.map((topic) => (
                             <li key={topic._id}>
                                 <Link
-                                    href={`/baslik/${topic.slug}`}
+                                    href={`/${topic.slug}`}
                                     className="flex items-start justify-between group hover:bg-secondary p-2 rounded-md transition-colors"
                                 >
                                     <span className="text-sm text-foreground group-hover:text-[#4729ff] transition-colors flex-1 leading-snug">

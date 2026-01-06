@@ -99,7 +99,7 @@ export default function SearchPage() {
                                     {results.map((result, index) => (
                                         <div key={index} className="bg-white border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
                                             {result.type === 'topic' ? (
-                                                <Link href={`/baslik/${result.slug}`}>
+                                                <Link href={`/${result.slug}`}>
                                                     <div className="flex items-start justify-between">
                                                         <div>
                                                             <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
