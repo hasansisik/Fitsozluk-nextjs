@@ -4,8 +4,8 @@ import { Node as TiptapNode } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
-import TextStyle from '@tiptap/extension-text-style';
-import Color from '@tiptap/extension-color';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
 import Link from '@tiptap/extension-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +39,7 @@ import {
   FileText,
   Music,
 } from 'lucide-react';
-import { uploadImageToCloudinary, uploadAudioToCloudinary, getCloudinarySettings } from '@/utils/cloudinary';
+import { uploadImageToCloudinary, uploadAudioToCloudinary, uploadRawToCloudinary } from '@/utils/cloudinary';
 
 interface RichTextEditorProps {
   content: string;
@@ -528,63 +528,7 @@ const PdfExtension = TiptapNode.create({
 
 // Helper function to upload PDF to Cloudinary using raw upload
 const uploadPdfToCloudinary = async (file: File): Promise<string> => {
-  // Refresh settings before upload to ensure we have the latest
-  await getCloudinarySettings();
-
-  // Get Cloudinary settings from the imported function
-  const { getCloudinarySettings: getSettings } = await import('@/utils/cloudinary');
-  await getSettings();
-
-  // Import crypto for signature generation
-  const crypto = await import('crypto');
-
-  // Get settings from Redux store
-  const { store } = await import('@/redux/store');
-  const { getGeneral } = await import('@/redux/actions/generalActions');
-
-  await store.dispatch(getGeneral());
-  const state = store.getState();
-  const { general } = state.general;
-
-  if (!general?.cloudinary?.cloudName || !general?.cloudinary?.apiKey || !general?.cloudinary?.apiSecret) {
-    throw new Error('Cloudinary credentials not found or invalid. Please check your settings.');
-  }
-
-  const CLOUD_NAME = general.cloudinary.cloudName;
-  const API_KEY = general.cloudinary.apiKey;
-  const API_SECRET = general.cloudinary.apiSecret;
-
-  return new Promise((resolve, reject) => {
-    const timestamp = Math.round(new Date().getTime() / 1000);
-
-    // Generate signature for raw upload
-    const str = `timestamp=${timestamp}${API_SECRET}`;
-    const signature = crypto.createHash('sha1').update(str).digest('hex');
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('api_key', API_KEY);
-    formData.append('timestamp', timestamp.toString());
-    formData.append('signature', signature);
-
-    // Use raw upload endpoint for PDFs
-    fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          reject(new Error(data.error.message));
-        } else {
-          resolve(data.secure_url);
-        }
-      })
-      .catch(error => {
-        console.error('PDF Upload error:', error);
-        reject(error);
-      });
-  });
+  return await uploadRawToCloudinary(file);
 };
 
 // Helper function to extract video ID from URLs
