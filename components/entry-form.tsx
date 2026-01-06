@@ -35,8 +35,14 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
         }, 0)
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            handleSubmit()
+        }
+    }
+
     const handleSubmit = async () => {
-        if (!content.trim()) {
+        if (!content.trim() || isSubmitting) {
             return
         }
 
@@ -66,43 +72,36 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
     }
 
     return (
-        <div className="p-6">
-            {/* Entry count */}
-            {remainingEntries > 0 && (
-                <div className="text-center text-sm text-muted-foreground mb-4">
-                    {remainingEntries} entry daha
-                </div>
-            )}
-
+        <div className="p-0">
             {/* Formatting toolbar */}
             <div className="flex gap-2 mb-3 flex-wrap">
                 <button
                     onClick={() => insertFormatting("(bkz: ", ")")}
-                    className="px-3 py-1.5 text-sm border border-border bg-white rounded hover:bg-secondary transition-colors"
+                    className="px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
                 >
                     (bkz:)
                 </button>
                 <button
                     onClick={() => insertFormatting("hede")}
-                    className="px-3 py-1.5 text-sm border border-border bg-white rounded hover:bg-secondary transition-colors"
+                    className="px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
                 >
                     hede
                 </button>
                 <button
                     onClick={() => insertFormatting("*", "*")}
-                    className="px-3 py-1.5 text-sm border border-border bg-white rounded hover:bg-secondary transition-colors"
+                    className="px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
                 >
                     *
                 </button>
                 <button
                     onClick={() => insertFormatting("-- `spoiler` --\n", "\n-- `spoiler` --")}
-                    className="px-3 py-1.5 text-sm border border-border bg-white rounded hover:bg-secondary transition-colors"
+                    className="px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
                 >
                     - spoiler -
                 </button>
                 <button
                     onClick={() => insertFormatting("http://")}
-                    className="px-3 py-1.5 text-sm border border-border bg-white rounded hover:bg-secondary transition-colors"
+                    className="px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
                 >
                     http://
                 </button>
@@ -113,19 +112,29 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder={`"${topicTitle}" hakkında bilgi verin`}
-                className="w-full min-h-[200px] p-4 text-sm border border-border rounded-md resize-y focus:outline-none focus:ring-2 focus:ring-[#4729ff] bg-white"
+                className="w-full min-h-[160px] p-4 text-sm border border-border rounded-md resize-y focus:outline-none focus:ring-1 focus:ring-[#4729ff] bg-white"
             />
 
             {/* Bottom controls */}
-            <div className="flex items-center justify-end mt-3">
+            <div className="flex items-center justify-between mt-3">
+                <div className="text-[10px] text-muted-foreground italic">
+                    (Ctrl/Cmd + Enter ile yayımla)
+                </div>
                 <button
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="px-6 py-2 bg-[#4729ff] text-white rounded-md text-sm font-medium hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    disabled={isSubmitting || !content.trim()}
+                    className="px-6 py-2 bg-[#4729ff] text-white rounded-md text-sm font-medium hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
                 >
-                    {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                    yayımla
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            gönderiliyor...
+                        </>
+                    ) : (
+                        "yayımla"
+                    )}
                 </button>
             </div>
         </div>
