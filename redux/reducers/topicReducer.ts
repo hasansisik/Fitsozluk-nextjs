@@ -3,6 +3,7 @@ import {
     getAllTopics,
     getTopic,
     getTopicBySlug,
+    getTrendingTopics,
     createTopic,
     updateTopic,
     deleteTopic,
@@ -68,6 +69,21 @@ export const topicReducer = createReducer(initialState, (builder) => {
             state.error = null;
         })
         .addCase(getTopicBySlug.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Get trending topics
+        .addCase(getTrendingTopics.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getTrendingTopics.fulfilled, (state, action) => {
+            state.loading = false;
+            state.topics = action.payload;
+            state.error = null;
+        })
+        .addCase(getTrendingTopics.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload as string;
         })

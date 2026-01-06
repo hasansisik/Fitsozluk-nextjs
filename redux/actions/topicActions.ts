@@ -7,6 +7,7 @@ export interface Topic {
     title: string;
     slug: string;
     description?: string;
+    entryCount: number;
     isActive: boolean;
     createdBy?: {
         _id: string;
@@ -74,6 +75,21 @@ export const getTopicBySlug = createAsyncThunk(
         try {
             const { data } = await axios.get(`${server}/topics/slug/${slug}`);
             return data.topic;
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
+// Get trending topics
+export const getTrendingTopics = createAsyncThunk(
+    "topic/getTrendingTopics",
+    async (limit: number = 20, thunkAPI) => {
+        try {
+            const { data } = await axios.get(`${server}/topics/trending?limit=${limit}`);
+            return data.topics;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message
