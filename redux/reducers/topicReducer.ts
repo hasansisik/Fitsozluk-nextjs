@@ -1,0 +1,149 @@
+import { createReducer } from "@reduxjs/toolkit";
+import {
+    getAllTopics,
+    getFeaturedTopics,
+    getTopic,
+    createTopic,
+    updateTopic,
+    deleteTopic,
+    reorderTopics,
+    Topic
+} from "../actions/topicActions";
+
+interface TopicState {
+    topics: Topic[];
+    featuredTopics: Topic[];
+    additionalTopics: Topic[];
+    currentTopic: Topic | null;
+    loading: boolean;
+    error: string | null;
+    message: string | null;
+}
+
+const initialState: TopicState = {
+    topics: [],
+    featuredTopics: [],
+    additionalTopics: [],
+    currentTopic: null,
+    loading: false,
+    error: null,
+    message: null,
+};
+
+export const topicReducer = createReducer(initialState, (builder) => {
+    builder
+        // Get all topics
+        .addCase(getAllTopics.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getAllTopics.fulfilled, (state, action) => {
+            state.loading = false;
+            state.topics = action.payload;
+            state.error = null;
+        })
+        .addCase(getAllTopics.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Get featured topics
+        .addCase(getFeaturedTopics.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getFeaturedTopics.fulfilled, (state, action) => {
+            state.loading = false;
+            state.featuredTopics = action.payload.featuredTopics;
+            state.additionalTopics = action.payload.additionalTopics;
+            state.error = null;
+        })
+        .addCase(getFeaturedTopics.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Get single topic
+        .addCase(getTopic.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getTopic.fulfilled, (state, action) => {
+            state.loading = false;
+            state.currentTopic = action.payload;
+            state.error = null;
+        })
+        .addCase(getTopic.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Create topic
+        .addCase(createTopic.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(createTopic.fulfilled, (state, action) => {
+            state.loading = false;
+            state.topics.push(action.payload);
+            state.message = "Başlık başarıyla oluşturuldu";
+            state.error = null;
+        })
+        .addCase(createTopic.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Update topic
+        .addCase(updateTopic.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(updateTopic.fulfilled, (state, action) => {
+            state.loading = false;
+            const index = state.topics.findIndex(t => t._id === action.payload._id);
+            if (index !== -1) {
+                state.topics[index] = action.payload;
+            }
+            state.message = "Başlık başarıyla güncellendi";
+            state.error = null;
+        })
+        .addCase(updateTopic.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Delete topic
+        .addCase(deleteTopic.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(deleteTopic.fulfilled, (state, action) => {
+            state.loading = false;
+            state.topics = state.topics.filter(t => t._id !== action.payload);
+            state.message = "Başlık başarıyla silindi";
+            state.error = null;
+        })
+        .addCase(deleteTopic.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Reorder topics
+        .addCase(reorderTopics.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(reorderTopics.fulfilled, (state, action) => {
+            state.loading = false;
+            state.topics = action.payload;
+            state.message = "Başlıklar başarıyla sıralandı";
+            state.error = null;
+        })
+        .addCase(reorderTopics.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        });
+});
+
+export default topicReducer;

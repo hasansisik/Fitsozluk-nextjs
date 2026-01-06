@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Home, Menu as MenuIcon } from "lucide-react"
+import { Home, Menu as MenuIcon, List } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { useAppSelector } from "@/redux/hook"
@@ -17,6 +17,7 @@ import {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAppSelector((state) => state.user)
+  console.log("user",user)
 
   const navMain = [
     {
@@ -25,13 +26,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Home,
       isActive: true,
     },
-    // Only show menu management if user is loaded and is admin
-    ...(!loading && user?.role === "admin" ? [{
-      title: "Menü Yönetimi",
-      url: "/dashboard/menus",
-      icon: MenuIcon,
+    {
+      title: "Başlıklar",
+      url: "/dashboard/basliklar",
+      icon: List,
       isActive: false,
-    }] : []),
+    }
   ]
 
   const userData = {
