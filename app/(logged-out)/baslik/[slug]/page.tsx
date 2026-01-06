@@ -3,66 +3,67 @@
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { EntryCard } from "@/components/entry-card"
 import { EntryForm } from "@/components/entry-form"
-import { Pagination } from "@/components/pagination"
-import { TopicFilters } from "@/components/topic-filters"
-import topicsData from "@/data/topics.json"
-import { notFound } from "next/navigation"
+import { UserInfoSidebar } from "@/components/user-info-sidebar"
 import { useEffect, useState } from "react"
+import { useAppDispatch, useAppSelector } from "@/redux/hook"
+import { getTopicBySlug } from "@/redux/actions/topicActions"
+import { getEntriesByTopic, deleteEntry } from "@/redux/actions/entryActions"
+import { useParams, notFound } from "next/navigation"
+import { Loader2, MessageSquare } from "lucide-react"
 
-interface PageProps {
-    params: Promise<{
-        slug: string
-    }>
-}
+export default function TopicPage() {
+    const params = useParams()
+    const slug = params.slug as string
+    const dispatch = useAppDispatch()
 
-export default function TopicPage({ params }: PageProps) {
-    const [slug, setSlug] = useState<string>("")
-    const [user, setUser] = useState<any>(null)
-    const [allEntries, setAllEntries] = useState<any[]>([])
-    const [isMounted, setIsMounted] = useState(false)
-    const [currentPage, setCurrentPage] = useState(1)
-    const entriesPerPage = 10
-
-    // Scroll to top when page changes
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, [currentPage])
-
-    const loadEntries = (topicSlug: string, topicEntries: any[]) => {
-        const userEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-        const topicUserEntries = userEntries.filter((entry: any) => entry.topicSlug === topicSlug)
-        const merged = [...topicUserEntries, ...topicEntries]
-        setAllEntries(merged)
-    }
-
-    const handleDeleteEntry = (entryId: string) => {
-        const userEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-        const filtered = userEntries.filter((entry: any) => entry.id !== entryId)
-        localStorage.setItem("userEntries", JSON.stringify(filtered))
-        const topic = topicsData.find((t) => t.slug === slug)
-        if (topic) loadEntries(slug, topic.entries)
-    }
+    const { currentTopic, loading: topicLoading, error: topicError } = useAppSelector((state) => state.topic)
+    const { entries, loading: entriesLoading } = useAppSelector((state) => state.entry)
+    const { user } = useAppSelector((state) => state.user)
 
     useEffect(() => {
-        setIsMounted(true)
-        params.then(({ slug: topicSlug }) => {
-            setSlug(topicSlug)
-            const topic = topicsData.find((t) => t.slug === topicSlug)
-            if (topic) loadEntries(topicSlug, topic.entries)
-        })
-        const mockUser = localStorage.getItem("mockUser")
-        if (mockUser) setUser(JSON.parse(mockUser))
-    }, [params])
+        if (slug) {
+            dispatch(getTopicBySlug(slug)).then((result: any) => {
+                if (result.payload && result.payload._id) {
+                    dispatch(getEntriesByTopic(result.payload._id))
+                }
+            })
+        }
+    }, [slug, dispatch])
 
-    if (!slug || !isMounted) {
-        return <div>Yükleniyor...</div>
+    const handleEntrySubmit = () => {
+        if (currentTopic) {
+            dispatch(getEntriesByTopic(currentTopic._id))
+        }
     }
 
-    // Find topic by slug
-    const topic = topicsData.find((t) => t.slug === slug)
+    const handleDeleteEntry = async (entryId: string) => {
+        if (confirm("Bu entry'yi silmek istediğinize emin misiniz?")) {
+            await dispatch(deleteEntry(entryId))
+            if (currentTopic) {
+                dispatch(getEntriesByTopic(currentTopic._id))
+            }
+        }
+    }
 
-    if (!topic) {
-        notFound()
+    if (topicLoading && !currentTopic) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+            </div>
+        )
+    }
+
+    // Only show 404 if loading is finished, there is an error, or currentTopic is still null after attempt
+    if (!topicLoading && topicError) {
+        return notFound()
+    }
+
+    if (!currentTopic && !topicLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+            </div>
+        )
     }
 
     return (
@@ -77,74 +78,61 @@ export default function TopicPage({ params }: PageProps) {
                     {/* Main Content Area */}
                     <main className="flex-1 w-full lg:max-w-4xl mx-auto bg-white">
                         {/* Topic Header */}
-                        <div className="border-b border-border px-6 py-4">
-                            <h1 className="text-xl font-bold text-foreground mb-1">
-                                {topic.title}
+                        <div className="border-b border-border px-4 lg:px-6 py-4 sticky top-[6.5rem] bg-white z-10">
+                            <h1 className="text-xl lg:text-2xl font-bold text-foreground">
+                                {currentTopic?.title}
                             </h1>
-                            <p className="text-xs text-muted-foreground">
-                                {topic.entryCount} entry
-                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-muted-foreground">
+                                    {currentTopic?.entryCount || entries.length} entry
+                                </span>
+                            </div>
                         </div>
 
-                        {/* Topic Filters */}
-                        <TopicFilters topicTitle={topic.title} topicCreator="anonim" />
-
-                        {/* Pagination - Top */}
-                        {allEntries.length > entriesPerPage && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={Math.ceil(allEntries.length / entriesPerPage)}
-                                onPageChange={setCurrentPage}
-                            />
-                        )}
-
-                        {/* Entries */}
-                        <div className="px-6">
-                            {allEntries
-                                .slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
-                                .map((entry) => (
+                        {/* Entries List */}
+                        <div className="divide-y divide-border">
+                            {entriesLoading && entries.length === 0 ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <Loader2 className="h-6 w-6 animate-spin text-[#4729ff]" />
+                                </div>
+                            ) : entries.length > 0 ? (
+                                entries.map((entry) => (
                                     <EntryCard
-                                        key={entry.id}
-                                        id={entry.id}
+                                        key={entry._id}
+                                        id={entry._id}
                                         content={entry.content}
-                                        author={entry.author}
-                                        date={entry.date}
-                                        time={entry.time}
-                                        isSpecial={entry.isSpecial}
+                                        author={entry.author.nick}
+                                        date={new Date(entry.createdAt || "").toLocaleDateString('tr-TR')}
+                                        time={new Date(entry.createdAt || "").toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                        favoriteCount={entry.favoriteCount}
                                         onDelete={handleDeleteEntry}
-                                        topicTitle={topic.title}
-                                        topicSlug={topic.slug}
+                                        topicTitle={currentTopic?.title}
+                                        topicSlug={currentTopic?.slug}
                                     />
-                                ))}
+                                ))
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                                    <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
+                                    <p className="text-sm">Henüz bir entry yazılmamış. İlkini sen yaz!</p>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Pagination */}
-                        {allEntries.length > entriesPerPage && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={Math.ceil(allEntries.length / entriesPerPage)}
-                                onPageChange={setCurrentPage}
-                            />
-                        )}
-
-                        {/* Entry Form - Only for logged-in users */}
-                        {user && (
-                            <EntryForm
-                                topicTitle={topic.title}
-                                topicSlug={topic.slug}
-                                remainingEntries={topic.entryCount}
-                                onEntrySubmit={() => loadEntries(slug, topic.entries)}
-                            />
+                        {/* Entry Form - Bottom */}
+                        {user && currentTopic && (
+                            <div className="mt-8 border-t border-border bg-gray-50/50 p-4 lg:p-6">
+                                <EntryForm
+                                    topicTitle={currentTopic.title}
+                                    topicId={currentTopic._id}
+                                    onEntrySubmit={handleEntrySubmit}
+                                />
+                            </div>
                         )}
                     </main>
 
-                    {/* Right Sidebar - Ad Space */}
-                    <div className="hidden xl:block w-80">
-                        <div className="p-4">
-                            <div className="bg-secondary h-64 flex items-center justify-center text-muted-foreground text-sm">
-                                reklam alanı
-                            </div>
-                        </div>
+                    {/* Right Sidebar */}
+                    <div className="hidden xl:block">
+                        <UserInfoSidebar />
                     </div>
                 </div>
             </div>

@@ -1,17 +1,20 @@
-"use client"
-
 import { useState, useRef } from "react"
+import { useAppDispatch } from "@/redux/hook"
+import { createEntry } from "@/redux/actions/entryActions"
+import { Loader2 } from "lucide-react"
 
 interface EntryFormProps {
     topicTitle?: string
-    topicSlug?: string
+    topicId?: string
     remainingEntries?: number
     onEntrySubmit?: () => void
 }
 
-export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug = "", remainingEntries = 83, onEntrySubmit }: EntryFormProps) {
+export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0, onEntrySubmit }: EntryFormProps) {
     const [content, setContent] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const dispatch = useAppDispatch()
 
     const insertFormatting = (before: string, after: string = "") => {
         const textarea = textareaRef.current
@@ -32,54 +35,33 @@ export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug
         }, 0)
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!content.trim()) {
-            alert("Entry içeriği boş olamaz!")
             return
         }
 
-        // Get current user
-        const mockUser = localStorage.getItem("mockUser")
-        if (!mockUser) {
-            alert("Giriş yapmalısınız!")
+        if (!topicId) {
+            alert("Başlık bilgisi bulunamadı!")
             return
         }
 
-        const user = JSON.parse(mockUser)
+        setIsSubmitting(true)
+        try {
+            const result = await dispatch(createEntry({
+                content: content.trim(),
+                topic: topicId
+            })).unwrap()
 
-        // Create new entry with consistent date format
-        const now = new Date()
-        const day = String(now.getDate()).padStart(2, '0')
-        const month = String(now.getMonth() + 1).padStart(2, '0')
-        const year = now.getFullYear()
-        const hours = String(now.getHours()).padStart(2, '0')
-        const minutes = String(now.getMinutes()).padStart(2, '0')
-
-        const newEntry = {
-            id: `entry-${now.getTime()}`,
-            content: content.trim(),
-            author: user.nick,
-            date: `${day}.${month}.${year}`,
-            time: `${hours}:${minutes}`,
-            isSpecial: false,
-            topicTitle: topicTitle,
-            topicSlug: topicSlug
-        }
-
-        // Get existing entries from localStorage or use empty array
-        const existingEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-
-        // Add new entry to the beginning
-        existingEntries.unshift(newEntry)
-
-        // Save to localStorage
-        localStorage.setItem("userEntries", JSON.stringify(existingEntries))
-
-        setContent("")
-
-        // Call callback to refresh entries
-        if (onEntrySubmit) {
-            onEntrySubmit()
+            if (result) {
+                setContent("")
+                if (onEntrySubmit) {
+                    onEntrySubmit()
+                }
+            }
+        } catch (error: any) {
+            alert(error || "Entry gönderilirken bir hata oluştu.")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -139,8 +121,10 @@ export function EntryForm({ topicTitle = "kedisiz sokaklar istiyoruz", topicSlug
             <div className="flex items-center justify-end mt-3">
                 <button
                     onClick={handleSubmit}
-                    className="px-6 py-2 bg-[#4729ff] text-white rounded-md text-sm font-medium hover:bg-[#3820cc] transition-colors"
+                    disabled={isSubmitting}
+                    className="px-6 py-2 bg-[#4729ff] text-white rounded-md text-sm font-medium hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
+                    {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                     yayımla
                 </button>
             </div>

@@ -1,84 +1,29 @@
 "use client"
 
-import { TopicsSidebar } from "@/components/topics-sidebar";
-import { EntryCard } from "@/components/entry-card";
-import { UserInfoSidebar } from "@/components/user-info-sidebar";
-import { EntryForm } from "@/components/entry-form";
-import { Pagination } from "@/components/pagination";
-import entriesData from "@/data/entries.json";
-import { useEffect, useState } from "react";
+import { TopicsSidebar } from "@/components/topics-sidebar"
+import { UserInfoSidebar } from "@/components/user-info-sidebar"
+import { useEffect } from "react"
+import { useAppDispatch, useAppSelector } from "@/redux/hook"
+import { getTopicsWithFirstEntry } from "@/redux/actions/topicActions"
+import Link from "next/link"
+import { Loader2, MessageSquare } from "lucide-react"
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [allEntries, setAllEntries] = useState<any[]>([])
-  const [isMounted, setIsMounted] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const entriesPerPage = 10
-
-  // Scroll to top when page changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [currentPage])
-
-  const loadEntries = () => {
-    // Load user entries from localStorage
-    const userEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-
-    // Filter entries for this topic (home page shows "balık yedikten sonra helva yemek")
-    const topicEntries = userEntries.filter((entry: any) =>
-      entry.topicSlug === "balik-yedikten-sonra-helva-yemek"
-    )
-
-    // Merge user entries with existing entries
-    const merged = [...topicEntries, ...entriesData]
-    setAllEntries(merged)
-  }
-
-  const handleDeleteEntry = (entryId: string) => {
-    const userEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-    const filtered = userEntries.filter((entry: any) => entry.id !== entryId)
-    localStorage.setItem("userEntries", JSON.stringify(filtered))
-    loadEntries()
-  }
+  const dispatch = useAppDispatch()
+  const { topics, loading } = useAppSelector((state) => state.topic)
 
   useEffect(() => {
-    setIsMounted(true)
+    dispatch(getTopicsWithFirstEntry(30))
+  }, [dispatch])
 
-    // Check if user is logged in
-    const mockUser = localStorage.getItem("mockUser")
-    if (mockUser) {
-      setUser(JSON.parse(mockUser))
-    }
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  }
 
-    loadEntries()
-
-    setIsLoading(false)
-
-    // Listen for storage changes (logout from header)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "mockUser" && !e.newValue) {
-        setUser(null)
-      }
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-
-    // Also listen for custom logout event
-    const handleLogout = () => {
-      setUser(null)
-    }
-
-    window.addEventListener("userLogout", handleLogout)
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange)
-      window.removeEventListener("userLogout", handleLogout)
-    }
-  }, [])
-
-  if (isLoading || !isMounted) {
-    return <div>Yükleniyor...</div>
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
   }
 
   return (
@@ -94,53 +39,79 @@ export default function Home() {
           <main className="flex-1 w-full lg:max-w-4xl mx-auto bg-white">
             <div className="border-b border-border px-4 lg:px-6 py-4">
               <h1 className="text-xl lg:text-2xl font-normal text-foreground">
-                balık yedikten sonra helva yemek
+                gündem
               </h1>
             </div>
 
-            {/* Pagination - Top */}
-            {allEntries.length > entriesPerPage && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(allEntries.length / entriesPerPage)}
-                onPageChange={setCurrentPage}
-              />
-            )}
+            {loading ? (
+              <div className="flex items-center justify-center py-24">
+                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {topics.map((topic: any) => (
+                  <div key={topic._id} className="py-6 px-4 lg:px-6 hover:bg-secondary/30 transition-colors">
+                    {/* Topic Title */}
+                    <Link href={`/baslik/${topic.slug}`}>
+                      <h2 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors mb-3 cursor-pointer">
+                        {topic.title}
+                      </h2>
+                    </Link>
 
-            <div className="px-4 lg:px-6">
-              {allEntries
-                .slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
-                .map((entry) => (
-                  <EntryCard
-                    key={entry.id}
-                    id={entry.id}
-                    content={entry.content}
-                    author={entry.author}
-                    date={entry.date}
-                    time={entry.time}
-                    isSpecial={entry.isSpecial}
-                    onDelete={handleDeleteEntry}
-                  />
+                    {/* First Entry */}
+                    {topic.firstEntry ? (
+                      <div className="space-y-3">
+                        <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                          {topic.firstEntry.content.length > 300
+                            ? `${topic.firstEntry.content.substring(0, 300)}...`
+                            : topic.firstEntry.content}
+                        </p>
+
+                        {/* Entry Footer */}
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/biri/${encodeURIComponent(topic.firstEntry.author.nick)}`}
+                              className="hover:text-[#4729ff] transition-colors"
+                            >
+                              {topic.firstEntry.author.nick}
+                            </Link>
+                            <span>•</span>
+                            <span>
+                              {formatDate(topic.firstEntry.createdAt)} {formatTime(topic.firstEntry.createdAt)}
+                            </span>
+                            {topic.firstEntry.favoriteCount > 0 && (
+                              <>
+                                <span>•</span>
+                                <span>❤️ {topic.firstEntry.favoriteCount}</span>
+                              </>
+                            )}
+                          </div>
+
+                          <Link
+                            href={`/baslik/${topic.slug}`}
+                            className="flex items-center gap-1 hover:text-[#4729ff] transition-colors"
+                          >
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            <span>{topic.entryCount}</span>
+                          </Link>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground italic">
+                        Henüz entry yok
+                      </div>
+                    )}
+                  </div>
                 ))}
-            </div>
 
-            {/* Pagination */}
-            {allEntries.length > entriesPerPage && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(allEntries.length / entriesPerPage)}
-                onPageChange={setCurrentPage}
-              />
-            )}
-
-            {/* Entry Form - Only for logged-in users */}
-            {user && (
-              <EntryForm
-                topicTitle="balık yedikten sonra helva yemek"
-                topicSlug="balik-yedikten-sonra-helva-yemek"
-                remainingEntries={83}
-                onEntrySubmit={loadEntries}
-              />
+                {topics.length === 0 && !loading && (
+                  <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                    <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
+                    <p className="text-sm">Henüz bir topic eklenmemiş.</p>
+                  </div>
+                )}
+              </div>
             )}
           </main>
 
@@ -151,5 +122,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -98,6 +98,21 @@ export const getTrendingTopics = createAsyncThunk(
     }
 );
 
+// Get topics with first entry
+export const getTopicsWithFirstEntry = createAsyncThunk(
+    "topic/getTopicsWithFirstEntry",
+    async (limit: number = 20, thunkAPI) => {
+        try {
+            const { data } = await axios.get(`${server}/topics/with-entries?limit=${limit}`);
+            return data.topics;
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
 // Create topic
 export const createTopic = createAsyncThunk(
     "topic/createTopic",

@@ -1,224 +1,121 @@
 "use client"
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
-import { EntryCard } from "@/components/entry-card"
-import { EntryForm } from "@/components/entry-form"
-import { notFound } from "next/navigation"
-import { useEffect, useState } from "react"
+import { UserInfoSidebar } from "@/components/user-info-sidebar"
+import { useEffect } from "react"
+import { useAppDispatch, useAppSelector } from "@/redux/hook"
+import { getTopicsWithFirstEntry } from "@/redux/actions/topicActions"
+import { useParams } from "next/navigation"
+import Link from "next/link"
+import { Loader2, MessageSquare } from "lucide-react"
 
-interface PageProps {
-    params: Promise<{
-        slug: string
-    }>
-}
-
-const channelData: Record<string, { title: string; entries: any[] }> = {
-    spor: {
-        title: "#spor",
-        entries: [
-            {
-                id: "1",
-                content: "futbol maçı sonrası yapılan yorumlar çok ilginçti. özellikle taktik analizi çok başarılıydı.",
-                author: "sober",
-                date: "17.12.2025",
-                time: "14:30",
-                isSpecial: false
-            },
-            {
-                id: "2",
-                content: "basketbol finalini izlemek harikaydı. son saniyedeki basket inanılmazdı.",
-                author: "kullanici123",
-                date: "17.12.2025",
-                time: "15:20",
-                isSpecial: false
-            }
-        ]
-    },
-    iliskiler: {
-        title: "#ilişkiler",
-        entries: [
-            {
-                id: "1",
-                content: "uzun mesafeli ilişkilerin zorlukları hakkında çok güzel yazmışsınız. teşekkürler.",
-                author: "bu başka bir şey mi?",
-                date: "17.12.2025",
-                time: "11:00",
-                isSpecial: false
-            },
-            {
-                id: "2",
-                content: "iletişimin önemi gerçekten çok büyük. bunu vurgulaman çok iyi olmuş.",
-                author: "biliminsani",
-                date: "17.12.2025",
-                time: "12:15",
-                isSpecial: false
-            }
-        ]
-    },
-    siyaset: {
-        title: "#siyaset",
-        entries: [
-            {
-                id: "1",
-                content: "güncel siyasi gelişmeler hakkında objektif bir analiz. eline sağlık.",
-                author: "yazaradi",
-                date: "17.12.2025",
-                time: "09:00",
-                isSpecial: false
-            }
-        ]
-    },
-    yasam: {
-        title: "#yaşam",
-        entries: [
-            {
-                id: "1",
-                content: "minimalist yaşam tarzı hakkında çok güzel bilgiler vermişsiniz. teşekkürler.",
-                author: "yemeksever",
-                date: "17.12.2025",
-                time: "13:45",
-                isSpecial: false
-            },
-            {
-                id: "2",
-                content: "sağlıklı beslenme alışkanlıkları kazanmak için harika öneriler.",
-                author: "biliminsani",
-                date: "17.12.2025",
-                time: "14:00",
-                isSpecial: false
-            }
-        ]
-    },
-    tarih: {
-        title: "#tarih",
-        entries: [
-            {
-                id: "1",
-                content: "osmanlı dönemi hakkında çok detaylı bilgi vermişsiniz. harika bir kaynak.",
-                author: "sober",
-                date: "17.12.2025",
-                time: "10:30",
-                isSpecial: false
-            }
-        ]
-    },
-    bilim: {
-        title: "#bilim",
-        entries: [
-            {
-                id: "1",
-                content: "kuantum fiziği hakkında anlaşılır bir anlatım. tebrikler.",
-                author: "biliminsani",
-                date: "17.12.2025",
-                time: "11:30",
-                isSpecial: false
-            }
-        ]
-    },
-    edebiyat: {
-        title: "#edebiyat",
-        entries: [
-            {
-                id: "1",
-                content: "türk edebiyatının önemli eserleri hakkında güzel bir derleme.",
-                author: "bu başka bir şey mi?",
-                date: "17.12.2025",
-                time: "12:00",
-                isSpecial: false
-            }
-        ]
-    },
-    teknoloji: {
-        title: "#teknoloji",
-        entries: [
-            {
-                id: "1",
-                content: "yapay zeka gelişmeleri hakkında güncel bilgiler. çok faydalı.",
-                author: "kullanici123",
-                date: "17.12.2025",
-                time: "13:00",
-                isSpecial: false
-            }
-        ]
-    }
-}
-
-export default function ChannelPage({ params }: PageProps) {
-    const [slug, setSlug] = useState<string>("")
-    const [user, setUser] = useState<any>(null)
+export default function ChannelPage() {
+    const params = useParams()
+    const slug = params.slug as string
+    const dispatch = useAppDispatch()
+    const { topics, loading } = useAppSelector((state) => state.topic)
 
     useEffect(() => {
-        params.then(({ slug: channelSlug }) => {
-            setSlug(channelSlug)
-        })
+        // In a real app, we would filter by channel slug here
+        // For now, we'll show the trending topics with entries
+        dispatch(getTopicsWithFirstEntry(20))
+    }, [dispatch, slug])
 
-        // Check if user is logged in
-        const mockUser = localStorage.getItem("mockUser")
-        if (mockUser) {
-            setUser(JSON.parse(mockUser))
-        }
-    }, [params])
-
-    if (!slug) {
-        return <div>Yükleniyor...</div>
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' })
     }
 
-    const channel = channelData[slug]
-
-    if (!channel) {
-        notFound()
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString)
+        return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
     }
 
     return (
         <div className="w-full bg-white">
             <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
                 <div className="flex min-h-[calc(100vh-6.5rem)]">
-                    {/* Left Sidebar */}
+                    {/* Left Sidebar - Topics */}
                     <div className="hidden lg:block">
                         <TopicsSidebar />
                     </div>
 
-                    {/* Main Content */}
+                    {/* Main Content Area */}
                     <main className="flex-1 w-full lg:max-w-4xl mx-auto bg-white">
-                        <div className="border-b border-border px-6 py-4">
-                            <h1 className="text-xl font-bold text-foreground mb-1">
-                                {channel.title}
+                        <div className="border-b border-border px-4 lg:px-6 py-4">
+                            <h1 className="text-xl lg:text-2xl font-bold text-foreground">
+                                #{slug}
                             </h1>
-                            <p className="text-xs text-muted-foreground">
-                                {channel.entries.length} entry
-                            </p>
                         </div>
 
-                        <div className="px-6">
-                            {channel.entries.map((entry) => (
-                                <EntryCard
-                                    key={entry.id}
-                                    id={entry.id}
-                                    content={entry.content}
-                                    author={entry.author}
-                                    date={entry.date}
-                                    time={entry.time}
-                                    isSpecial={entry.isSpecial}
-                                />
-                            ))}
-                        </div>
+                        {loading ? (
+                            <div className="flex items-center justify-center py-24">
+                                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-border">
+                                {topics.map((topic: any) => (
+                                    <div key={topic._id} className="py-6 px-4 lg:px-6 hover:bg-secondary/30 transition-colors">
+                                        {/* Topic Title */}
+                                        <Link href={`/baslik/${topic.slug}`}>
+                                            <h2 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors mb-2 cursor-pointer">
+                                                {topic.title}
+                                            </h2>
+                                        </Link>
 
-                        {/* Entry Form - Only for logged-in users */}
-                        {user && (
-                            <EntryForm 
-                                topicTitle={channel.title}
-                                remainingEntries={channel.entries.length}
-                            />
+                                        {/* First Entry */}
+                                        {topic.firstEntry ? (
+                                            <div className="space-y-3">
+                                                <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                                                    {topic.firstEntry.content.length > 300
+                                                        ? `${topic.firstEntry.content.substring(0, 300)}...`
+                                                        : topic.firstEntry.content}
+                                                </p>
+
+                                                {/* Entry Footer */}
+                                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                                    <div className="flex items-center gap-2">
+                                                        <Link
+                                                            href={`/biri/${encodeURIComponent(topic.firstEntry.author.nick)}`}
+                                                            className="hover:text-[#4729ff] transition-colors"
+                                                        >
+                                                            {topic.firstEntry.author.nick}
+                                                        </Link>
+                                                        <span>•</span>
+                                                        <span>
+                                                            {formatDate(topic.firstEntry.createdAt)} {formatTime(topic.firstEntry.createdAt)}
+                                                        </span>
+                                                        {topic.firstEntry.favoriteCount > 0 && (
+                                                            <>
+                                                                <span>•</span>
+                                                                <span>❤️ {topic.firstEntry.favoriteCount}</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+
+                                                    <Link
+                                                        href={`/baslik/${topic.slug}`}
+                                                        className="flex items-center gap-1 hover:text-[#4729ff] transition-colors"
+                                                    >
+                                                        <MessageSquare className="h-3.5 w-3.5" />
+                                                        <span>{topic.entryCount}</span>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-muted-foreground italic">
+                                                Henüz entry yok
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </main>
 
                     {/* Right Sidebar */}
-                    <div className="hidden xl:block w-80">
-                        <div className="p-4">
-                            <div className="bg-secondary h-64 flex items-center justify-center text-muted-foreground text-sm">
-                                reklam alanı
-                            </div>
-                        </div>
+                    <div className="hidden xl:block">
+                        <UserInfoSidebar />
                     </div>
                 </div>
             </div>
