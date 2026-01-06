@@ -215,7 +215,10 @@ export function EntryCard({
                             className={`flex items-center gap-1 transition-colors ${isLikedProp ? 'text-[#4729ff]' : 'text-muted-foreground hover:text-[#4729ff]'}`}
                             title="Beğen"
                         >
-                            <ThumbsUp className={`h-3.5 w-3.5 ${isLikedProp ? 'fill-current' : ''}`} />
+                            <ThumbsUp
+                                className="h-3.5 w-3.5"
+                                fill={isLikedProp ? "currentColor" : "none"}
+                            />
                             {likeCount > 0 && (
                                 <span className="text-xs font-medium">{likeCount}</span>
                             )}
@@ -227,7 +230,10 @@ export function EntryCard({
                             className={`flex items-center gap-1 transition-colors ${isDislikedProp ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
                             title="Beğenme"
                         >
-                            <ThumbsDown className={`h-3.5 w-3.5 ${isDislikedProp ? 'fill-current' : ''}`} />
+                            <ThumbsDown
+                                className="h-3.5 w-3.5"
+                                fill={isDislikedProp ? "currentColor" : "none"}
+                            />
                             {dislikeCount > 0 && (
                                 <span className="text-xs font-medium">{dislikeCount}</span>
                             )}
@@ -239,7 +245,10 @@ export function EntryCard({
                             className={`flex items-center gap-1 transition-colors ${isFavoritedProp ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
                             title="Favorilere ekle"
                         >
-                            <Heart className={`h-3.5 w-3.5 ${isFavoritedProp ? 'fill-current' : ''}`} />
+                            <Heart
+                                className="h-3.5 w-3.5"
+                                fill={isFavoritedProp ? "currentColor" : "none"}
+                            />
                             {favoriteCount > 0 && (
                                 <span className="text-xs font-medium">{favoriteCount}</span>
                             )}

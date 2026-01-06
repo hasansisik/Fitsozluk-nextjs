@@ -77,9 +77,9 @@ export default function Home() {
                               likeCount={topic.firstEntry.likeCount}
                               dislikeCount={topic.firstEntry.dislikeCount}
                               favoriteCount={topic.firstEntry.favoriteCount}
-                              isLiked={topic.firstEntry.likes?.includes(user?._id)}
-                              isDisliked={topic.firstEntry.dislikes?.includes(user?._id)}
-                              isFavorited={topic.firstEntry.favorites?.includes(user?._id)}
+                              isLiked={topic.firstEntry.likes?.some((id: any) => String(id) === String(user?._id))}
+                              isDisliked={topic.firstEntry.dislikes?.some((id: any) => String(id) === String(user?._id))}
+                              isFavorited={topic.firstEntry.favorites?.some((id: any) => String(id) === String(user?._id))}
                               onDelete={handleDeleteEntry}
                               topicTitle={topic.title}
                               topicSlug={topic.slug}

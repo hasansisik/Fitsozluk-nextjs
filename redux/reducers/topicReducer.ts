@@ -10,6 +10,7 @@ import {
     deleteTopic,
     Topic
 } from "../actions/topicActions";
+import { likeEntry, dislikeEntry, toggleFavorite } from "../actions/entryActions";
 
 interface TopicState {
     topics: Topic[];
@@ -153,6 +154,60 @@ export const topicReducer = createReducer(initialState, (builder) => {
         .addCase(deleteTopic.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload as string;
+        })
+
+        // Handle Entry Reactions for firstEntry in topics list
+        .addCase(likeEntry.fulfilled, (state, action) => {
+            const { id, likeCount, dislikeCount, likes, dislikes } = action.payload;
+            state.topics = state.topics.map(topic => {
+                if (topic.firstEntry && topic.firstEntry._id === id) {
+                    return {
+                        ...topic,
+                        firstEntry: {
+                            ...topic.firstEntry,
+                            likeCount,
+                            dislikeCount,
+                            likes,
+                            dislikes
+                        }
+                    };
+                }
+                return topic;
+            });
+        })
+        .addCase(dislikeEntry.fulfilled, (state, action) => {
+            const { id, likeCount, dislikeCount, likes, dislikes } = action.payload;
+            state.topics = state.topics.map(topic => {
+                if (topic.firstEntry && topic.firstEntry._id === id) {
+                    return {
+                        ...topic,
+                        firstEntry: {
+                            ...topic.firstEntry,
+                            likeCount,
+                            dislikeCount,
+                            likes,
+                            dislikes
+                        }
+                    };
+                }
+                return topic;
+            });
+        })
+        .addCase(toggleFavorite.fulfilled, (state, action) => {
+            const { id, favoriteCount, favorites } = action.payload;
+            state.topics = state.topics.map(topic => {
+                if (topic.firstEntry && topic.firstEntry._id === id) {
+                    return {
+                        ...topic,
+                        firstEntry: {
+                            ...topic.firstEntry,
+                            favoriteCount,
+                            favorites
+                        }
+                    };
+                }
+                return topic;
+            });
         });
 });
 

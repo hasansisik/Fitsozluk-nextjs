@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { server } from "@/config";
+import { Entry } from "./entryActions";
 
 export interface Topic {
     _id: string;
@@ -16,6 +17,7 @@ export interface Topic {
     };
     createdAt?: string;
     updatedAt?: string;
+    firstEntry?: Entry;
 }
 
 export interface CreateTopicPayload {

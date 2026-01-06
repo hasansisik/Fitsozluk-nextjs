@@ -112,9 +112,9 @@ export default function TopicPage() {
                                                     likeCount={entry.likeCount}
                                                     dislikeCount={entry.dislikeCount}
                                                     favoriteCount={entry.favoriteCount}
-                                                    isLiked={entry.likes?.includes(user?._id)}
-                                                    isDisliked={entry.dislikes?.includes(user?._id)}
-                                                    isFavorited={entry.favorites?.includes(user?._id)}
+                                                    isLiked={entry.likes?.some((id: any) => String(id) === String(user?._id))}
+                                                    isDisliked={entry.dislikes?.some((id: any) => String(id) === String(user?._id))}
+                                                    isFavorited={entry.favorites?.some((id: any) => String(id) === String(user?._id))}
                                                     onDelete={handleDeleteEntry}
                                                     topicTitle={currentTopic?.title}
                                                     topicSlug={currentTopic?.slug}
