@@ -100,6 +100,18 @@ export function DictionaryHeader() {
         router.push("/")
     }
 
+    const getMenuHref = (href: string) => {
+        if (!href) return "/";
+        const excluded = ['/', '/debe', '/giris', '/kayitol', '/ayarlar', '/arama', '/istatistikler'];
+        if (excluded.includes(href) || href.startsWith('http') || href.startsWith('/biri/')) return href;
+        if (href.startsWith('/basliklar/')) return href;
+        if (href.startsWith('/kanal/')) return href.replace('/kanal/', '/basliklar/');
+
+        let cleanHref = href;
+        if (cleanHref.startsWith('/')) cleanHref = cleanHref.substring(1);
+        return `/basliklar/${cleanHref}`;
+    }
+
     return (
         <header className="sticky top-0 z-50 w-full bg-white border-b border-border">
             {/* Top Row: Logo, Search, User Actions */}
@@ -383,7 +395,7 @@ export function DictionaryHeader() {
                         {featuredMenus.map((menu) => (
                             <Link
                                 key={menu._id}
-                                href={menu.href}
+                                href={getMenuHref(menu.href)}
                                 className="text-sm font-medium text-foreground hover:text-[#4729ff] hover:underline transition-colors whitespace-nowrap"
                             >
                                 {menu.label}
@@ -406,7 +418,7 @@ export function DictionaryHeader() {
                                         {additionalMenus.map((menu) => (
                                             <Link
                                                 key={menu._id}
-                                                href={menu.href}
+                                                href={getMenuHref(menu.href)}
                                                 className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
                                                 onClick={() => setShowMoreTopics(false)}
                                             >
