@@ -17,8 +17,10 @@ export default function DashboardLayout({
   const router = useRouter()
   const { user, loading } = useAppSelector((state) => state.user)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const token = localStorage.getItem("accessToken")
 
     console.log('Dashboard Layout - Checking auth...', { token: !!token, hasUser: !!user?._id, loading, isInitialized })
@@ -37,8 +39,12 @@ export default function DashboardLayout({
     }
   }, [dispatch, router, user, loading, isInitialized])
 
-  // Simple loading check
-  const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
+  // Prevent hydration errors by not rendering client-only content on server
+  if (!mounted) {
+    return null
+  }
+
+  const token = localStorage.getItem("accessToken")
 
   if (!token) {
     return null
