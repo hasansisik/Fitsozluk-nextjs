@@ -244,7 +244,7 @@ export const userReducer = createReducer(initialState, (builder) => {
     })
     .addCase(editProfile.fulfilled, (state, action) => {
       state.loading = false;
-      state.user = action.payload;
+      state.user = action.payload.user;
     })
     .addCase(editProfile.rejected, (state, action) => {
       state.loading = false;

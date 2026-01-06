@@ -4,7 +4,8 @@ import { TopicsSidebar } from "@/components/topics-sidebar"
 import { UserProfile } from "@/components/user-profile"
 import { notFound } from "next/navigation"
 import { useEffect, useState, useMemo } from "react"
-import { useAppSelector } from "@/redux/hook"
+import { useAppSelector, useAppDispatch } from "@/redux/hook"
+import { editProfile } from "@/redux/actions/userActions"
 import usersData from "@/data/users-profile.json"
 
 interface PageProps {
@@ -18,6 +19,7 @@ export default function UserProfilePage({ params }: PageProps) {
     const [isOwnProfile, setIsOwnProfile] = useState(false)
     const [noteText, setNoteText] = useState("")
     const [showSavedMessage, setShowSavedMessage] = useState(false)
+    const dispatch = useAppDispatch()
     const { user, isAuthenticated, loading } = useAppSelector((state) => state.user)
 
     useEffect(() => {
@@ -30,10 +32,14 @@ export default function UserProfilePage({ params }: PageProps) {
                 setIsOwnProfile(currentUserNick === decodeURIComponent(nickParam).toLowerCase())
             }
 
-            // Load saved note for this user
-            const savedNote = localStorage.getItem(`note_${decodeURIComponent(nickParam).toLowerCase()}`)
-            if (savedNote) {
-                setNoteText(savedNote)
+            // Load saved note or bio if own profile
+            if (isAuthenticated && user && user.nick?.toLowerCase() === decodeURIComponent(nickParam).toLowerCase()) {
+                setNoteText(user.bio || "")
+            } else {
+                const savedNote = localStorage.getItem(`note_${decodeURIComponent(nickParam).toLowerCase()}`)
+                if (savedNote) {
+                    setNoteText(savedNote)
+                }
             }
         })
     }, [params, isAuthenticated, user])
@@ -90,8 +96,23 @@ export default function UserProfilePage({ params }: PageProps) {
         }
     }, [isAuthenticated, loading])
 
-    const handleSaveNote = () => {
-        if (nick) {
+    const handleSaveNote = async () => {
+        if (!nick) return
+
+        if (isOwnProfile) {
+            try {
+                await dispatch(editProfile({
+                    nick: user.nick,
+                    email: user.email,
+                    bio: noteText
+                })).unwrap()
+                setShowSavedMessage(true)
+                setTimeout(() => setShowSavedMessage(false), 2000)
+            } catch (error) {
+                console.error("Bio güncellenirken hata oluştu:", error)
+                alert("Biyografi güncellenemedi.")
+            }
+        } else {
             localStorage.setItem(`note_${decodeURIComponent(nick).toLowerCase()}`, noteText)
             setShowSavedMessage(true)
             setTimeout(() => setShowSavedMessage(false), 2000)

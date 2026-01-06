@@ -50,7 +50,7 @@ export interface ResetPasswordPayload {
 export interface EditProfilePayload {
   nick: string;
   email: string;
-  password: string;
+  password?: string;
   gender?: string;
   birthDate?: string;
   address?: {

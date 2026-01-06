@@ -6,6 +6,8 @@ import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { useRouter } from "next/navigation"
 import { editProfile, loadUser, followUser, unfollowUser } from "@/redux/actions/userActions"
+import { getAllEntries } from "@/redux/actions/entryActions"
+import { EntryCard } from "./entry-card"
 
 interface Badge {
     type: string
@@ -77,28 +79,52 @@ export function UserProfile({ userData }: UserProfileProps) {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [showPhotoMenu, setShowPhotoMenu] = useState(false)
     const [bioText, setBioText] = useState(userData.bio || "")
-    const [likedEntries, setLikedEntries] = useState<any[]>([])
-    const [userEntries, setUserEntries] = useState<any[]>([])
+    const [entries, setEntries] = useState<any[]>([])
+    const [loadingEntries, setLoadingEntries] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
 
-    const loadLikedEntries = () => {
-        const liked = JSON.parse(localStorage.getItem("likedEntries") || "{}")
-        const likedArray = Object.entries(liked).map(([id, data]: [string, any]) => ({
-            id,
-            ...data
-        }))
-        setLikedEntries(likedArray)
+    const fetchTabEntries = async () => {
+        if (!userData.id) return
+        setLoadingEntries(true)
+        try {
+            let params: any = { isActive: true }
+
+            if (activeTab === "entry'ler") {
+                params.author = userData.id
+            } else if (activeTab === "beğeniler") {
+                params.likedBy = userData.id
+            } else if (activeTab === "beğenilmeyenler") {
+                params.dislikedBy = userData.id
+            } else if (activeTab === "favoriler") {
+                params.favoritedBy = userData.id
+            }
+
+            const result = await dispatch(getAllEntries(params)).unwrap()
+            setEntries(result)
+
+            // Sync entry count for current tab
+            if (activeTab === "entry'ler") {
+                setDynamicStats(prev => ({ ...prev, entryCount: result.length }))
+            }
+        } catch (error) {
+            console.error("Entries fetching error:", error)
+        } finally {
+            setLoadingEntries(false)
+        }
     }
 
-    const loadUserEntries = () => {
-        const allEntries = JSON.parse(localStorage.getItem("userEntries") || "[]")
-        const filtered = allEntries.filter((entry: any) => entry.author === userData.nick)
-        setUserEntries(filtered)
-    }
-
-    const handleSaveBio = () => {
-        localStorage.setItem(`bio_${userData.nick}`, bioText)
-        setShowBioEdit(false)
+    const handleSaveBio = async () => {
+        try {
+            await dispatch(editProfile({
+                nick: user.nick,
+                email: user.email,
+                bio: bioText
+            })).unwrap()
+            setShowBioEdit(false)
+        } catch (error) {
+            console.error("Bio update error:", error)
+            alert("Biyografi güncellenemedi.")
+        }
     }
 
     const handleBlock = () => {
@@ -123,34 +149,25 @@ export function UserProfile({ userData }: UserProfileProps) {
         if (isAuthenticated && user) {
             setIsOwnProfile(user.nick?.toLowerCase() === userData.nick?.toLowerCase())
 
-            // Check if already following
             if (user.following && user.following.includes(userData.id)) {
                 setIsFollowing(true)
-            } else {
-                // Fallback to localStorage for mock functionality if needed
-                const followedUsers = JSON.parse(localStorage.getItem("followedUsers") || "{}")
-                setIsFollowing(!!followedUsers[userData.nick])
             }
         }
 
-        // Check if user is blocked
         const blockedUsers = JSON.parse(localStorage.getItem("blockedUsers") || "{}")
         setIsBlocked(!!blockedUsers[userData.nick])
 
-        // Load specific entries
-        loadUserEntries()
-        loadLikedEntries()
+        // Initial fetch
+        fetchTabEntries()
 
-        // Sync dynamic stats
+        // Sync dynamic stats initial
         setDynamicStats({
-            entryCount: (userData.entries?.length || 0) + userEntries.length,
+            entryCount: userData.stats?.entryCount || 0,
             followerCount: userData.stats?.followerCount || 0,
             followingCount: userData.stats?.followingCount || 0
         })
 
-        // Bio from localStorage
-        const savedBio = localStorage.getItem(`bio_${userData.nick}`)
-        if (savedBio) setBioText(savedBio)
+        if (userData.bio) setBioText(userData.bio)
 
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement
@@ -162,7 +179,13 @@ export function UserProfile({ userData }: UserProfileProps) {
 
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [userData.nick, isAuthenticated, user, isMounted])
+    }, [userData.id, userData.nick, isAuthenticated, user, isMounted])
+
+    useEffect(() => {
+        if (isMounted) {
+            fetchTabEntries()
+        }
+    }, [activeTab])
 
     useEffect(() => {
         if (!isMounted) return
@@ -337,45 +360,41 @@ export function UserProfile({ userData }: UserProfileProps) {
             </div>
 
             <div className="px-6 pb-12">
-                {activeTab === "entry'ler" && (
-                    <div className="text-sm text-muted-foreground">
-                        {(isOwnProfile ? userEntries : userData.entries).length > 0 ? (
-                            (isOwnProfile ? userEntries : userData.entries).map((entry: any) => (
-                                <div key={entry.id} className="mb-8">
-                                    <Link href={`/${entry.topicSlug || entry.topicTitle?.toLowerCase() || ''}`} className="text-base font-bold text-foreground hover:text-[#4729ff] block mb-2">{entry.topicTitle || entry.title}</Link>
-                                    <div className="text-base text-foreground whitespace-pre-wrap">{entry.content}</div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="py-2">yok ki öyle bişey</div>
-                        )}
+                {loadingEntries ? (
+                    <div className="flex justify-center py-12">
+                        <div className="w-8 h-8 border-4 border-[#4729ff] border-t-transparent rounded-full animate-spin" />
                     </div>
-                )}
-
-                {activeTab === "favoriler" && (
-                    <div className="text-sm text-muted-foreground">
-                        {likedEntries.length > 0 ? (
-                            likedEntries.map((e) => (
-                                <div key={e.id} className="mb-8">
-                                    <Link href={`/${e.topicSlug || e.topicTitle?.toLowerCase().replace(/\s+/g, '-')}`} className="text-base font-bold block mb-2 text-foreground">{e.topicTitle}</Link>
-                                    <div className="text-base text-foreground whitespace-pre-wrap mb-4">{e.content}</div>
-                                    <div className="flex items-center justify-between text-xs">
-                                        <div className="flex gap-2">
-                                            <Link href={`/yazar/${e.author}`} className="hover:text-[#4729ff] font-medium">{e.author}</Link>
-                                            <span>•</span>
-                                            <span>{e.date} {e.time}</span>
-                                        </div>
+                ) : (
+                    <div className="space-y-8">
+                        {entries.length > 0 ? (
+                            entries.map((entry) => (
+                                <div key={entry._id} className="border-b border-border/40 pb-8 last:border-0">
+                                    <div className="mb-4">
+                                        <Link
+                                            href={`/${entry.topic?.slug || ''}`}
+                                            className="text-lg font-bold text-foreground hover:text-[#4729ff] transition-colors"
+                                        >
+                                            {entry.topic?.title}
+                                        </Link>
                                     </div>
+                                    <EntryCard
+                                        id={entry._id}
+                                        content={entry.content}
+                                        author={entry.author?.nick}
+                                        authorPicture={entry.author?.picture}
+                                        date={new Date(entry.createdAt).toLocaleDateString('tr-TR')}
+                                        time={new Date(entry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                        favoriteCount={entry.favoriteCount}
+                                        likeCount={entry.likeCount}
+                                        dislikeCount={entry.dislikeCount}
+                                        isLiked={entry.likes?.includes(user?._id)}
+                                        isDisliked={entry.dislikes?.includes(user?._id)}
+                                        isFavorited={entry.favorites?.includes(user?._id)}
+                                    />
                                 </div>
                             ))
-                        ) : (
-                            <div className="py-2">yok ki öyle bişey</div>
-                        )}
+                        ) : null}
                     </div>
-                )}
-
-                {(activeTab === "beğeniler" || activeTab === "beğenilmeyenler") && (
-                    <div className="py-2 text-sm">yok ki öyle bişey</div>
                 )}
             </div>
 

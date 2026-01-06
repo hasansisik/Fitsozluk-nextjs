@@ -41,12 +41,22 @@ export interface UpdateEntryPayload {
 // Get all entries
 export const getAllEntries = createAsyncThunk(
     "entry/getAllEntries",
-    async (params: { isActive?: boolean; topic?: string; author?: string } = {}, thunkAPI) => {
+    async (params: {
+        isActive?: boolean;
+        topic?: string;
+        author?: string;
+        likedBy?: string;
+        dislikedBy?: string;
+        favoritedBy?: string;
+    } = {}, thunkAPI) => {
         try {
             const queryParams = new URLSearchParams();
             if (params.isActive !== undefined) queryParams.append('isActive', String(params.isActive));
             if (params.topic) queryParams.append('topic', params.topic);
             if (params.author) queryParams.append('author', params.author);
+            if (params.likedBy) queryParams.append('likedBy', params.likedBy);
+            if (params.dislikedBy) queryParams.append('dislikedBy', params.dislikedBy);
+            if (params.favoritedBy) queryParams.append('favoritedBy', params.favoritedBy);
 
             const { data } = await axios.get(
                 `${server}/entries${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
