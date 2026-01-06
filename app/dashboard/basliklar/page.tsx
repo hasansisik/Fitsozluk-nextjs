@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import {
-    getAllTopics,
-    createTopic,
-    updateTopic,
-    deleteTopic,
-    reorderTopics,
-    Topic
-} from "@/redux/actions/topicActions"
+    getAllMenus,
+    createMenu,
+    updateMenu,
+    deleteMenu,
+    reorderMenus,
+    Menu
+} from "@/redux/actions/menuActions"
 import {
     DndContext,
     closestCenter,
@@ -42,14 +42,14 @@ import { Plus, GripVertical, Pencil, Trash2, Eye, EyeOff, Star, StarOff, Loader2
 import { cn } from "@/lib/utils"
 
 interface SortableItemProps {
-    topic: Topic
-    onEdit: (topic: Topic) => void
+    menu: Menu
+    onEdit: (menu: Menu) => void
     onDelete: (id: string) => void
-    onToggleActive: (topic: Topic) => void
-    onToggleFeatured: (topic: Topic) => void
+    onToggleActive: (menu: Menu) => void
+    onToggleFeatured: (menu: Menu) => void
 }
 
-function SortableItem({ topic, onEdit, onDelete, onToggleActive, onToggleFeatured }: SortableItemProps) {
+function SortableItem({ menu, onEdit, onDelete, onToggleActive, onToggleFeatured }: SortableItemProps) {
     const {
         attributes,
         listeners,
@@ -57,7 +57,7 @@ function SortableItem({ topic, onEdit, onDelete, onToggleActive, onToggleFeature
         transform,
         transition,
         isDragging
-    } = useSortable({ id: topic._id })
+    } = useSortable({ id: menu._id })
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -87,18 +87,18 @@ function SortableItem({ topic, onEdit, onDelete, onToggleActive, onToggleFeature
                     <div className="flex items-center gap-2 mb-0.5">
                         <span className={cn(
                             "font-medium transition-colors text-sm",
-                            !topic.isActive ? "text-muted-foreground line-through" : "text-foreground"
+                            !menu.isActive ? "text-muted-foreground line-through" : "text-foreground"
                         )}>
-                            {topic.label}
+                            {menu.label}
                         </span>
                         <div className="flex gap-1.5">
-                            {topic.isFeatured && (
+                            {menu.isFeatured && (
                                 <span className="h-2 w-2 rounded-full bg-indigo-500" title="Öne Çıkan" />
                             )}
                         </div>
                     </div>
                     <p className="text-[10px] text-muted-foreground truncate font-mono uppercase tracking-tight">
-                        {topic.href}
+                        {menu.href}
                     </p>
                 </div>
             </div>
@@ -109,25 +109,25 @@ function SortableItem({ topic, onEdit, onDelete, onToggleActive, onToggleFeature
                     size="icon"
                     className={cn(
                         "h-8 w-8 transition-colors",
-                        topic.isFeatured ? "text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" : "text-muted-foreground"
+                        menu.isFeatured ? "text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" : "text-muted-foreground"
                     )}
-                    onClick={() => onToggleFeatured(topic)}
+                    onClick={() => onToggleFeatured(menu)}
                 >
-                    {topic.isFeatured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
+                    {menu.isFeatured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
                 </Button>
                 <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-muted-foreground"
-                    onClick={() => onToggleActive(topic)}
+                    onClick={() => onToggleActive(menu)}
                 >
-                    {topic.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                    {menu.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </Button>
                 <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                    onClick={() => onEdit(topic)}
+                    onClick={() => onEdit(menu)}
                 >
                     <Pencil className="h-4 w-4" />
                 </Button>
@@ -135,7 +135,7 @@ function SortableItem({ topic, onEdit, onDelete, onToggleActive, onToggleFeature
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => onDelete(topic._id)}
+                    onClick={() => onDelete(menu._id)}
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
@@ -146,10 +146,10 @@ function SortableItem({ topic, onEdit, onDelete, onToggleActive, onToggleFeature
 
 export default function BasliklarPage() {
     const dispatch = useAppDispatch()
-    const { topics, loading, error } = useAppSelector((state) => state.topic)
-    const [localTopics, setLocalTopics] = useState<Topic[]>([])
+    const { menus, loading, error } = useAppSelector((state) => state.menu)
+    const [localMenus, setLocalMenus] = useState<Menu[]>([])
     const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [editingTopic, setEditingTopic] = useState<Topic | null>(null)
+    const [editingMenu, setEditingMenu] = useState<Menu | null>(null)
 
     const [formData, setFormData] = useState({
         label: "",
@@ -165,18 +165,18 @@ export default function BasliklarPage() {
     )
 
     useEffect(() => {
-        dispatch(getAllTopics({}))
+        dispatch(getAllMenus({}))
     }, [dispatch])
 
     useEffect(() => {
-        setLocalTopics(topics)
-    }, [topics])
+        setLocalMenus(menus)
+    }, [menus])
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event
 
         if (over && active.id !== over.id) {
-            setLocalTopics((items) => {
+            setLocalMenus((items) => {
                 const oldIndex = items.findIndex((item) => item._id === active.id)
                 const newIndex = items.findIndex((item) => item._id === over.id)
                 const newItems = arrayMove(items, oldIndex, newIndex)
@@ -186,7 +186,7 @@ export default function BasliklarPage() {
                     order: index
                 }))
 
-                dispatch(reorderTopics({ topics: reorderPayload }))
+                dispatch(reorderMenus({ menus: reorderPayload }))
                 return newItems
             })
         }
@@ -195,52 +195,52 @@ export default function BasliklarPage() {
     const handleSubmit = async () => {
         if (!formData.label || !formData.href) return
 
-        if (editingTopic) {
-            await dispatch(updateTopic({
-                id: editingTopic._id,
+        if (editingMenu) {
+            await dispatch(updateMenu({
+                id: editingMenu._id,
                 ...formData
             }))
         } else {
-            await dispatch(createTopic(formData))
+            await dispatch(createMenu(formData))
         }
 
         setIsDialogOpen(false)
-        setEditingTopic(null)
+        setEditingMenu(null)
         setFormData({ label: "", href: "", isFeatured: true })
-        dispatch(getAllTopics({}))
+        dispatch(getAllMenus({}))
     }
 
-    const handleEdit = (topic: Topic) => {
-        setEditingTopic(topic)
+    const handleEdit = (menu: Menu) => {
+        setEditingMenu(menu)
         setFormData({
-            label: topic.label,
-            href: topic.href,
-            isFeatured: topic.isFeatured
+            label: menu.label,
+            href: menu.href,
+            isFeatured: menu.isFeatured
         })
         setIsDialogOpen(true)
     }
 
     const handleDelete = async (id: string) => {
         if (confirm("Silmek istediğinize emin misiniz?")) {
-            await dispatch(deleteTopic(id))
-            dispatch(getAllTopics({}))
+            await dispatch(deleteMenu(id))
+            dispatch(getAllMenus({}))
         }
     }
 
-    const handleToggleActive = async (topic: Topic) => {
-        await dispatch(updateTopic({
-            id: topic._id,
-            isActive: !topic.isActive
+    const handleToggleActive = async (menu: Menu) => {
+        await dispatch(updateMenu({
+            id: menu._id,
+            isActive: !menu.isActive
         }))
-        dispatch(getAllTopics({}))
+        dispatch(getAllMenus({}))
     }
 
-    const handleToggleFeatured = async (topic: Topic) => {
-        await dispatch(updateTopic({
-            id: topic._id,
-            isFeatured: !topic.isFeatured
+    const handleToggleFeatured = async (menu: Menu) => {
+        await dispatch(updateMenu({
+            id: menu._id,
+            isFeatured: !menu.isFeatured
         }))
-        dispatch(getAllTopics({}))
+        dispatch(getAllMenus({}))
     }
 
     return (
@@ -260,7 +260,7 @@ export default function BasliklarPage() {
                     )}
                     <Button
                         onClick={() => {
-                            setEditingTopic(null)
+                            setEditingMenu(null)
                             setFormData({ label: "", href: "", isFeatured: true })
                             setIsDialogOpen(true)
                         }}
@@ -275,12 +275,12 @@ export default function BasliklarPage() {
             {/* Content Area - Scrollable */}
             <div className="flex-1 overflow-y-auto">
                 <div className="w-full">
-                    {loading && localTopics.length === 0 ? (
+                    {loading && localMenus.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
                             <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
                             <p className="text-sm text-muted-foreground animate-pulse">Başlıklar yükleniyor...</p>
                         </div>
-                    ) : localTopics.length === 0 ? (
+                    ) : localMenus.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
                             <p className="text-sm">Henüz bir başlık eklenmemiş.</p>
                         </div>
@@ -291,14 +291,14 @@ export default function BasliklarPage() {
                             onDragEnd={handleDragEnd}
                         >
                             <SortableContext
-                                items={localTopics.map(t => t._id)}
+                                items={localMenus.map(t => t._id)}
                                 strategy={verticalListSortingStrategy}
                             >
                                 <div className="flex flex-col">
-                                    {localTopics.map((topic) => (
+                                    {localMenus.map((menu) => (
                                         <SortableItem
-                                            key={topic._id}
-                                            topic={topic}
+                                            key={menu._id}
+                                            menu={menu}
                                             onEdit={handleEdit}
                                             onDelete={handleDelete}
                                             onToggleActive={handleToggleActive}
@@ -316,7 +316,7 @@ export default function BasliklarPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{editingTopic ? "Başlığı Düzenle" : "Yeni Başlık"}</DialogTitle>
+                        <DialogTitle>{editingMenu ? "Başlığı Düzenle" : "Yeni Başlık"}</DialogTitle>
                         <DialogDescription>
                             Başlık adını ve yönlendirilecek linki girin.
                         </DialogDescription>
@@ -360,7 +360,7 @@ export default function BasliklarPage() {
                             İptal
                         </Button>
                         <Button onClick={handleSubmit} className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md">
-                            {editingTopic ? "Güncelle" : "Oluştur"}
+                            {editingMenu ? "Güncelle" : "Oluştur"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

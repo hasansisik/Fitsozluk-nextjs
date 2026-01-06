@@ -9,13 +9,13 @@ import topicsData from "@/data/topics.json"
 import usersData from "@/data/users-profile.json"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { loadUser, logout } from "@/redux/actions/userActions"
-import { getFeaturedTopics } from "@/redux/actions/topicActions"
+import { getFeaturedMenus } from "@/redux/actions/menuActions"
 
 export function DictionaryHeader() {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { user, isAuthenticated } = useAppSelector((state) => state.user)
-    const { featuredTopics, additionalTopics } = useAppSelector((state) => state.topic)
+    const { featuredMenus, additionalMenus } = useAppSelector((state) => state.menu)
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [showMoreTopics, setShowMoreTopics] = useState(false)
@@ -38,7 +38,7 @@ export function DictionaryHeader() {
         }
 
         // Load menus and topics from backend
-        dispatch(getFeaturedTopics())
+        dispatch(getFeaturedMenus())
 
         // Click outside to close search results and filters
         const handleClickOutside = (event: MouseEvent) => {
@@ -380,18 +380,18 @@ export function DictionaryHeader() {
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
                     <nav className="flex items-center justify-between h-10">
                         {/* Main Topics - Spread evenly across full width */}
-                        {featuredTopics.map((topic) => (
+                        {featuredMenus.map((menu) => (
                             <Link
-                                key={topic._id}
-                                href={topic.href}
+                                key={menu._id}
+                                href={menu.href}
                                 className="text-sm font-medium text-foreground hover:text-[#4729ff] hover:underline transition-colors whitespace-nowrap"
                             >
-                                {topic.label}
+                                {menu.label}
                             </Link>
                         ))}
 
                         {/* More Topics Dropdown */}
-                        {additionalTopics.length > 0 && (
+                        {additionalMenus.length > 0 && (
                             <div className="relative flex-shrink-0">
                                 <button
                                     onClick={() => setShowMoreTopics(!showMoreTopics)}
@@ -403,14 +403,14 @@ export function DictionaryHeader() {
                                 {/* Dropdown Menu */}
                                 {showMoreTopics && (
                                     <div className="absolute top-full right-0 mt-1 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
-                                        {additionalTopics.map((topic) => (
+                                        {additionalMenus.map((menu) => (
                                             <Link
-                                                key={topic._id}
-                                                href={topic.href}
+                                                key={menu._id}
+                                                href={menu.href}
                                                 className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
                                                 onClick={() => setShowMoreTopics(false)}
                                             >
-                                                {topic.label}
+                                                {menu.label}
                                             </Link>
                                         ))}
                                     </div>

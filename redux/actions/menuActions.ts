@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { server } from "@/config";
 
-export interface Topic {
+export interface Menu {
     _id: string;
     label: string;
     href: string;
@@ -18,13 +18,13 @@ export interface Topic {
     updatedAt?: string;
 }
 
-export interface CreateTopicPayload {
+export interface CreateMenuPayload {
     label: string;
     href: string;
     isFeatured?: boolean;
 }
 
-export interface UpdateTopicPayload {
+export interface UpdateMenuPayload {
     id: string;
     label?: string;
     href?: string;
@@ -32,13 +32,13 @@ export interface UpdateTopicPayload {
     isActive?: boolean;
 }
 
-export interface ReorderTopicsPayload {
-    topics: { id: string; order: number }[];
+export interface ReorderMenusPayload {
+    menus: { id: string; order: number }[];
 }
 
-// Get all topics
-export const getAllTopics = createAsyncThunk(
-    "topic/getAllTopics",
+// Get all menus
+export const getAllMenus = createAsyncThunk(
+    "menu/getAllMenus",
     async (params: { isFeatured?: boolean; isActive?: boolean } = {}, thunkAPI) => {
         try {
             const queryParams = new URLSearchParams();
@@ -46,9 +46,9 @@ export const getAllTopics = createAsyncThunk(
             if (params.isActive !== undefined) queryParams.append('isActive', String(params.isActive));
 
             const { data } = await axios.get(
-                `${server}/topics${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+                `${server}/menus${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
             );
-            return data.topics;
+            return data.menus;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message
@@ -57,15 +57,15 @@ export const getAllTopics = createAsyncThunk(
     }
 );
 
-// Get featured topics (for header)
-export const getFeaturedTopics = createAsyncThunk(
-    "topic/getFeaturedTopics",
+// Get featured menus (for header)
+export const getFeaturedMenus = createAsyncThunk(
+    "menu/getFeaturedMenus",
     async (_, thunkAPI) => {
         try {
-            const { data } = await axios.get(`${server}/topics/featured`);
+            const { data } = await axios.get(`${server}/menus/featured`);
             return {
-                featuredTopics: data.featuredTopics,
-                additionalTopics: data.additionalTopics
+                featuredMenus: data.featuredMenus,
+                additionalMenus: data.additionalMenus
             };
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
@@ -75,13 +75,13 @@ export const getFeaturedTopics = createAsyncThunk(
     }
 );
 
-// Get single topic
-export const getTopic = createAsyncThunk(
-    "topic/getTopic",
+// Get single menu
+export const getMenu = createAsyncThunk(
+    "menu/getMenu",
     async (id: string, thunkAPI) => {
         try {
-            const { data } = await axios.get(`${server}/topics/${id}`);
-            return data.topic;
+            const { data } = await axios.get(`${server}/menus/${id}`);
+            return data.menu;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message
@@ -90,14 +90,14 @@ export const getTopic = createAsyncThunk(
     }
 );
 
-// Create topic
-export const createTopic = createAsyncThunk(
-    "topic/createTopic",
-    async (payload: CreateTopicPayload, thunkAPI) => {
+// Create menu
+export const createMenu = createAsyncThunk(
+    "menu/createMenu",
+    async (payload: CreateMenuPayload, thunkAPI) => {
         try {
             const token = localStorage.getItem("accessToken");
             const { data } = await axios.post(
-                `${server}/topics`,
+                `${server}/menus`,
                 payload,
                 {
                     headers: {
@@ -105,7 +105,7 @@ export const createTopic = createAsyncThunk(
                     },
                 }
             );
-            return data.topic;
+            return data.menu;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message
@@ -114,15 +114,15 @@ export const createTopic = createAsyncThunk(
     }
 );
 
-// Update topic
-export const updateTopic = createAsyncThunk(
-    "topic/updateTopic",
-    async (payload: UpdateTopicPayload, thunkAPI) => {
+// Update menu
+export const updateMenu = createAsyncThunk(
+    "menu/updateMenu",
+    async (payload: UpdateMenuPayload, thunkAPI) => {
         try {
             const token = localStorage.getItem("accessToken");
             const { id, ...updateData } = payload;
             const { data } = await axios.patch(
-                `${server}/topics/${id}`,
+                `${server}/menus/${id}`,
                 updateData,
                 {
                     headers: {
@@ -130,7 +130,7 @@ export const updateTopic = createAsyncThunk(
                     },
                 }
             );
-            return data.topic;
+            return data.menu;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message
@@ -139,13 +139,13 @@ export const updateTopic = createAsyncThunk(
     }
 );
 
-// Delete topic
-export const deleteTopic = createAsyncThunk(
-    "topic/deleteTopic",
+// Delete menu
+export const deleteMenu = createAsyncThunk(
+    "menu/deleteMenu",
     async (id: string, thunkAPI) => {
         try {
             const token = localStorage.getItem("accessToken");
-            await axios.delete(`${server}/topics/${id}`, {
+            await axios.delete(`${server}/menus/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -159,14 +159,14 @@ export const deleteTopic = createAsyncThunk(
     }
 );
 
-// Reorder topics
-export const reorderTopics = createAsyncThunk(
-    "topic/reorderTopics",
-    async (payload: ReorderTopicsPayload, thunkAPI) => {
+// Reorder menus
+export const reorderMenus = createAsyncThunk(
+    "menu/reorderMenus",
+    async (payload: ReorderMenusPayload, thunkAPI) => {
         try {
             const token = localStorage.getItem("accessToken");
             const { data } = await axios.post(
-                `${server}/topics/reorder`,
+                `${server}/menus/reorder`,
                 payload,
                 {
                     headers: {
@@ -174,7 +174,7 @@ export const reorderTopics = createAsyncThunk(
                     },
                 }
             );
-            return data.topics;
+            return data.menus;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message
