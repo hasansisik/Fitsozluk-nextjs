@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle, Mail } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { verifyEmail, againEmail } from "@/redux/actions/userActions"
 
-export function VerificationForm() {
+function VerificationFormContent() {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const searchParams = useSearchParams()
@@ -212,5 +212,25 @@ export function VerificationForm() {
                 </div>
             </form>
         </div>
+    )
+}
+
+export function VerificationForm() {
+    return (
+        <Suspense fallback={
+            <div className="w-full text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+                    <Mail className="h-8 w-8 text-[#4729ff]" />
+                </div>
+                <h1 className="text-2xl font-bold text-foreground mb-2">
+                    E-posta Doğrulama
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                    Yükleniyor...
+                </p>
+            </div>
+        }>
+            <VerificationFormContent />
+        </Suspense>
     )
 }

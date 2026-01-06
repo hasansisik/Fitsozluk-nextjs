@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import topicsData from "@/data/topics.json"
 import usersData from "@/data/users-profile.json"
@@ -9,7 +9,7 @@ import { TopicsSidebar } from "@/components/topics-sidebar"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
 
-export default function SearchPage() {
+function SearchContent() {
     const searchParams = useSearchParams()
     const query = searchParams.get("q") || ""
     const startDate = searchParams.get("startDate") || ""
@@ -161,5 +161,34 @@ export default function SearchPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={
+            <div className="w-full bg-white">
+                <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
+                    <div className="flex min-h-[calc(100vh-6.5rem)] gap-8">
+                        <div className="hidden lg:block">
+                            <TopicsSidebar />
+                        </div>
+                        <div className="flex-1 flex flex-col min-w-0">
+                            <TopAd location="arama" />
+                            <div className="flex gap-8">
+                                <main className="flex-1 min-w-0">
+                                    <div className="bg-white border border-border rounded-lg p-8 text-center">
+                                        <p className="text-muted-foreground">Yükleniyor...</p>
+                                    </div>
+                                </main>
+                                <SidebarAd location="arama" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }>
+            <SearchContent />
+        </Suspense>
     )
 }
