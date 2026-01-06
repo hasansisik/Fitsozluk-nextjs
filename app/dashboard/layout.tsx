@@ -23,10 +23,7 @@ export default function DashboardLayout({
     setMounted(true)
     const token = localStorage.getItem("accessToken")
 
-    console.log('Dashboard Layout - Checking auth...', { token: !!token, hasUser: !!user?._id, loading, isInitialized })
-
     if (!token) {
-      console.log('Dashboard Layout - No token, redirecting')
       router.push("/giris")
       return
     }
