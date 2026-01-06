@@ -15,9 +15,25 @@ interface EntryCardProps {
     onDelete?: (id: string) => void
     topicTitle?: string
     topicSlug?: string
+    favoriteCount?: number
+    likeCount?: number
+    dislikeCount?: number
 }
 
-export function EntryCard({ id, content, author, date, time, isSpecial, onDelete, topicTitle, topicSlug }: EntryCardProps) {
+export function EntryCard({
+    id,
+    content,
+    author,
+    date,
+    time,
+    isSpecial,
+    onDelete,
+    topicTitle,
+    topicSlug,
+    favoriteCount = 0,
+    likeCount = 0,
+    dislikeCount = 0
+}: EntryCardProps) {
     const router = useRouter()
     const [showShareMenu, setShowShareMenu] = useState(false)
     const [showReportDialog, setShowReportDialog] = useState(false)
@@ -225,35 +241,44 @@ export function EntryCard({ id, content, author, date, time, isSpecial, onDelete
                 {currentUser !== author && (
                     <div className="flex items-center justify-between py-2">
                         {/* Left: Reaction Buttons */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                             {/* Thumbs Up */}
                             <button
                                 onClick={handleThumbsUp}
-                                className={`transition-colors ${thumbsUp ? 'text-[#4729ff]' : 'text-muted-foreground hover:text-[#4729ff]'
+                                className={`flex items-center gap-1 transition-colors ${thumbsUp ? 'text-[#4729ff]' : 'text-muted-foreground hover:text-[#4729ff]'
                                     }`}
                                 title="Beğen"
                             >
                                 <ThumbsUp className={`h-3.5 w-3.5 ${thumbsUp ? 'fill-current' : ''}`} />
+                                {likeCount > 0 && (
+                                    <span className="text-xs font-medium">{likeCount}</span>
+                                )}
                             </button>
 
                             {/* Thumbs Down */}
                             <button
                                 onClick={handleThumbsDown}
-                                className={`transition-colors ${thumbsDown ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
+                                className={`flex items-center gap-1 transition-colors ${thumbsDown ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
                                     }`}
                                 title="Beğenme"
                             >
                                 <ThumbsDown className={`h-3.5 w-3.5 ${thumbsDown ? 'fill-current' : ''}`} />
+                                {dislikeCount > 0 && (
+                                    <span className="text-xs font-medium">{dislikeCount}</span>
+                                )}
                             </button>
 
                             {/* Favorites (Heart) */}
                             <button
                                 onClick={handleLike}
-                                className={`transition-colors ml-1 ${isLiked ? 'text-[#4729ff]' : 'text-muted-foreground hover:text-[#4729ff]'
+                                className={`flex items-center gap-1 transition-colors ${isLiked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
                                     }`}
                                 title="Favorilere ekle"
                             >
                                 <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-current' : ''}`} />
+                                {favoriteCount > 0 && (
+                                    <span className="text-xs font-medium">{favoriteCount}</span>
+                                )}
                             </button>
                         </div>
 
