@@ -5,6 +5,8 @@ import { EntryCard } from "@/components/entry-card"
 import { EntryForm } from "@/components/entry-form"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
+import { TopicFilters } from "@/components/topic-filters"
+import { Pagination } from "@/components/pagination"
 import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getTopicBySlug } from "@/redux/actions/topicActions"
@@ -16,6 +18,9 @@ export default function TopicPage() {
     const params = useParams()
     const slug = params.slug as string
     const dispatch = useAppDispatch()
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const entriesPerPage = 10
 
     const { currentTopic, loading: topicLoading, error: topicError } = useAppSelector((state) => state.topic)
     const { entries, loading: entriesLoading } = useAppSelector((state) => state.entry)
@@ -45,6 +50,9 @@ export default function TopicPage() {
             }
         }
     }
+
+    const totalPages = Math.ceil(entries.length / entriesPerPage) || 1
+    const currentEntries = entries.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
 
     if (topicLoading && !currentTopic) {
         return (
@@ -87,10 +95,21 @@ export default function TopicPage() {
                             {/* Left Column: Entries */}
                             <main className="flex-1 min-w-0">
                                 {/* Topic Header */}
-                                <div className="pb-6 sticky top-[6.5rem] bg-white z-20">
-                                    <h1 className="text-2xl lg:text-3xl font-bold text-[#1a1a1a] leading-tight">
+                                <div className="pb-2 sticky top-[6.5rem] bg-white z-20 border-b border-border/40 mb-4">
+                                    <h1 className="text-lg lg:text-xl font-bold text-[#1a1a1a] leading-tight">
                                         {currentTopic?.title}
                                     </h1>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <TopicFilters
+                                            topicTitle={currentTopic?.title || ""}
+                                            topicCreator={currentTopic?.createdBy?.nick}
+                                        />
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={setCurrentPage}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Entries List */}
@@ -99,8 +118,8 @@ export default function TopicPage() {
                                         <div className="flex items-center justify-center py-12">
                                             <Loader2 className="h-6 w-6 animate-spin text-[#4729ff]" />
                                         </div>
-                                    ) : entries.length > 0 ? (
-                                        entries.map((entry) => (
+                                    ) : currentEntries.length > 0 ? (
+                                        currentEntries.map((entry) => (
                                             <div key={entry._id} className="pb-4">
                                                 <EntryCard
                                                     id={entry._id}

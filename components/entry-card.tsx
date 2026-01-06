@@ -1,6 +1,6 @@
 "use client"
 
-import { Heart, Share2, Flag, User, X, Trash2, ThumbsUp, ThumbsDown } from "lucide-react"
+import { Heart, Share2, Flag, User, X, Trash2, ThumbsUp, ThumbsDown, Bell } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -57,6 +57,7 @@ export function EntryCard({
     const [showReportDialog, setShowReportDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showSpoilers, setShowSpoilers] = useState<{ [key: number]: boolean }>({})
+    const [isFollowingEntry, setIsFollowingEntry] = useState(false)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -191,8 +192,8 @@ export function EntryCard({
     }
 
     return (
-        <div className="bg-white border-b border-border py-4 px-6 relative">
-            <div className="space-y-3">
+        <div className="relative">
+            <div className="">
                 {/* Entry Content */}
                 <p className="text-sm leading-normal text-foreground whitespace-pre-wrap">
                     {renderContent()}
@@ -255,8 +256,17 @@ export function EntryCard({
                         </button>
                     </div>
 
-                    {/* Right: Share and Report */}
-                    <div className="flex items-center gap-2">
+                    {/* Right: Share, Follow and Report */}
+                    <div className="flex items-center gap-3">
+                        {/* Follow Entry Button */}
+                        <button
+                            onClick={() => setIsFollowingEntry(!isFollowingEntry)}
+                            className={`transition-colors ${isFollowingEntry ? 'text-[#4729ff]' : 'text-muted-foreground hover:text-[#4729ff]'}`}
+                            title="Entry'yi takip et"
+                        >
+                            <Bell className="h-3.5 w-3.5" fill={isFollowingEntry ? "currentColor" : "none"} />
+                        </button>
+
                         {/* Share Button */}
                         <div className="relative share-menu-container">
                             <button

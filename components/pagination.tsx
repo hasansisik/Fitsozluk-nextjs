@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 
 interface PaginationProps {
     currentPage: number
@@ -30,38 +30,43 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
     }
 
     return (
-        <div className="flex items-center justify-end gap-2 py-4 px-6">
+        <div className="flex items-center justify-end gap-1.5 py-0 px-0">
             {/* Previous Button - Only show if not on first page */}
             {currentPage > 1 && (
                 <button
                     onClick={handlePrevPage}
-                    className="flex items-center justify-center h-9 w-9 rounded border border-border text-foreground hover:bg-secondary transition-colors"
+                    className="flex items-center justify-center h-8 w-8 rounded border border-border text-foreground hover:bg-secondary transition-colors"
                     aria-label="Önceki sayfa"
                 >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
             )}
 
             {/* Current Page Dropdown */}
-            <select
-                value={currentPage}
-                onChange={handleSelectChange}
-                className="h-9 px-3 pr-8 rounded border border-border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-[#4729ff] cursor-pointer"
-            >
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <option key={page} value={page}>
-                        {page}
-                    </option>
-                ))}
-            </select>
+            <div className="relative h-8">
+                <select
+                    value={currentPage}
+                    onChange={handleSelectChange}
+                    className="appearance-none h-8 pl-2 pr-6 rounded border border-border bg-white text-xs focus:outline-none cursor-pointer"
+                >
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <option key={page} value={page}>
+                            {page}
+                        </option>
+                    ))}
+                </select>
+                <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                    <ChevronDown className="h-3 w-3" />
+                </div>
+            </div>
 
             {/* Separator */}
-            <span className="text-muted-foreground">/</span>
+            <span className="text-muted-foreground text-xs">/</span>
 
             {/* Total Pages - Click to go to last page */}
             <button
                 onClick={handleTotalPagesClick}
-                className="h-9 w-16 px-3 rounded border border-border bg-white text-sm text-center hover:bg-secondary transition-colors focus:outline-none focus:ring-1 focus:ring-[#4729ff]"
+                className="h-8 min-w-[32px] px-2 rounded border border-border bg-white text-xs text-center hover:bg-secondary transition-colors focus:outline-none"
                 title="Son sayfaya git"
             >
                 {totalPages}
@@ -71,13 +76,13 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
-                className={`flex items-center justify-center h-9 w-9 rounded border transition-colors ${currentPage === totalPages
-                        ? 'border-border text-muted-foreground cursor-not-allowed bg-secondary'
-                        : 'border-border text-foreground hover:bg-secondary'
+                className={`flex items-center justify-center h-8 w-8 rounded border transition-colors ${currentPage === totalPages
+                    ? 'border-border text-muted-foreground cursor-not-allowed bg-secondary'
+                    : 'border-border text-foreground hover:bg-secondary'
                     }`}
                 aria-label="Sonraki sayfa"
             >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5" />
             </button>
         </div>
     )
