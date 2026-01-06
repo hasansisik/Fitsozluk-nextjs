@@ -5,16 +5,25 @@ import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getAdsByLocation, Ad } from "@/redux/actions/adActions"
 import { usePathname } from "next/navigation"
 
-export function TopAd() {
+interface TopAdProps {
+    location?: string
+}
+
+export function TopAd({ location: propLocation }: TopAdProps = {}) {
     const pathname = usePathname()
     const dispatch = useAppDispatch()
     const { ads, loading } = useAppSelector((state) => state.ad)
     const [currentAd, setCurrentAd] = useState<Ad | null>(null)
 
     useEffect(() => {
-        let location = "entry"
-        if (pathname === "/") location = "anasayfa"
-        else if (pathname.startsWith("/basliklar")) location = "basliklar"
+        let location = propLocation
+
+        if (!location) {
+            if (pathname === "/") location = "anasayfa"
+            else if (pathname.startsWith("/basliklar")) location = "basliklar"
+            else if (pathname.startsWith("/arama")) location = "arama"
+            else location = "entry"
+        }
 
         // We can fetch specifically for this location
         dispatch(getAdsByLocation(location)).then((result: any) => {
@@ -26,7 +35,7 @@ export function TopAd() {
                 }
             }
         })
-    }, [pathname, dispatch])
+    }, [pathname, dispatch, propLocation])
 
     if (!currentAd) {
         return (

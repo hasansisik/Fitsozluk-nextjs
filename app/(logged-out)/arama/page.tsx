@@ -6,7 +6,8 @@ import Link from "next/link"
 import topicsData from "@/data/topics.json"
 import usersData from "@/data/users-profile.json"
 import { TopicsSidebar } from "@/components/topics-sidebar"
-import { UserInfoSidebar } from "@/components/user-info-sidebar"
+import { TopAd } from "@/components/ads/top-ad"
+import { SidebarAd } from "@/components/ads/sidebar-ad"
 
 export default function SearchPage() {
     const searchParams = useSearchParams()
@@ -76,79 +77,86 @@ export default function SearchPage() {
     return (
         <div className="w-full bg-white">
             <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                <div className="flex min-h-[calc(100vh-6.5rem)]">
-                    {/* Left Sidebar - Topics (Hidden on mobile) */}
+                <div className="flex min-h-[calc(100vh-6.5rem)] gap-8">
+                    {/* Left Sidebar - Topics (Fixed Width) */}
                     <div className="hidden lg:block">
                         <TopicsSidebar />
                     </div>
 
-                    {/* Main Content Area */}
-                    <main className="flex-1 w-full lg:max-w-4xl mx-auto bg-white">
-                        <div className="px-4 lg:px-6 py-8">
-                            <div className="mb-6">
-                                <h1 className="text-2xl font-bold text-foreground mb-2">
-                                    Arama Sonuçları
-                                </h1>
-                                <p className="text-sm text-muted-foreground">
-                                    "{query}" için {results.length} sonuç bulundu
-                                </p>
-                            </div>
+                    {/* Right Section Group (Header Ad + Content/Sidebar) */}
+                    <div className="flex-1 flex flex-col min-w-0">
 
-                            {results.length > 0 ? (
-                                <div className="space-y-4">
-                                    {results.map((result, index) => (
-                                        <div key={index} className="bg-white border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                                            {result.type === 'topic' ? (
-                                                <Link href={`/${result.slug}`}>
-                                                    <div className="flex items-start justify-between">
-                                                        <div>
-                                                            <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
-                                                                {result.title}
-                                                            </h3>
-                                                            <p className="text-sm text-muted-foreground mt-1">
-                                                                {result.entryCount} entry
-                                                            </p>
-                                                        </div>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {result.date}
-                                                        </span>
-                                                    </div>
-                                                </Link>
-                                            ) : (
-                                                <Link href={`/yazar/${result.nick}`}>
-                                                    <div className="flex items-start justify-between">
-                                                        <div>
-                                                            <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
-                                                                @{result.nick}
-                                                            </h3>
-                                                            <p className="text-sm text-muted-foreground mt-1">
-                                                                {result.displayName}
-                                                            </p>
-                                                        </div>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            Kullanıcı
-                                                        </span>
-                                                    </div>
-                                                </Link>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="bg-white border border-border rounded-lg p-8 text-center">
-                                    <p className="text-muted-foreground">
-                                        {query.trim().length < 2
-                                            ? "Arama yapmak için en az 2 karakter girin"
-                                            : "Sonuç bulunamadı"}
+                        {/* 1. Header Ad Area (Wide) */}
+                        <TopAd location="arama" />
+
+                        {/* 2. Lower Area: 2 Columns (Listing + Right Ad) */}
+                        <div className="flex gap-8">
+
+                            {/* Left Column: Search Results */}
+                            <main className="flex-1 min-w-0">
+                                <div className="mb-6">
+                                    <h1 className="text-2xl font-bold text-foreground mb-2">
+                                        Arama Sonuçları
+                                    </h1>
+                                    <p className="text-sm text-muted-foreground">
+                                        "{query}" için {results.length} sonuç bulundu
                                     </p>
                                 </div>
-                            )}
-                        </div>
-                    </main>
 
-                    {/* Right Sidebar - User Info (Hidden on mobile and tablet) */}
-                    <div className="hidden xl:block">
-                        <UserInfoSidebar />
+                                {results.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {results.map((result, index) => (
+                                            <div key={index} className="bg-white border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                {result.type === 'topic' ? (
+                                                    <Link href={`/${result.slug}`}>
+                                                        <div className="flex items-start justify-between">
+                                                            <div>
+                                                                <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
+                                                                    {result.title}
+                                                                </h3>
+                                                                <p className="text-sm text-muted-foreground mt-1">
+                                                                    {result.entryCount} entry
+                                                                </p>
+                                                            </div>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {result.date}
+                                                            </span>
+                                                        </div>
+                                                    </Link>
+                                                ) : (
+                                                    <Link href={`/yazar/${result.nick}`}>
+                                                        <div className="flex items-start justify-between">
+                                                            <div>
+                                                                <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
+                                                                    @{result.nick}
+                                                                </h3>
+                                                                <p className="text-sm text-muted-foreground mt-1">
+                                                                    {result.displayName}
+                                                                </p>
+                                                            </div>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                Kullanıcı
+                                                            </span>
+                                                        </div>
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-white border border-border rounded-lg p-8 text-center">
+                                        <p className="text-muted-foreground">
+                                            {query.trim().length < 2
+                                                ? "Arama yapmak için en az 2 karakter girin"
+                                                : "Sonuç bulunamadı"}
+                                        </p>
+                                    </div>
+                                )}
+                            </main>
+
+                            {/* Right Column: Advertisement Sidebar Area */}
+                            <SidebarAd location="arama" />
+                        </div>
                     </div>
                 </div>
             </div>

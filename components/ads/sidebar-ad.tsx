@@ -5,15 +5,24 @@ import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getAdsByLocation, Ad } from "@/redux/actions/adActions"
 import { usePathname } from "next/navigation"
 
-export function SidebarAd() {
+interface SidebarAdProps {
+    location?: string
+}
+
+export function SidebarAd({ location: propLocation }: SidebarAdProps = {}) {
     const pathname = usePathname()
     const dispatch = useAppDispatch()
     const [currentAd, setCurrentAd] = useState<Ad | null>(null)
 
     useEffect(() => {
-        let location = "entry"
-        if (pathname === "/") location = "anasayfa"
-        else if (pathname.startsWith("/basliklar")) location = "basliklar"
+        let location = propLocation
+
+        if (!location) {
+            if (pathname === "/") location = "anasayfa"
+            else if (pathname.startsWith("/basliklar")) location = "basliklar"
+            else if (pathname.startsWith("/arama")) location = "arama"
+            else location = "entry"
+        }
 
         dispatch(getAdsByLocation(location)).then((result: any) => {
             if (result.payload) {
@@ -23,7 +32,7 @@ export function SidebarAd() {
                 }
             }
         })
-    }, [pathname, dispatch])
+    }, [pathname, dispatch, propLocation])
 
     return (
         <aside className="hidden xl:block w-64 flex-shrink-0">

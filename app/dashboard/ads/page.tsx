@@ -188,7 +188,7 @@ export default function AdsPage() {
         }
     }
 
-    const locations = ["anasayfa", "basliklar", "entry"]
+    const locations = ["anasayfa", "basliklar", "entry", "arama"]
     const types = ["top", "sidebar"]
 
     return (
@@ -198,7 +198,7 @@ export default function AdsPage() {
                 <div className="flex flex-col">
                     <h1 className="text-xl font-bold tracking-tight text-foreground">Reklam Yönetimi</h1>
                     <p className="text-xs text-muted-foreground">
-                        Ana sayfa, başlıklar ve entry sayfalarındaki reklam alanlarını yönetin.
+                        Ana sayfa, başlıklar, entry ve arama sayfalarındaki reklam alanlarını yönetin.
                     </p>
                 </div>
 
@@ -290,6 +290,7 @@ export default function AdsPage() {
                                         <SelectItem value="anasayfa">Ana Sayfa</SelectItem>
                                         <SelectItem value="basliklar">Başlıklar</SelectItem>
                                         <SelectItem value="entry">Entry/Topic</SelectItem>
+                                        <SelectItem value="arama">Arama</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
