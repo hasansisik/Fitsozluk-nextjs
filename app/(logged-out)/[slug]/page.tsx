@@ -106,9 +106,15 @@ export default function TopicPage() {
                                                     id={entry._id}
                                                     content={entry.content}
                                                     author={entry.author.nick}
+                                                    authorPicture={entry.author.picture}
                                                     date={new Date(entry.createdAt || "").toLocaleDateString('tr-TR')}
                                                     time={new Date(entry.createdAt || "").toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                    likeCount={entry.likeCount}
+                                                    dislikeCount={entry.dislikeCount}
                                                     favoriteCount={entry.favoriteCount}
+                                                    isLiked={entry.likes?.includes(user?._id)}
+                                                    isDisliked={entry.dislikes?.includes(user?._id)}
+                                                    isFavorited={entry.favorites?.includes(user?._id)}
                                                     onDelete={handleDeleteEntry}
                                                     topicTitle={currentTopic?.title}
                                                     topicSlug={currentTopic?.slug}

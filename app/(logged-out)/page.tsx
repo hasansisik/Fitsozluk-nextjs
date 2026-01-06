@@ -14,6 +14,7 @@ import { Loader2, MessageSquare } from "lucide-react"
 export default function Home() {
   const dispatch = useAppDispatch()
   const { topics, loading } = useAppSelector((state) => state.topic)
+  const { user } = useAppSelector((state) => state.user)
 
   useEffect(() => {
     dispatch(getTopicsWithFirstEntry(30))
@@ -70,9 +71,15 @@ export default function Home() {
                               id={topic.firstEntry._id}
                               content={topic.firstEntry.content}
                               author={topic.firstEntry.author.nick}
+                              authorPicture={topic.firstEntry.author.picture}
                               date={new Date(topic.firstEntry.createdAt).toLocaleDateString('tr-TR')}
                               time={new Date(topic.firstEntry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                              likeCount={topic.firstEntry.likeCount}
+                              dislikeCount={topic.firstEntry.dislikeCount}
                               favoriteCount={topic.firstEntry.favoriteCount}
+                              isLiked={topic.firstEntry.likes?.includes(user?._id)}
+                              isDisliked={topic.firstEntry.dislikes?.includes(user?._id)}
+                              isFavorited={topic.firstEntry.favorites?.includes(user?._id)}
                               onDelete={handleDeleteEntry}
                               topicTitle={topic.title}
                               topicSlug={topic.slug}

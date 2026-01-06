@@ -14,9 +14,13 @@ export interface Entry {
         _id: string;
         nick: string;
         email: string;
+        picture?: string;
     };
-    isFavorited: boolean;
-    favoritedBy: string[];
+    likes: string[];
+    dislikes: string[];
+    favorites: string[];
+    likeCount: number;
+    dislikeCount: number;
     favoriteCount: number;
     isActive: boolean;
     createdAt?: string;
@@ -147,6 +151,54 @@ export const deleteEntry = createAsyncThunk(
                 },
             });
             return id;
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
+// Like entry
+export const likeEntry = createAsyncThunk(
+    "entry/likeEntry",
+    async (id: string, thunkAPI) => {
+        try {
+            const token = localStorage.getItem("accessToken");
+            const { data } = await axios.post(
+                `${server}/entries/${id}/like`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            return { id, ...data };
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
+// Dislike entry
+export const dislikeEntry = createAsyncThunk(
+    "entry/dislikeEntry",
+    async (id: string, thunkAPI) => {
+        try {
+            const token = localStorage.getItem("accessToken");
+            const { data } = await axios.post(
+                `${server}/entries/${id}/dislike`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            return { id, ...data };
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message

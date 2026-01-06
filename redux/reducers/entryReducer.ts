@@ -6,6 +6,8 @@ import {
     createEntry,
     updateEntry,
     deleteEntry,
+    likeEntry,
+    dislikeEntry,
     toggleFavorite,
     Entry
 } from "../actions/entryActions";
@@ -124,6 +126,28 @@ export const entryReducer = createReducer(initialState, (builder) => {
             state.error = action.payload as string;
         })
 
+        // Like entry
+        .addCase(likeEntry.fulfilled, (state, action) => {
+            const index = state.entries.findIndex(e => e._id === action.payload.id);
+            if (index !== -1) {
+                state.entries[index].likeCount = action.payload.likeCount;
+                state.entries[index].dislikeCount = action.payload.dislikeCount;
+                state.entries[index].likes = action.payload.likes;
+                state.entries[index].dislikes = action.payload.dislikes;
+            }
+        })
+
+        // Dislike entry
+        .addCase(dislikeEntry.fulfilled, (state, action) => {
+            const index = state.entries.findIndex(e => e._id === action.payload.id);
+            if (index !== -1) {
+                state.entries[index].likeCount = action.payload.likeCount;
+                state.entries[index].dislikeCount = action.payload.dislikeCount;
+                state.entries[index].likes = action.payload.likes;
+                state.entries[index].dislikes = action.payload.dislikes;
+            }
+        })
+
         // Toggle favorite
         .addCase(toggleFavorite.pending, (state) => {
             state.error = null;
@@ -132,7 +156,7 @@ export const entryReducer = createReducer(initialState, (builder) => {
             const index = state.entries.findIndex(e => e._id === action.payload.id);
             if (index !== -1) {
                 state.entries[index].favoriteCount = action.payload.favoriteCount;
-                state.entries[index].isFavorited = action.payload.isFavorited;
+                state.entries[index].favorites = action.payload.favorites;
             }
             state.message = action.payload.message;
             state.error = null;
