@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { login, clearError } from "@/redux/actions/userActions"
+import { FitmailAuthButton } from "@/components/fitmail-auth-button"
+
 
 export function LoginForm({
   className,
@@ -100,6 +102,14 @@ export function LoginForm({
           <Button type="submit" disabled={loading}>
             {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
           </Button>
+        </Field>
+
+        <div className="relative h-px bg-border my-2">
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-muted-foreground">VEYA</span>
+        </div>
+
+        <Field>
+          <FitmailAuthButton mode="login" />
         </Field>
         <Field>
           <FieldDescription className="text-center">

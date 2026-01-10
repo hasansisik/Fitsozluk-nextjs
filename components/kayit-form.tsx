@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { register, clearError } from "@/redux/actions/userActions"
+import { FitmailAuthButton } from "@/components/fitmail-auth-button"
+
 
 export function KayitForm({
   className,
@@ -231,6 +233,14 @@ export function KayitForm({
           >
             {loading ? "Kayıt yapılıyor..." : "kayıt ol"}
           </Button>
+        </Field>
+
+        <div className="relative h-px bg-border my-2">
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-muted-foreground">VEYA</span>
+        </div>
+
+        <Field>
+          <FitmailAuthButton mode="register" />
         </Field>
 
         {/* Login Link */}
