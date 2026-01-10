@@ -1,18 +1,20 @@
 "use client"
 
-import { Search, Menu, ChevronDown, User, Settings, MoreHorizontal } from "lucide-react"
+import { Search, Menu, ChevronDown, User, Settings, MoreHorizontal, X } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
-import topicsData from "@/data/topics.json"
-import usersData from "@/data/users-profile.json"
+import { useRouter, usePathname } from "next/navigation"
+import axios from "axios"
+import { server } from "@/config"
+import { getAllTopics } from "@/redux/actions/topicActions"
+import { searchUsers, loadUser, logout } from "@/redux/actions/userActions"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
-import { loadUser, logout } from "@/redux/actions/userActions"
 import { getFeaturedMenus } from "@/redux/actions/menuActions"
 
 export function DictionaryHeader() {
     const router = useRouter()
+    const pathname = usePathname()
     const dispatch = useAppDispatch()
     const { user, isAuthenticated } = useAppSelector((state) => state.user)
     const { featuredMenus, additionalMenus } = useAppSelector((state) => state.menu)
@@ -23,12 +25,35 @@ export function DictionaryHeader() {
     const [searchQuery, setSearchQuery] = useState("")
     const [searchResults, setSearchResults] = useState<any[]>([])
     const [showSearchResults, setShowSearchResults] = useState(false)
+    const [exactMatchExists, setExactMatchExists] = useState(false)
     const [showFilters, setShowFilters] = useState(false)
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
     const searchRef = useRef<HTMLDivElement>(null)
     const filterRef = useRef<HTMLDivElement>(null)
+    const settingsMenuRef = useRef<HTMLDivElement>(null)
+    const moreTopicsRef = useRef<HTMLDivElement>(null)
+    const searchTimeout = useRef<any>(null)
+
+    // Get current category from URL to preserve it during search
+    const [currentCategory, setCurrentCategory] = useState<string>("gündem")
+
+    // Clear search when navigating to a different page
+    useEffect(() => {
+        setSearchQuery("")
+        setSearchResults([])
+        setShowSearchResults(false)
+        setShowFilters(false)
+    }, [pathname])
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search)
+            const category = params.get('kategori') || params.get('category') || 'gündem'
+            setCurrentCategory(category)
+        }
+    }, [router])
 
     useEffect(() => {
         // Load user from token if exists
@@ -40,7 +65,7 @@ export function DictionaryHeader() {
         // Load menus and topics from backend
         dispatch(getFeaturedMenus())
 
-        // Click outside to close search results and filters
+        // Click outside to close all dropdowns
         const handleClickOutside = (event: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
                 setShowSearchResults(false)
@@ -48,50 +73,95 @@ export function DictionaryHeader() {
             if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
                 setShowFilters(false)
             }
+            if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target as Node)) {
+                setShowSettingsMenu(false)
+            }
+            if (moreTopicsRef.current && !moreTopicsRef.current.contains(event.target as Node)) {
+                setShowMoreTopics(false)
+            }
         }
 
         document.addEventListener("mousedown", handleClickOutside)
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [dispatch, isAuthenticated])
 
-    const handleSearch = (query: string) => {
+    const handleSearch = async (query: string) => {
         setSearchQuery(query)
 
         if (query.trim().length < 2) {
             setSearchResults([])
+            setExactMatchExists(false)
             setShowSearchResults(false)
             return
         }
 
-        const lowerQuery = query.toLowerCase()
-        const results: any[] = []
+        // Debounce search
+        if (searchTimeout.current) {
+            clearTimeout(searchTimeout.current)
+        }
 
-        // Search topics
-        topicsData.forEach((topic: any) => {
-            if (topic.title.toLowerCase().includes(lowerQuery)) {
-                results.push({
-                    type: 'topic',
-                    title: topic.title,
-                    slug: topic.slug,
-                    entryCount: topic.entryCount
+        searchTimeout.current = setTimeout(async () => {
+            try {
+                const results: any[] = []
+
+                const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
+                const config = token ? {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                } : {};
+
+                // Search topics and users directly without updating Redux store
+                // This prevents sidebar from being affected by header search
+                const [topicsResponse, usersResponse] = await Promise.all([
+                    axios.get(`${server}/topics?search=${encodeURIComponent(query)}`, config).catch(() => ({ data: { topics: [], exactMatchExists: false } })),
+                    axios.get(`${server}/auth/search-users?search=${encodeURIComponent(query)}&limit=5`, config).catch((err) => {
+                        console.error("User search error:", err)
+                        return { data: { success: false, users: [] } }
+                    })
+                ])
+
+                console.log("Topics response:", topicsResponse.data)
+                console.log("Users response:", usersResponse.data)
+
+                // Set global existence flag
+                setExactMatchExists(topicsResponse.data.exactMatchExists || false)
+
+                // Add topics to results
+                const topics = topicsResponse.data.topics || []
+                topics.slice(0, 5).forEach((topic: any) => {
+                    results.push({
+                        type: 'topic',
+                        title: topic.title,
+                        slug: topic.slug,
+                        entryCount: topic.entryCount
+                    })
                 })
-            }
-        })
 
-        // Search users
-        usersData.forEach((user: any) => {
-            if (user.nick?.toLowerCase().includes(lowerQuery) ||
-                user.displayName.toLowerCase().includes(lowerQuery)) {
-                results.push({
-                    type: 'user',
-                    nick: user.nick,
-                    displayName: user.displayName
+                // Add users to results - handle different response formats
+                let users = []
+                if (usersResponse.data.users) {
+                    users = usersResponse.data.users
+                } else if (Array.isArray(usersResponse.data)) {
+                    users = usersResponse.data
+                }
+
+                console.log("Users array:", users)
+                users.forEach((user: any) => {
+                    results.push({
+                        type: 'user',
+                        nick: user.nick,
+                        _id: user._id
+                    })
                 })
-            }
-        })
 
-        setSearchResults(results.slice(0, 10)) // Limit to 10 results
-        setShowSearchResults(results.length > 0)
+                console.log("Final results:", results)
+                setSearchResults(results)
+                setShowSearchResults(results.length > 0)
+            } catch (error) {
+                console.error("Search error:", error)
+            }
+        }, 300)
     }
 
     const handleLogout = async () => {
@@ -102,6 +172,12 @@ export function DictionaryHeader() {
 
     const getMenuHref = (href: string) => {
         if (!href) return "/";
+
+        // If href doesn't start with /, add it (e.g., "debe" -> "/debe")
+        if (!href.startsWith('/') && !href.startsWith('http')) {
+            href = `/${href}`;
+        }
+
         const excluded = ['/', '/debe', '/giris', '/kayitol', '/ayarlar', '/arama', '/istatistikler'];
         if (excluded.includes(href) || href.startsWith('http') || href.startsWith('/biri/')) return href;
         if (href.startsWith('/basliklar/')) return href;
@@ -134,14 +210,45 @@ export function DictionaryHeader() {
 
                         {/* Search Bar - Centered */}
                         <div ref={searchRef} className="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
-                            <form onSubmit={(e) => {
+                            <form onSubmit={async (e) => {
                                 e.preventDefault()
                                 if (searchQuery.trim().length >= 2) {
+                                    // First, check if a topic with this exact title exists globally
+                                    try {
+                                        const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
+                                        const config = token ? {
+                                            headers: {
+                                                Authorization: `Bearer ${token}`,
+                                            },
+                                        } : {};
+
+                                        const response = await axios.get(`${server}/topics?search=${encodeURIComponent(searchQuery)}`, config)
+
+                                        // If exact match exists anywhere in DB
+                                        if (response.data.exactMatchExists) {
+                                            // Generate slug from search query to navigate directly
+                                            // Even if we can't see the exact topic object in 'topics' list, we know it exists
+                                            const generatedSlug = searchQuery.trim()
+                                                .toLowerCase()
+                                                .replace(/ /g, '-')
+                                                .replace(/[^\w-]+/g, '')
+
+                                            router.push(`/${generatedSlug}`)
+                                            setShowSearchResults(false)
+                                            setSearchQuery("")
+                                            return
+                                        }
+                                    } catch (error) {
+                                        console.error("Topic global check error:", error)
+                                    }
+
+                                    // If no exact match, go to search results page
                                     const params = new URLSearchParams({
                                         q: searchQuery,
                                         ...(startDate && { startDate }),
                                         ...(endDate && { endDate }),
-                                        sort: sortOrder
+                                        sort: sortOrder,
+                                        kategori: currentCategory
                                     })
                                     router.push(`/arama?${params.toString()}`)
                                     setShowSearchResults(false)
@@ -165,8 +272,23 @@ export function DictionaryHeader() {
                                                 setShowFilters(false)
                                             }
                                         }}
-                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-12 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-offset-0"
+                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-20 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-offset-0"
                                     />
+                                    {/* Clear button */}
+                                    {searchQuery && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setSearchQuery("")
+                                                setSearchResults([])
+                                                setShowSearchResults(false)
+                                            }}
+                                            className="absolute right-12 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center hover:bg-secondary rounded-md transition-colors"
+                                            title="Temizle"
+                                        >
+                                            <X className="h-3.5 w-3.5 text-muted-foreground" />
+                                        </button>
+                                    )}
                                     <div ref={filterRef} className="absolute right-2 top-1/2 -translate-y-1/2">
                                         <button
                                             type="button"
@@ -258,7 +380,8 @@ export function DictionaryHeader() {
                                                                     q: searchQuery,
                                                                     ...(startDate && { startDate }),
                                                                     ...(endDate && { endDate }),
-                                                                    sort: sortOrder
+                                                                    sort: sortOrder,
+                                                                    category: currentCategory
                                                                 })
                                                                 router.push(`/arama?${params.toString()}`)
                                                                 setShowFilters(false)
@@ -281,7 +404,7 @@ export function DictionaryHeader() {
                                             {searchResults.map((result, index) => (
                                                 <Link
                                                     key={index}
-                                                    href={result.type === 'topic' ? `/${result.slug}` : `/biri/${result.nick}`}
+                                                    href={result.type === 'topic' ? `/${result.slug}` : `/yazar/${result.nick}`}
                                                     onClick={() => {
                                                         setShowSearchResults(false)
                                                         setSearchQuery("")
@@ -320,9 +443,12 @@ export function DictionaryHeader() {
                                         <User className="h-5 w-5" />
                                     </Link>
 
-                                    <div className="relative">
+                                    <div ref={settingsMenuRef} className="relative">
                                         <button
-                                            onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                                            onClick={() => {
+                                                setShowSettingsMenu(!showSettingsMenu)
+                                                setShowMoreTopics(false) // Close more topics when opening settings
+                                            }}
                                             className="p-2 text-foreground hover:text-[#4729ff] transition-colors"
                                             title="Ayarlar"
                                         >
@@ -392,21 +518,50 @@ export function DictionaryHeader() {
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
                     <nav className="flex items-center justify-between h-9">
                         {/* Main Topics - Spread evenly across full width */}
-                        {featuredMenus.map((menu) => (
-                            <Link
-                                key={menu._id}
-                                href={getMenuHref(menu.href)}
-                                className="text-sm font-medium text-foreground hover:text-[#4729ff] hover:underline transition-colors whitespace-nowrap"
-                            >
-                                {menu.label}
-                            </Link>
-                        ))}
+
+                        {featuredMenus.map((menu) => {
+                            // Normalize category from label for consistency with backend
+                            const category = menu.label.replace('#', '').trim().toLocaleLowerCase('tr-TR');
+
+                            // Normalize href to always have leading slash for comparison
+                            const normalizedHref = menu.href.startsWith('/') ? menu.href : `/${menu.href}`;
+
+                            // Check if this menu's href is a special route or page
+                            const isSpecialRoute = normalizedHref === '/debe' ||
+                                normalizedHref === '/giris' ||
+                                normalizedHref === '/kayitol' ||
+                                normalizedHref === '/ayarlar' ||
+                                normalizedHref === '/arama' ||
+                                normalizedHref === '/istatistikler' ||
+                                menu.href.startsWith('http') ||
+                                menu.href.startsWith('/biri/') ||
+                                menu.href.startsWith('/basliklar/');
+
+                            // If it's a special route/page, use getMenuHref
+                            // Otherwise, treat it as a category filter for the homepage
+                            const href = isSpecialRoute
+                                ? getMenuHref(menu.href)
+                                : `/?kategori=${category}`;
+
+                            return (
+                                <Link
+                                    key={menu._id}
+                                    href={href}
+                                    className="text-sm font-medium text-foreground hover:text-[#4729ff] hover:underline transition-colors whitespace-nowrap"
+                                >
+                                    {menu.label}
+                                </Link>
+                            );
+                        })}
 
                         {/* More Topics Dropdown */}
                         {additionalMenus.length > 0 && (
-                            <div className="relative flex-shrink-0">
+                            <div ref={moreTopicsRef} className="relative flex-shrink-0">
                                 <button
-                                    onClick={() => setShowMoreTopics(!showMoreTopics)}
+                                    onClick={() => {
+                                        setShowMoreTopics(!showMoreTopics)
+                                        setShowSettingsMenu(false) // Close settings when opening more topics
+                                    }}
                                     className="text-sm text-foreground hover:text-[#4729ff] transition-colors flex items-center"
                                 >
                                     <MoreHorizontal className="h-4 w-4" />
@@ -415,16 +570,37 @@ export function DictionaryHeader() {
                                 {/* Dropdown Menu */}
                                 {showMoreTopics && (
                                     <div className="absolute top-full right-0 mt-1 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
-                                        {additionalMenus.map((menu) => (
-                                            <Link
-                                                key={menu._id}
-                                                href={getMenuHref(menu.href)}
-                                                className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
-                                                onClick={() => setShowMoreTopics(false)}
-                                            >
-                                                {menu.label}
-                                            </Link>
-                                        ))}
+                                        {additionalMenus.map((menu) => {
+                                            const category = menu.label.replace('#', '').trim().toLocaleLowerCase('tr-TR');
+
+                                            // Normalize href to always have leading slash for comparison
+                                            const normalizedHref = menu.href.startsWith('/') ? menu.href : `/${menu.href}`;
+
+                                            const isSpecialRoute = normalizedHref === '/debe' ||
+                                                normalizedHref === '/giris' ||
+                                                normalizedHref === '/kayitol' ||
+                                                normalizedHref === '/ayarlar' ||
+                                                normalizedHref === '/arama' ||
+                                                normalizedHref === '/istatistikler' ||
+                                                menu.href.startsWith('http') ||
+                                                menu.href.startsWith('/biri/') ||
+                                                menu.href.startsWith('/basliklar/');
+
+                                            const href = isSpecialRoute
+                                                ? getMenuHref(menu.href)
+                                                : `/?kategori=${category}`;
+
+                                            return (
+                                                <Link
+                                                    key={menu._id}
+                                                    href={href}
+                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
+                                                    onClick={() => setShowMoreTopics(false)}
+                                                >
+                                                    {menu.label}
+                                                </Link>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>

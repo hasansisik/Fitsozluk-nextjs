@@ -126,6 +126,18 @@ export function ResetPasswordForm() {
                 </p>
             </div>
 
+            {/* Email notification banner */}
+            {email && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                        Şifre sıfırlama kodu <strong>{email}</strong> adresine gönderildi.
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                        E-postanızı kontrol edin ve 4 haneli kodu aşağıya girin.
+                    </p>
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Verification Code Field */}
                 <div>

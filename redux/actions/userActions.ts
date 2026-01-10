@@ -432,6 +432,60 @@ export const updateUserRole = createAsyncThunk(
   }
 );
 
+export const updateUserStatus = createAsyncThunk(
+  "user/updateUserStatus",
+  async ({ id, status }: { id: string; status: string }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.patch(
+        `${server}/auth/users/${id}/status`,
+        { status },
+        config
+      );
+      return { id, status, message: response.data.message };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message
+      );
+    }
+  }
+);
+
+export const updateUserTitle = createAsyncThunk(
+  "user/updateUserTitle",
+  async ({ id, title }: { id: string; title: string }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.patch(
+        `${server}/auth/users/${id}/title`,
+        { title },
+        config
+      );
+      return { id, title, message: response.data.message };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message
+      );
+    }
+  }
+);
+
 export const followUser = createAsyncThunk(
   "user/followUser",
   async (id: string, thunkAPI) => {
@@ -468,13 +522,78 @@ export const unfollowUser = createAsyncThunk(
   }
 );
 
+export const getFollowers = createAsyncThunk(
+  "user/getFollowers",
+  async (id: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = token ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } : {};
+      const { data } = await axios.get(`${server}/auth/users/${id}/followers`, config);
+      return data.followers;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const getFollowing = createAsyncThunk(
+  "user/getFollowing",
+  async (id: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = token ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } : {};
+      const { data } = await axios.get(`${server}/auth/users/${id}/following`, config);
+      return data.following;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 // Get User By Nick (Public)
 export const getUserByNick = createAsyncThunk(
   "user/getUserByNick",
   async (nick: string, thunkAPI) => {
     try {
-      const { data } = await axios.get(`${server}/auth/users/${nick}`);
+      const token = localStorage.getItem("accessToken");
+      const config = token ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } : {};
+      const { data } = await axios.get(`${server}/auth/users/${nick}`, config);
       return data.user;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Search Users (Public)
+export const searchUsers = createAsyncThunk(
+  "user/searchUsers",
+  async (params: { search: string; limit?: number }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = token ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } : {};
+
+      const { data } = await axios.get(
+        `${server}/auth/search-users?search=${params.search}&limit=${params.limit || 5}`,
+        config
+      );
+      return data.users;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -489,3 +608,57 @@ export const clearError = createAsyncThunk(
   }
 );
 
+
+export const blockUser = createAsyncThunk(
+  "user/blockUser",
+  async (id: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.post(`${server}/auth/users/${id}/block`, {}, config);
+      return { id, message: response.data.message };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const unblockUser = createAsyncThunk(
+  "user/unblockUser",
+  async (id: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await axios.post(`${server}/auth/users/${id}/unblock`, {}, config);
+      return { id, message: response.data.message };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const getBlockedUsers = createAsyncThunk(
+  "user/getBlockedUsers",
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await axios.get(`${server}/auth/blocked-users`, config);
+      return data.blockedUsers;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);

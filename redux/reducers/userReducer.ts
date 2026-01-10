@@ -15,9 +15,13 @@ import {
   getAllUsers,
   deleteUser,
   updateUserRole,
+  updateUserStatus,
+  updateUserTitle,
   clearError,
   followUser,
   unfollowUser,
+  blockUser,
+  unblockUser
 } from "../actions/userActions";
 
 interface UserState {
@@ -293,6 +297,38 @@ export const userReducer = createReducer(initialState, (builder) => {
       state.usersLoading = false;
       state.usersError = action.payload as string;
     })
+    // Update User Status
+    .addCase(updateUserStatus.pending, (state) => {
+      state.usersLoading = true;
+    })
+    .addCase(updateUserStatus.fulfilled, (state, action) => {
+      state.usersLoading = false;
+      const index = state.allUsers.findIndex(user => user._id === action.payload.id);
+      if (index !== -1) {
+        state.allUsers[index].status = action.payload.status;
+      }
+      state.message = action.payload.message;
+    })
+    .addCase(updateUserStatus.rejected, (state, action) => {
+      state.usersLoading = false;
+      state.usersError = action.payload as string;
+    })
+    // Update User Title
+    .addCase(updateUserTitle.pending, (state) => {
+      state.usersLoading = true;
+    })
+    .addCase(updateUserTitle.fulfilled, (state, action) => {
+      state.usersLoading = false;
+      const index = state.allUsers.findIndex(user => user._id === action.payload.id);
+      if (index !== -1) {
+        state.allUsers[index].title = action.payload.title;
+      }
+      state.message = action.payload.message;
+    })
+    .addCase(updateUserTitle.rejected, (state, action) => {
+      state.usersLoading = false;
+      state.usersError = action.payload as string;
+    })
     // Follow User
     .addCase(followUser.fulfilled, (state, action) => {
       if (state.user && state.user.following) {
@@ -303,6 +339,35 @@ export const userReducer = createReducer(initialState, (builder) => {
     .addCase(unfollowUser.fulfilled, (state, action) => {
       if (state.user && state.user.following) {
         state.user.following = state.user.following.filter((id: string) => id !== action.payload.id);
+      }
+    })
+    // Block User
+    .addCase(blockUser.fulfilled, (state, action) => {
+      if (state.user) {
+        // Initialize if not exists
+        if (!state.user.blockedUsers) state.user.blockedUsers = [];
+
+        // Add to blockedUsers if not already there (though backend handles duplicates, frontend state should too)
+        // Check if we have objects or IDs. If objects, we might just push the ID for now or reload.
+        // Since we don't have the full user object in payload, just pushing ID might be risky if we expect objects.
+        // Safest is to rely on loadUser which we trigger, BUT for immediate feedback:
+        // Actually, let's just push the ID. The interface expects objects but `any` allows anything.
+        // However, the Settings page will loop over blockedUsers. If some are IDs and some are objects, it breaks.
+        // BETTER STRATEGY: Do nothing here, rely on loadUser dispatch from the component, OR
+        // push a dummy object?
+        // Let's NOT update state here since we don't have the full user object to push to blockedUsers array.
+        // But we DO need to remove from following.
+        if (state.user.following) {
+          state.user.following = state.user.following.filter((id: string) => id !== action.payload.id);
+        }
+      }
+    })
+    // Unblock User
+    .addCase(unblockUser.fulfilled, (state, action) => {
+      if (state.user && state.user.blockedUsers) {
+        state.user.blockedUsers = state.user.blockedUsers.filter((u: any) =>
+          (typeof u === 'string' ? u : u._id) !== action.payload.id
+        );
       }
     })
     // Clear Error

@@ -185,40 +185,10 @@ export function KayitForm({
               />
               <span className="text-sm">erkek</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="gender"
-                value="başka"
-                checked={gender === "başka"}
-                onChange={(e) => setGender(e.target.value)}
-                className="w-4 h-4 text-[#4729ff] border-gray-300 focus:ring-[#4729ff]"
-                disabled={loading}
-              />
-              <span className="text-sm">başka</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="gender"
-                value="boşver"
-                checked={gender === "boşver"}
-                onChange={(e) => setGender(e.target.value)}
-                className="w-4 h-4 text-[#4729ff] border-gray-300 focus:ring-[#4729ff]"
-                disabled={loading}
-              />
-              <span className="text-sm bg-[#4729ff] text-white px-2 py-1 rounded">boşver</span>
-            </label>
           </div>
         </Field>
 
-        {/* Privacy Notice */}
-        <div className="flex gap-2 p-3 bg-muted rounded-md text-sm">
-          <span className="text-lg">ⓘ</span>
-          <p className="text-muted-foreground">
-            hesap güvenliğiniz açısından şifrenizin <strong>diğer sitelerde kullandığınız şifrelerden farklı olmasını</strong> tavsiye ederiz.
-          </p>
-        </div>
+
 
         {/* Şifre */}
         <Field>
@@ -259,7 +229,7 @@ export function KayitForm({
             disabled={loading || (password !== confirmPassword && confirmPassword !== "")}
             className="bg-[#4729ff] hover:bg-[#3820cc] text-white"
           >
-            {loading ? "Kayıt yapılıyor..." : "kayıt ol işte böyle"}
+            {loading ? "Kayıt yapılıyor..." : "kayıt ol"}
           </Button>
         </Field>
 

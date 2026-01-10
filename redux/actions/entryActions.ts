@@ -48,6 +48,10 @@ export const getAllEntries = createAsyncThunk(
         likedBy?: string;
         dislikedBy?: string;
         favoritedBy?: string;
+        search?: string;
+        sort?: string;
+        startDate?: string;
+        endDate?: string;
     } = {}, thunkAPI) => {
         try {
             const queryParams = new URLSearchParams();
@@ -57,9 +61,21 @@ export const getAllEntries = createAsyncThunk(
             if (params.likedBy) queryParams.append('likedBy', params.likedBy);
             if (params.dislikedBy) queryParams.append('dislikedBy', params.dislikedBy);
             if (params.favoritedBy) queryParams.append('favoritedBy', params.favoritedBy);
+            if (params.search) queryParams.append('search', params.search);
+            if (params.sort) queryParams.append('sort', params.sort);
+            if (params.startDate) queryParams.append('startDate', params.startDate);
+            if (params.endDate) queryParams.append('endDate', params.endDate);
+
+            const token = localStorage.getItem("accessToken");
+            const config = token ? {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            } : {};
 
             const { data } = await axios.get(
-                `${server}/entries${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+                `${server}/entries${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+                config
             );
             return data.entries;
         } catch (error: any) {
@@ -73,9 +89,32 @@ export const getAllEntries = createAsyncThunk(
 // Get entries by topic
 export const getEntriesByTopic = createAsyncThunk(
     "entry/getEntriesByTopic",
-    async (topicId: string, thunkAPI) => {
+    async (params: {
+        topicId: string;
+        search?: string;
+        timeRange?: string;
+        filterType?: string;
+        userId?: string;
+    }, thunkAPI) => {
         try {
-            const { data } = await axios.get(`${server}/entries/topic/${topicId}`);
+            const queryParams = new URLSearchParams();
+            if (params.search) queryParams.append('search', params.search);
+            if (params.timeRange) queryParams.append('timeRange', params.timeRange);
+            if (params.filterType) queryParams.append('filterType', params.filterType);
+            if (params.userId) queryParams.append('userId', params.userId);
+
+            const queryString = queryParams.toString();
+            const token = localStorage.getItem("accessToken");
+            const config = token ? {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            } : {};
+
+            const { data } = await axios.get(
+                `${server}/entries/topic/${params.topicId}${queryString ? `?${queryString}` : ''}`,
+                config
+            );
             return data.entries;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
@@ -90,7 +129,14 @@ export const getEntry = createAsyncThunk(
     "entry/getEntry",
     async (id: string, thunkAPI) => {
         try {
-            const { data } = await axios.get(`${server}/entries/${id}`);
+            const token = localStorage.getItem("accessToken");
+            const config = token ? {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            } : {};
+
+            const { data } = await axios.get(`${server}/entries/${id}`, config);
             return data.entry;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
@@ -233,6 +279,33 @@ export const toggleFavorite = createAsyncThunk(
                 }
             );
             return { id, ...data };
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
+
+// Get entries feed by category (for homepage)
+export const getEntriesFeed = createAsyncThunk(
+    "entry/getEntriesFeed",
+    async (params: { limit?: number; category?: string } = {}, thunkAPI) => {
+        try {
+            const queryParams = new URLSearchParams();
+            if (params.limit) queryParams.append('limit', params.limit.toString());
+            if (params.category) queryParams.append('category', params.category);
+
+            const token = localStorage.getItem("accessToken");
+            const config = token ? {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            } : {};
+
+            const { data } = await axios.get(`${server}/entries/feed?${queryParams.toString()}`, config);
+            return data.entries;
         } catch (error: any) {
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || error.message

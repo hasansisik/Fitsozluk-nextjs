@@ -3,76 +3,131 @@
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
-import topicsData from "@/data/topics.json"
-import usersData from "@/data/users-profile.json"
+import { useAppDispatch } from "@/redux/hook"
+import { getAllTopics } from "@/redux/actions/topicActions"
+import { getAllEntries } from "@/redux/actions/entryActions"
+import { searchUsers } from "@/redux/actions/userActions"
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
 
 function SearchContent() {
     const searchParams = useSearchParams()
+    const dispatch = useAppDispatch()
     const query = searchParams.get("q") || ""
     const startDate = searchParams.get("startDate") || ""
     const endDate = searchParams.get("endDate") || ""
     const sortOrder = searchParams.get("sort") || "newest"
 
     const [results, setResults] = useState<any[]>([])
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        if (query.trim().length < 2) {
-            setResults([])
-            return
+        const fetchResults = async () => {
+            if (query.trim().length < 2) {
+                setResults([])
+                return
+            }
+
+            setLoading(true)
+            try {
+                const combinedResults: any[] = []
+
+                // Parallel API requests
+                const [topicsResult, entriesResult, usersResult] = await Promise.all([
+                    dispatch(getAllTopics({ search: query })).unwrap(),
+                    dispatch(getAllEntries({
+                        search: query,
+                        sort: sortOrder === 'newest' ? '-createdAt' : 'createdAt',
+                        startDate: startDate || undefined,
+                        endDate: endDate || undefined
+                    })).unwrap(),
+                    dispatch(searchUsers({ search: query, limit: 10 })).unwrap()
+                ])
+
+                // Process Topics
+                if (topicsResult && (topicsResult.topics || Array.isArray(topicsResult))) {
+                    const topics = Array.isArray(topicsResult) ? topicsResult : topicsResult.topics
+                    topics.forEach((topic: any) => {
+                        combinedResults.push({
+                            type: 'topic',
+                            title: topic.title,
+                            slug: topic.slug,
+                            entryCount: topic.entryCount,
+                            date: new Date(topic.createdAt).toLocaleDateString('tr-TR'),
+                            originalDate: topic.createdAt
+                        })
+                    })
+                }
+
+                // Process Users
+                if (usersResult) {
+                    usersResult.forEach((user: any) => {
+                        combinedResults.push({
+                            type: 'user',
+                            nick: user.nick,
+                            title: user.title,
+                            date: new Date(user.createdAt || Date.now()).toLocaleDateString('tr-TR'),
+                            originalDate: user.createdAt || Date.now()
+                        })
+                    })
+                }
+
+                // Process Entries
+                if (entriesResult) {
+                    entriesResult.forEach((entry: any) => {
+                        combinedResults.push({
+                            type: 'entry',
+                            content: entry.content,
+                            topicSlug: entry.topic?.slug,
+                            topicTitle: entry.topic?.title,
+                            author: entry.author?.nick,
+                            date: new Date(entry.createdAt).toLocaleDateString('tr-TR'),
+                            originalDate: entry.createdAt
+                        })
+                    })
+                }
+
+                // Filter combined results by date if filters are active
+                // This is necessary because topics and users APIs might not support filtering by date,
+                // and to ensure consistency across all result types.
+                let filteredResults = combinedResults
+                if (startDate || endDate) {
+                    const start = startDate ? new Date(startDate) : new Date('2000-01-01')
+                    start.setHours(0, 0, 0, 0)
+
+                    const end = endDate ? new Date(endDate) : new Date('2100-01-01')
+                    end.setHours(23, 59, 59, 999)
+
+                    filteredResults = combinedResults.filter(item => {
+                        const itemDate = new Date(item.originalDate)
+                        return itemDate >= start && itemDate <= end
+                    })
+                } else {
+                    filteredResults = combinedResults
+                }
+
+                // Sort combined results
+                filteredResults.sort((a: any, b: any) => {
+                    const dateA = new Date(a.originalDate).getTime()
+                    const dateB = new Date(b.originalDate).getTime()
+                    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB
+                })
+
+                setResults(filteredResults)
+            } catch (error) {
+                console.error("Search page error:", error)
+            } finally {
+                setLoading(false)
+            }
         }
 
-        const lowerQuery = query.toLowerCase()
-        const searchResults: any[] = []
+        fetchResults()
+    }, [dispatch, query, startDate, endDate, sortOrder])
 
-        // Search topics
-        topicsData.forEach((topic: any) => {
-            if (topic.title.toLowerCase().includes(lowerQuery)) {
-                searchResults.push({
-                    type: 'topic',
-                    title: topic.title,
-                    slug: topic.slug,
-                    entryCount: topic.entryCount,
-                    date: topic.entries[0]?.date || "01.01.2024"
-                })
-            }
-        })
-
-        // Search users
-        usersData.forEach((user: any) => {
-            if ((user.nick || "").toLowerCase().includes(lowerQuery) ||
-                user.displayName.toLowerCase().includes(lowerQuery)) {
-                searchResults.push({
-                    type: 'user',
-                    nick: user.nick,
-                    displayName: user.displayName,
-                    date: user.joinDate || "01.01.2024"
-                })
-            }
-        })
-
-        // Apply date filtering
-        let filteredResults = searchResults
-        if (startDate || endDate) {
-            filteredResults = searchResults.filter((result) => {
-                const resultDate = new Date(result.date.split('.').reverse().join('-'))
-                const start = startDate ? new Date(startDate) : new Date('2000-01-01')
-                const end = endDate ? new Date(endDate) : new Date('2100-01-01')
-                return resultDate >= start && resultDate <= end
-            })
-        }
-
-        // Apply sorting
-        filteredResults.sort((a, b) => {
-            const dateA = new Date(a.date.split('.').reverse().join('-'))
-            const dateB = new Date(b.date.split('.').reverse().join('-'))
-            return sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime()
-        })
-
-        setResults(filteredResults)
-    }, [query, startDate, endDate, sortOrder])
+    const exactMatchExists = results.some(
+        (r) => r.type === 'topic' && r.title.toLowerCase() === query.toLowerCase().trim()
+    )
 
     return (
         <div className="w-full bg-white">
@@ -103,54 +158,94 @@ function SearchContent() {
                                     </p>
                                 </div>
 
-                                {results.length > 0 ? (
-                                    <div className="space-y-4">
-                                        {results.map((result, index) => (
-                                            <div key={index} className="bg-white border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                                                {result.type === 'topic' ? (
-                                                    <Link href={`/${result.slug}`}>
-                                                        <div className="flex items-start justify-between">
-                                                            <div>
-                                                                <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
-                                                                    {result.title}
-                                                                </h3>
-                                                                <p className="text-sm text-muted-foreground mt-1">
-                                                                    {result.entryCount} entry
-                                                                </p>
-                                                            </div>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {result.date}
-                                                            </span>
-                                                        </div>
-                                                    </Link>
-                                                ) : (
-                                                    <Link href={`/yazar/${result.nick}`}>
-                                                        <div className="flex items-start justify-between">
-                                                            <div>
-                                                                <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
-                                                                    @{result.nick}
-                                                                </h3>
-                                                                <p className="text-sm text-muted-foreground mt-1">
-                                                                    {result.displayName}
-                                                                </p>
-                                                            </div>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                Kullanıcı
-                                                            </span>
-                                                        </div>
-                                                    </Link>
-                                                )}
-                                            </div>
-                                        ))}
+                                {loading ? (
+                                    <div className="bg-white border border-border rounded-lg p-8 text-center">
+                                        <p className="text-muted-foreground">Aranıyor...</p>
                                     </div>
                                 ) : (
-                                    <div className="bg-white border border-border rounded-lg p-8 text-center">
-                                        <p className="text-muted-foreground">
-                                            {query.trim().length < 2
-                                                ? "Arama yapmak için en az 2 karakter girin"
-                                                : "Sonuç bulunamadı"}
-                                        </p>
-                                    </div>
+                                    <>
+                                        {/* Create Topic Button - Show IF NO EXACT MATCH IN ENTIRE DB */}
+                                        {query.trim().length >= 2 && !exactMatchExists && (
+                                            <div className="bg-gradient-to-r from-[#4729ff]/10 to-[#4729ff]/5 border-2 border-[#4729ff]/20 rounded-lg p-6 mb-6">
+                                                <p className="text-sm text-muted-foreground text-center mb-3">
+                                                    <span className="font-semibold text-foreground">"{query}"</span> başlığı henüz oluşturulmamış
+                                                </p>
+                                                <Link
+                                                    href={`/baslik-olustur?title=${encodeURIComponent(query)}`}
+                                                    className="block w-full max-w-md mx-auto px-6 py-3 bg-[#4729ff] text-white rounded-lg hover:bg-[#3820cc] transition-colors text-center font-medium"
+                                                >
+                                                    Bu başlığı oluştur
+                                                </Link>
+                                            </div>
+                                        )}
+
+                                        {/* Search Results */}
+                                        {results.length > 0 ? (
+                                            <div className="space-y-4">
+                                                {results.map((result, index) => (
+                                                    <div key={index} className="bg-white border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                        {result.type === 'topic' ? (
+                                                            <Link href={`/${result.slug}`}>
+                                                                <div className="flex items-start justify-between">
+                                                                    <div>
+                                                                        <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
+                                                                            {result.title}
+                                                                        </h3>
+                                                                        <p className="text-sm text-muted-foreground mt-1">
+                                                                            {result.entryCount} entry
+                                                                        </p>
+                                                                    </div>
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        {result.date}
+                                                                    </span>
+                                                                </div>
+                                                            </Link>
+                                                        ) : result.type === 'user' ? (
+                                                            <Link href={`/yazar/${result.nick}`}>
+                                                                <div className="flex items-start justify-between">
+                                                                    <div>
+                                                                        <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
+                                                                            @{result.nick}
+                                                                        </h3>
+                                                                        <p className="text-sm text-muted-foreground mt-1">
+                                                                            {result.title || 'kullanıcı'}
+                                                                        </p>
+                                                                    </div>
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        {result.date}
+                                                                    </span>
+                                                                </div>
+                                                            </Link>
+                                                        ) : (
+                                                            <Link href={`/${result.topicSlug}`}>
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex-1">
+                                                                        <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                                                                            {result.topicTitle} &gt; <span className="text-[#4729ff]">@{result.author}</span>
+                                                                        </h3>
+                                                                        <p className="text-base text-foreground line-clamp-3">
+                                                                            {result.content}
+                                                                        </p>
+                                                                    </div>
+                                                                    <span className="text-xs text-muted-foreground ml-4 whitespace-nowrap">
+                                                                        {result.date}
+                                                                    </span>
+                                                                </div>
+                                                            </Link>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-white border border-border rounded-lg p-8 text-center">
+                                                <p className="text-muted-foreground">
+                                                    {query.trim().length < 2
+                                                        ? "Arama yapmak için en az 2 karakter girin"
+                                                        : "Hiçbir sonuç bulunamadı"}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </main>
 

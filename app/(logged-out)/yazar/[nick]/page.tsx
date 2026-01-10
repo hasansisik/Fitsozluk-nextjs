@@ -3,9 +3,10 @@
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { UserProfile } from "@/components/user-profile"
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import { useEffect, useState, useMemo } from "react"
 import { useAppSelector, useAppDispatch } from "@/redux/hook"
-import { editProfile } from "@/redux/actions/userActions"
+import { editProfile, loadUser } from "@/redux/actions/userActions"
 import usersData from "@/data/users-profile.json"
 
 interface PageProps {
@@ -19,8 +20,20 @@ export default function UserProfilePage({ params }: PageProps) {
     const [isOwnProfile, setIsOwnProfile] = useState(false)
     const [noteText, setNoteText] = useState("")
     const [showSavedMessage, setShowSavedMessage] = useState(false)
+    const [fetchedUser, setFetchedUser] = useState<any>(null)
+    const [userLoading, setUserLoading] = useState(true)
+    const [isBlockedProfile, setIsBlockedProfile] = useState(false)
     const dispatch = useAppDispatch()
     const { user, isAuthenticated, loading } = useAppSelector((state) => state.user)
+
+    // Load user data on mount if authenticated
+    useEffect(() => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
+        if (token) {
+            // Always load fresh user data to get updated bio
+            dispatch(loadUser())
+        }
+    }, [])
 
     useEffect(() => {
         params.then(({ nick: nickParam }) => {
@@ -31,23 +44,29 @@ export default function UserProfilePage({ params }: PageProps) {
                 const currentUserNick = user.nick?.toLowerCase()
                 setIsOwnProfile(currentUserNick === decodeURIComponent(nickParam).toLowerCase())
             }
-
-            // Load saved note or bio if own profile
-            if (isAuthenticated && user && user.nick?.toLowerCase() === decodeURIComponent(nickParam).toLowerCase()) {
-                setNoteText(user.bio || "")
-            } else {
-                const savedNote = localStorage.getItem(`note_${decodeURIComponent(nickParam).toLowerCase()}`)
-                if (savedNote) {
-                    setNoteText(savedNote)
-                }
-            }
         })
     }, [params, isAuthenticated, user])
 
-    // Fetch user data from backend
-    const [fetchedUser, setFetchedUser] = useState<any>(null)
-    const [userLoading, setUserLoading] = useState(true)
+    // Load note text from localStorage
+    useEffect(() => {
+        if (!nick) return
 
+        const normalizedNick = decodeURIComponent(nick).toLowerCase()
+        const savedNote = localStorage.getItem(`note_${normalizedNick}`)
+        setNoteText(savedNote || "")
+    }, [nick])
+
+    const handleSaveNote = async () => {
+        if (!nick) return
+
+        const normalizedNick = decodeURIComponent(nick).toLowerCase()
+        localStorage.setItem(`note_${normalizedNick}`, noteText)
+
+        setShowSavedMessage(true)
+        setTimeout(() => setShowSavedMessage(false), 2000)
+    }
+
+    // Fetch user data from backend
     useEffect(() => {
         const fetchUserData = async () => {
             if (!nick) return
@@ -98,8 +117,16 @@ export default function UserProfilePage({ params }: PageProps) {
                     title: result.title,
                     entries: []
                 })
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching user:", error)
+
+                const errorStr = String(error).toUpperCase();
+                if (errorStr.includes("ENGELLEDI") || errorStr.includes("BLOCK") || errorStr.includes("FORBIDDEN") || errorStr.includes("403")) {
+                    setIsBlockedProfile(true)
+                    setUserLoading(false)
+                    return
+                }
+
                 // 3. Fallback to mock data
                 const mockUser = usersData.find(u => u.nick.toLowerCase() === normalizedNick)
                 if (mockUser) {
@@ -127,36 +154,10 @@ export default function UserProfilePage({ params }: PageProps) {
 
     useEffect(() => {
         const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
-        // If there's no token, we aren't waiting for loadUser
-        // If there's a token and we're authenticated, we're done
-        // If there's a token and we aren't loading, and aren't authenticated, maybe it failed
         if (!token || isAuthenticated || (!loading && token)) {
             setIsInitialAuthLoading(false)
         }
     }, [isAuthenticated, loading])
-
-    const handleSaveNote = async () => {
-        if (!nick) return
-
-        if (isOwnProfile) {
-            try {
-                await dispatch(editProfile({
-                    nick: user.nick,
-                    email: user.email,
-                    bio: noteText
-                })).unwrap()
-                setShowSavedMessage(true)
-                setTimeout(() => setShowSavedMessage(false), 2000)
-            } catch (error) {
-                console.error("Bio güncellenirken hata oluştu:", error)
-                alert("Biyografi güncellenemedi.")
-            }
-        } else {
-            localStorage.setItem(`note_${decodeURIComponent(nick).toLowerCase()}`, noteText)
-            setShowSavedMessage(true)
-            setTimeout(() => setShowSavedMessage(false), 2000)
-        }
-    }
 
     // FINAL RENDER LOGIC - Early returns only AFTER all hooks
     if (loading || !nick || isInitialAuthLoading || userLoading) {
@@ -165,6 +166,36 @@ export default function UserProfilePage({ params }: PageProps) {
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-10 h-10 border-4 border-[#4729ff] border-t-transparent rounded-full animate-spin" />
                     <div className="text-[#4729ff] font-medium animate-pulse">yükleniyor...</div>
+                </div>
+            </div>
+        )
+    }
+
+    // If user is blocked, show warning
+    if (isBlockedProfile) {
+        return (
+            <div className="w-full bg-white">
+                <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
+                    <div className="flex min-h-[calc(100vh-6.5rem)]">
+                        <div className="hidden lg:block">
+                            <TopicsSidebar />
+                        </div>
+                        <main className="flex-1 flex flex-col items-center justify-center py-24 text-center">
+                            <div className="bg-secondary/20 p-8 rounded-xl border border-border max-w-md w-full">
+                                <h2 className="text-xl font-bold mb-4">Bu profile erişilemiyor</h2>
+                                <p className="text-muted-foreground mb-6">
+                                    Bu kullanıcı ile aranızda bir engelleme var.
+                                    Profili görmek için ayarlar sayfasından engeli kaldırabilirsiniz.
+                                </p>
+                                <Link
+                                    href="/ayarlar"
+                                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#4729ff] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#3820cc]"
+                                >
+                                    Ayarlar'a Git
+                                </Link>
+                            </div>
+                        </main>
+                    </div>
                 </div>
             </div>
         )

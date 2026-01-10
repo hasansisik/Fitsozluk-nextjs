@@ -7,10 +7,11 @@ import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
 import { TopicFilters } from "@/components/topic-filters"
 import { Pagination } from "@/components/pagination"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
-import { getTopicBySlug } from "@/redux/actions/topicActions"
+import { getTopicBySlug, clearCurrentTopic } from "@/redux/actions/topicActions"
 import { getEntriesByTopic, deleteEntry } from "@/redux/actions/entryActions"
+import { followTopic, unfollowTopic } from "@/redux/actions/topicActions"
 import { useParams, notFound } from "next/navigation"
 import { Loader2, MessageSquare } from "lucide-react"
 
@@ -20,7 +21,14 @@ export default function TopicPage() {
     const dispatch = useAppDispatch()
 
     const [currentPage, setCurrentPage] = useState(1)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [timeRange, setTimeRange] = useState("tümü")
+    const [filterType, setFilterType] = useState("")
+    const [isFollowing, setIsFollowing] = useState(false)
     const entriesPerPage = 10
+
+    // Track the current topic ID to prevent duplicate fetches
+    const currentTopicIdRef = useRef<string | null>(null)
 
     const { currentTopic, loading: topicLoading, error: topicError } = useAppSelector((state) => state.topic)
     const { entries, loading: entriesLoading } = useAppSelector((state) => state.entry)
@@ -28,33 +36,130 @@ export default function TopicPage() {
 
     useEffect(() => {
         if (slug) {
+            // IMMEDIATELY clear old topic and entries to prevent flash
+            dispatch(clearCurrentTopic())
+            currentTopicIdRef.current = null
+
+            // Reset state when slug changes
+            setCurrentPage(1)
+            setSearchQuery("")
+            setTimeRange("tümü")
+            setFilterType("")
+
             dispatch(getTopicBySlug(slug)).then((result: any) => {
                 if (result.payload && result.payload._id) {
-                    dispatch(getEntriesByTopic(result.payload._id))
+                    currentTopicIdRef.current = result.payload._id
+                    // Fetch entries - only initial load, no filters
+                    dispatch(getEntriesByTopic({ topicId: result.payload._id }))
                 }
             })
         }
     }, [slug, dispatch])
 
+    // Fetch entries when filters change (but NOT when topic changes)
+    useEffect(() => {
+        if (currentTopic && currentTopic._id === currentTopicIdRef.current) {
+            // Only fetch if we have filters active
+            if (searchQuery || timeRange !== 'tümü' || filterType) {
+                const params: any = { topicId: currentTopic._id }
+                if (searchQuery) params.search = searchQuery
+                if (timeRange && timeRange !== 'tümü') params.timeRange = timeRange
+                if (filterType) {
+                    params.filterType = filterType
+                    if (filterType === 'benimkiler' && user) {
+                        params.userId = user._id
+                    }
+                }
+                dispatch(getEntriesByTopic(params))
+            }
+        }
+    }, [searchQuery, timeRange, filterType])
+
+    // Update follow status when user or topic changes
+    useEffect(() => {
+        if (currentTopic && user && user.followedTopics) {
+            const isNowFollowing = user.followedTopics.some((topic: any) =>
+                topic._id === currentTopic._id || topic === currentTopic._id
+            )
+            setIsFollowing(isNowFollowing)
+        } else {
+            setIsFollowing(false)
+        }
+    }, [user, currentTopic])
+
+    const handleFilterChange = (newTimeRange: string, newFilterType: string) => {
+        setTimeRange(newTimeRange)
+        setFilterType(newFilterType)
+        setCurrentPage(1) // Reset to first page
+    }
+
+    const handleSearch = (query: string) => {
+        setSearchQuery(query)
+        setCurrentPage(1) // Reset to first page when searching
+    }
+
+    const handleFollowToggle = async () => {
+        if (!currentTopic || !user) return
+
+        try {
+            if (isFollowing) {
+                await dispatch(unfollowTopic(currentTopic._id)).unwrap()
+            } else {
+                await dispatch(followTopic(currentTopic._id)).unwrap()
+            }
+
+            // Reload user data to get updated followedTopics
+            const { loadUser } = await import('@/redux/actions/userActions')
+            const result = await dispatch(loadUser()).unwrap()
+
+            // Update isFollowing based on the refreshed user data
+            if (result && result.followedTopics) {
+                const isNowFollowing = result.followedTopics.some((topic: any) =>
+                    topic._id === currentTopic._id || topic === currentTopic._id
+                )
+                setIsFollowing(isNowFollowing)
+            }
+        } catch (error) {
+            console.error('Follow toggle error:', error)
+        }
+    }
+
     const handleEntrySubmit = () => {
         if (currentTopic) {
-            dispatch(getEntriesByTopic(currentTopic._id))
+            const params: any = { topicId: currentTopic._id }
+            if (searchQuery) params.search = searchQuery
+            if (timeRange && timeRange !== 'tümü') params.timeRange = timeRange
+            if (filterType) {
+                params.filterType = filterType
+                if (filterType === 'benimkiler' && user) {
+                    params.userId = user._id
+                }
+            }
+            dispatch(getEntriesByTopic(params))
         }
     }
 
     const handleDeleteEntry = async (entryId: string) => {
-        if (confirm("Bu entry'yi silmek istediğinize emin misiniz?")) {
-            await dispatch(deleteEntry(entryId))
-            if (currentTopic) {
-                dispatch(getEntriesByTopic(currentTopic._id))
+        await dispatch(deleteEntry(entryId))
+        if (currentTopic) {
+            const params: any = { topicId: currentTopic._id }
+            if (searchQuery) params.search = searchQuery
+            if (timeRange && timeRange !== 'tümü') params.timeRange = timeRange
+            if (filterType) {
+                params.filterType = filterType
+                if (filterType === 'benimkiler' && user) {
+                    params.userId = user._id
+                }
             }
+            dispatch(getEntriesByTopic(params))
         }
     }
 
     const totalPages = Math.ceil(entries.length / entriesPerPage) || 1
     const currentEntries = entries.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
 
-    if (topicLoading && !currentTopic) {
+    // Show loading if topic is being loaded or not available
+    if (!currentTopic) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
@@ -64,14 +169,6 @@ export default function TopicPage() {
 
     if (!topicLoading && topicError) {
         return notFound()
-    }
-
-    if (!currentTopic && !topicLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
-            </div>
-        )
     }
 
     return (
@@ -102,7 +199,13 @@ export default function TopicPage() {
                                     <div className="flex items-center justify-between mt-2">
                                         <TopicFilters
                                             topicTitle={currentTopic?.title || ""}
+                                            topicId={currentTopic?._id}
                                             topicCreator={currentTopic?.createdBy?.nick}
+                                            topicCreatorId={currentTopic?.createdBy?._id}
+                                            onSearch={handleSearch}
+                                            onFilterChange={handleFilterChange}
+                                            isFollowing={isFollowing}
+                                            onFollowToggle={handleFollowToggle}
                                         />
                                         <Pagination
                                             currentPage={currentPage}

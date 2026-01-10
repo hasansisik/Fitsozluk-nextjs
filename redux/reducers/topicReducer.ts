@@ -8,6 +8,10 @@ import {
     createTopic,
     updateTopic,
     deleteTopic,
+    followTopic,
+    unfollowTopic,
+    getFollowedTopics,
+    clearCurrentTopic,
     Topic
 } from "../actions/topicActions";
 import { likeEntry, dislikeEntry, toggleFavorite } from "../actions/entryActions";
@@ -15,6 +19,7 @@ import { likeEntry, dislikeEntry, toggleFavorite } from "../actions/entryActions
 interface TopicState {
     topics: Topic[];
     currentTopic: Topic | null;
+    followedTopics: Topic[];
     loading: boolean;
     error: string | null;
     message: string | null;
@@ -23,6 +28,7 @@ interface TopicState {
 const initialState: TopicState = {
     topics: [],
     currentTopic: null,
+    followedTopics: [],
     loading: false,
     error: null,
     message: null,
@@ -64,6 +70,7 @@ export const topicReducer = createReducer(initialState, (builder) => {
         .addCase(getTopicBySlug.pending, (state) => {
             state.loading = true;
             state.error = null;
+            state.currentTopic = null;
         })
         .addCase(getTopicBySlug.fulfilled, (state, action) => {
             state.loading = false;
@@ -208,6 +215,41 @@ export const topicReducer = createReducer(initialState, (builder) => {
                 }
                 return topic;
             });
+        })
+
+        // Follow topic
+        .addCase(followTopic.fulfilled, (state, action) => {
+            state.message = "Başlık takip edildi";
+        })
+        .addCase(followTopic.rejected, (state, action) => {
+            state.error = action.payload as string;
+        })
+
+        // Unfollow topic
+        .addCase(unfollowTopic.fulfilled, (state, action) => {
+            state.message = "Başlık takipten çıkarıldı";
+        })
+        .addCase(unfollowTopic.rejected, (state, action) => {
+            state.error = action.payload as string;
+        })
+
+        // Get followed topics
+        .addCase(getFollowedTopics.pending, (state) => {
+            state.loading = true;
+        })
+        .addCase(getFollowedTopics.fulfilled, (state, action) => {
+            state.loading = false;
+            state.followedTopics = action.payload;
+        })
+        .addCase(getFollowedTopics.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Clear current topic
+        .addCase(clearCurrentTopic, (state) => {
+            state.currentTopic = null;
+            state.error = null;
         });
 });
 

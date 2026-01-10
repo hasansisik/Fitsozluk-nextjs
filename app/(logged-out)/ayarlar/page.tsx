@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
-import { editProfile, logout } from "@/redux/actions/userActions"
+import { editProfile, logout, unblockUser } from "@/redux/actions/userActions"
+import { Loader2, UserX } from "lucide-react"
 import axios from "axios"
 import { server } from "@/config"
-import { Loader2 } from "lucide-react"
 
 export default function SettingsPage() {
     const router = useRouter()
@@ -24,6 +24,11 @@ export default function SettingsPage() {
     const [newEmail, setNewEmail] = useState("")
     const [newUsername, setNewUsername] = useState("")
 
+    // Dialog states
+    const [showUnblockDialog, setShowUnblockDialog] = useState(false)
+    const [userToUnblock, setUserToUnblock] = useState<string | null>(null)
+    const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
+
     useEffect(() => {
         if (!user || !user._id) {
             const token = localStorage.getItem("accessToken")
@@ -37,6 +42,7 @@ export default function SettingsPage() {
         { id: "sifre", label: "şifre" },
         { id: "e-mail", label: "e-mail" },
         { id: "kullanici-adi", label: "kullanıcı adı" },
+        { id: "engellenenler", label: "engellenenler" }, // Added new tab
         { id: "hesabi-kapat", label: "hesabı kapat" }
     ]
 
@@ -138,11 +144,10 @@ export default function SettingsPage() {
     const handleAccountClosure = async (e: React.FormEvent) => {
         e.preventDefault()
         setMessage(null)
+        setShowDeleteAccountDialog(true)
+    }
 
-        if (!window.confirm("Hesabınızı kalıcı olarak kapatmak istediğinizden emin misiniz? Bu işlem geri alınamaz!")) {
-            return
-        }
-
+    const confirmAccountClosure = async () => {
         setLoading(true)
         const isValid = await verifyCurrentPassword()
         if (isValid) {
@@ -156,11 +161,34 @@ export default function SettingsPage() {
                 router.push("/")
             } catch (err: any) {
                 setMessage({ type: 'error', text: err.response?.data?.message || "Bir hata oluştu." })
+                setShowDeleteAccountDialog(false)
             }
         } else {
             setMessage({ type: 'error', text: "Mevcut şifreniz yanlış!" })
+            setShowDeleteAccountDialog(false)
         }
         setLoading(false)
+    }
+
+    const handleUnblock = (blockedUserId: string) => {
+        setUserToUnblock(blockedUserId)
+        setShowUnblockDialog(true)
+    }
+
+    const confirmUnblock = async () => {
+        if (!userToUnblock) return;
+
+        try {
+            await dispatch(unblockUser(userToUnblock)).unwrap()
+            // Reload user data to sync blocked users list
+            const { loadUser } = await import('@/redux/actions/userActions')
+            await dispatch(loadUser())
+            setMessage({ type: 'success', text: "Kullanıcının engeli kaldırıldı." })
+            setShowUnblockDialog(false)
+            setUserToUnblock(null)
+        } catch (error: any) {
+            setMessage({ type: 'error', text: error || "Engel kaldırma başarısız." })
+        }
     }
 
     return (
@@ -330,6 +358,48 @@ export default function SettingsPage() {
                                     </form>
                                 )}
 
+                                {/* Engellenenler Tab */}
+                                {activeTab === "engellenenler" && (
+                                    <div className="space-y-5">
+                                        <div className="bg-gray-50/50 p-4 rounded border border-border mb-4 text-sm text-muted-foreground">
+                                            Engelediğiniz kullanıcıların açtığı başlıkları ve yazdığı entryleri görmezsiniz.
+                                        </div>
+
+                                        {user?.blockedUsers && user.blockedUsers.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {user.blockedUsers.map((blockedUser: any) => (
+                                                    <div key={blockedUser._id} className="flex items-center justify-between p-3 border border-border/60 rounded-lg hover:bg-secondary/20 transition-colors">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                                                                <img
+                                                                    src={blockedUser.picture || "https://res.cloudinary.com/da2qwsrbv/image/upload/v1757687384/sj3lcvvd7mjuuwpzann8.png"}
+                                                                    alt={blockedUser.nick}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-semibold text-sm">@{blockedUser.nick}</div>
+                                                                <div className="text-xs text-muted-foreground">{blockedUser.title || "yazar"}</div>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleUnblock(blockedUser._id)}
+                                                            className="px-3 py-1.5 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 transition-colors font-medium flex items-center gap-1"
+                                                        >
+                                                            <UserX className="h-3.5 w-3.5" />
+                                                            engeli kaldır
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-12 text-muted-foreground text-sm">
+                                                Henüz engellediğiniz bir kullanıcı yok.
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Hesabı Kapat Tab */}
                                 {activeTab === "hesabi-kapat" && (
                                     <form onSubmit={handleAccountClosure} className="space-y-5">
@@ -366,6 +436,40 @@ export default function SettingsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Unblock Confirmation Dialog */}
+            {showUnblockDialog && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-sm mx-4 shadow-2xl border border-border">
+                        <div className="mb-4">
+                            <h3 className="text-lg font-medium text-foreground mb-2">Engeli Kaldır</h3>
+                            <p className="text-sm text-muted-foreground">Kullanıcının engelini kaldırmak istediğinize emin misiniz?</p>
+                        </div>
+                        <div className="flex gap-3 justify-end">
+                            <button onClick={() => setShowUnblockDialog(false)} className="px-4 py-2 text-sm border border-border rounded-md hover:bg-secondary transition-colors">İptal</button>
+                            <button onClick={confirmUnblock} className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">Kaldır</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Account Confirmation Dialog */}
+            {showDeleteAccountDialog && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-sm mx-4 shadow-2xl border border-border">
+                        <div className="mb-4">
+                            <h3 className="text-lg font-medium text-foreground mb-2">Hesabı Kapat</h3>
+                            <p className="text-sm text-muted-foreground">Hesabınızı kalıcı olarak kapatmak istediğinizden emin misiniz? Bu işlem geri alınamaz!</p>
+                        </div>
+                        <div className="flex gap-3 justify-end">
+                            <button onClick={() => setShowDeleteAccountDialog(false)} className="px-4 py-2 text-sm border border-border rounded-md hover:bg-secondary transition-colors">İptal</button>
+                            <button onClick={confirmAccountClosure} className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+                                {loading ? "İşleniyor..." : "Hesabı Kapat"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

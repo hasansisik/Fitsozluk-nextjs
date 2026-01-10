@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
-import { Share2, Calendar, ChevronDown, User, X, Camera, MoreHorizontal, Settings, Ban, Trash2, Heart, Shield, Star, Award, Search, MessageSquare, ExternalLink } from "lucide-react"
+import { Share2, Calendar, ChevronDown, User, X, Camera, MoreHorizontal, Settings, Ban, Trash2, Heart, Shield, Star, Award, Search, MessageSquare, ExternalLink, Flag, Pencil, Twitter, Facebook, MessageCircle, Send, Copy } from "lucide-react"
 import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { useRouter } from "next/navigation"
-import { editProfile, loadUser, followUser, unfollowUser } from "@/redux/actions/userActions"
-import { getAllEntries } from "@/redux/actions/entryActions"
+import { editProfile, loadUser, followUser, unfollowUser, getFollowers, getFollowing, blockUser, unblockUser } from "@/redux/actions/userActions"
+import { getAllEntries, deleteEntry } from "@/redux/actions/entryActions"
+import { createReport } from "@/redux/actions/reportActions"
 import { EntryCard } from "./entry-card"
+import { getFollowedTopics } from "@/redux/actions/topicActions"
 
 interface Badge {
     type: string
@@ -75,13 +77,17 @@ export function UserProfile({ userData }: UserProfileProps) {
         followerCount: 0,
         followingCount: 0
     })
-    const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+    const [profilePhoto, setProfilePhoto] = useState<string | null>(userData.picture || null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [showPhotoMenu, setShowPhotoMenu] = useState(false)
     const [bioText, setBioText] = useState(userData.bio || "")
     const [entries, setEntries] = useState<any[]>([])
+    const [followedTopics, setFollowedTopics] = useState<any[]>([])
     const [loadingEntries, setLoadingEntries] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
+    const [displayedEntryCount, setDisplayedEntryCount] = useState(10)
+    const photoMenuRef = useRef<HTMLDivElement>(null)
+    const reportModalRef = useRef<HTMLDivElement>(null)
 
     const fetchTabEntries = async () => {
         if (!userData.id) return
@@ -97,6 +103,12 @@ export function UserProfile({ userData }: UserProfileProps) {
                 params.dislikedBy = userData.id
             } else if (activeTab === "favoriler") {
                 params.favoritedBy = userData.id
+            } else if (activeTab === "takip edilen başlıklar") {
+                // Fetch followed topics
+                const result = await dispatch(getFollowedTopics()).unwrap()
+                setFollowedTopics(result)
+                setLoadingEntries(false)
+                return
             }
 
             const result = await dispatch(getAllEntries(params)).unwrap()
@@ -110,6 +122,24 @@ export function UserProfile({ userData }: UserProfileProps) {
             console.error("Entries fetching error:", error)
         } finally {
             setLoadingEntries(false)
+        }
+    }
+
+    const fetchFollowers = async () => {
+        try {
+            const result = await dispatch(getFollowers(userData.id)).unwrap();
+            setFollowersList(result);
+        } catch (error) {
+            console.error("Followers fetching error:", error);
+        }
+    }
+
+    const fetchFollowing = async () => {
+        try {
+            const result = await dispatch(getFollowing(userData.id)).unwrap();
+            setFollowingList(result);
+        } catch (error) {
+            console.error("Following fetching error:", error);
         }
     }
 
@@ -127,24 +157,53 @@ export function UserProfile({ userData }: UserProfileProps) {
         }
     }
 
-    const handleBlock = () => {
-        const blockedUsers = JSON.parse(localStorage.getItem("blockedUsers") || "{}")
-        blockedUsers[userData.nick] = true
-        localStorage.setItem("blockedUsers", JSON.stringify(blockedUsers))
-        setIsBlocked(true)
-        setShowBlockModal(false)
-        setShowMoreMenu(false)
+    const handleDeleteEntry = async (id: string) => {
+        try {
+            await dispatch(deleteEntry(id)).unwrap()
+            setEntries(prev => prev.filter(entry => entry._id !== id))
+            setDynamicStats(prev => ({ ...prev, entryCount: prev.entryCount - 1 }))
+        } catch (error: any) {
+            alert(error || "Entry silinemedi.")
+        }
     }
 
-    const handleUnblock = () => {
-        const blockedUsers = JSON.parse(localStorage.getItem("blockedUsers") || "{}")
-        delete blockedUsers[userData.nick]
-        localStorage.setItem("blockedUsers", JSON.stringify(blockedUsers))
-        setIsBlocked(false)
+    const handleBlock = async () => {
+        if (!isAuthenticated) {
+            alert("Bu işlem için giriş yapmalısınız.")
+            return
+        }
+
+        try {
+            await dispatch(blockUser(userData.id)).unwrap()
+            await dispatch(loadUser()).unwrap() // Reload user data to sync blocked users
+            setIsBlocked(true)
+            setShowBlockModal(false)
+            setShowMoreMenu(false)
+            alert("Kullanıcı engellendi. Artık bu kullanıcının içeriklerini görmeyeceksiniz.")
+            // Redirect to home to avoid showing blocked content
+            router.push('/')
+        } catch (error: any) {
+            alert(error || "Engelleme işlemi başarısız.")
+        }
+    }
+
+    const handleUnblock = async () => {
+        try {
+            await dispatch(unblockUser(userData.id)).unwrap()
+            await dispatch(loadUser()).unwrap() // Reload user data to sync blocked users
+            setIsBlocked(false)
+            alert("Engel kaldırıldı.")
+            window.location.reload() // Reload to show unblocked content
+        } catch (error: any) {
+            alert(error || "Engel kaldırma işlemi başarısız.")
+        }
     }
 
     useEffect(() => {
         setIsMounted(true)
+
+        // Scroll to top when component mounts
+        window.scrollTo({ top: 0, behavior: 'smooth' })
 
         if (isAuthenticated && user) {
             setIsOwnProfile(user.nick?.toLowerCase() === userData.nick?.toLowerCase())
@@ -152,10 +211,17 @@ export function UserProfile({ userData }: UserProfileProps) {
             if (user.following && user.following.includes(userData.id)) {
                 setIsFollowing(true)
             }
-        }
 
-        const blockedUsers = JSON.parse(localStorage.getItem("blockedUsers") || "{}")
-        setIsBlocked(!!blockedUsers[userData.nick])
+            // Check if user is blocked from Redux state
+            if (user.blockedUsers && Array.isArray(user.blockedUsers)) {
+                const isUserBlocked = user.blockedUsers.some((blockedUser: any) => {
+                    // blockedUsers can be array of IDs or objects with _id
+                    const blockedId = typeof blockedUser === 'string' ? blockedUser : blockedUser._id
+                    return blockedId === userData.id
+                })
+                setIsBlocked(isUserBlocked)
+            }
+        }
 
         // Initial fetch
         fetchTabEntries()
@@ -175,6 +241,14 @@ export function UserProfile({ userData }: UserProfileProps) {
                 setShowShareMenu(false)
                 setShowMoreMenu(false)
             }
+            // Close photo menu when clicking outside
+            if (photoMenuRef.current && !photoMenuRef.current.contains(event.target as Node)) {
+                setShowPhotoMenu(false)
+            }
+            // Close report modal when clicking outside
+            if (reportModalRef.current && !reportModalRef.current.contains(event.target as Node)) {
+                setShowReportModal(false)
+            }
         }
 
         document.addEventListener('mousedown', handleClickOutside)
@@ -183,6 +257,9 @@ export function UserProfile({ userData }: UserProfileProps) {
 
     useEffect(() => {
         if (isMounted) {
+            // Reset displayed count and scroll to top when tab changes
+            setDisplayedEntryCount(10)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
             fetchTabEntries()
         }
     }, [activeTab])
@@ -229,11 +306,40 @@ export function UserProfile({ userData }: UserProfileProps) {
         setIsFollowing(!isFollowing)
     }
 
+    const handleReport = async () => {
+        if (!reportReason) {
+            alert("Lütfen bir şikayet nedeni seçin")
+            return
+        }
+        if (!reportText.trim()) {
+            alert("Lütfen şikayet açıklaması girin")
+            return
+        }
+
+        try {
+            await dispatch(createReport({
+                reportType: 'user',
+                reportedUserId: userData.id,
+                reason: reportReason,
+                description: reportText
+            })).unwrap()
+
+            alert("Şikayetiniz başarıyla gönderildi")
+            setShowReportModal(false)
+            setReportReason("")
+            setReportText("")
+            setShowMoreMenu(false)
+        } catch (error: any) {
+            alert(error || "Şikayet gönderilemedi")
+        }
+    }
+
     const tabs = [
         { id: "entry'ler", label: "entry'ler" },
         { id: "beğeniler", label: "beğeniler" },
         { id: "beğenilmeyenler", label: "beğenilmeyenler" },
-        { id: "favoriler", label: "favoriler" }
+        { id: "favoriler", label: "favoriler" },
+        { id: "takip edilen başlıklar", label: "takip edilen başlıklar" }
     ]
 
     return (
@@ -262,6 +368,85 @@ export function UserProfile({ userData }: UserProfileProps) {
                     </div>
                 </div>
             )}
+
+            {/* Report Modal */}
+            {showReportModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div ref={reportModalRef} className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-medium">Şikayet Et</h3>
+                            <button onClick={() => setShowReportModal(false)}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 mb-4">
+                            <button
+                                onClick={() => setReportReason("spam")}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "spam" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                    }`}
+                            >
+                                Spam
+                            </button>
+                            <button
+                                onClick={() => setReportReason("harassment")}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "harassment" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                    }`}
+                            >
+                                Hakaret Veya Nefret
+                            </button>
+                            <button
+                                onClick={() => setReportReason("inappropriate")}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "inappropriate" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                    }`}
+                            >
+                                Uygunsuz İçerik
+                            </button>
+                            <button
+                                onClick={() => setReportReason("copyright")}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "copyright" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                    }`}
+                            >
+                                Copyright
+                            </button>
+                            <button
+                                onClick={() => setReportReason("other")}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "other" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                    }`}
+                            >
+                                Other
+                            </button>
+                        </div>
+
+                        <textarea
+                            value={reportText}
+                            onChange={(e) => setReportText(e.target.value)}
+                            placeholder="Şikayet açıklaması (zorunlu)"
+                            className="w-full h-24 p-3 border rounded-md focus:ring-2 focus:ring-[#4729ff] outline-none mb-4"
+                            maxLength={500}
+                        />
+
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">{reportText.length}/500</span>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowReportModal(false)}
+                                    className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-secondary"
+                                >
+                                    İptal
+                                </button>
+                                <button
+                                    onClick={handleReport}
+                                    className="px-4 py-2 text-sm font-medium bg-[#4729ff] text-white rounded-md hover:bg-[#3820cc]"
+                                >
+                                    Gönder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+            }
 
             <div className="p-6">
                 <div className="flex items-start justify-between">
@@ -293,16 +478,22 @@ export function UserProfile({ userData }: UserProfileProps) {
                         <div className="flex gap-1.5 text-xs text-muted-foreground mb-2">
                             <span><strong className="text-foreground">{dynamicStats.entryCount}</strong> entry</span>
                             <span>•</span>
-                            <button onClick={() => setShowFollowersModal(true)} className="hover:text-[#4729ff]">
+                            <button onClick={() => { setShowFollowersModal(true); fetchFollowers(); }} className="hover:text-[#4729ff]">
                                 <strong className="text-foreground">{dynamicStats.followerCount}</strong> takipçi
                             </button>
                             <span>•</span>
-                            <button onClick={() => setShowFollowingModal(true)} className="hover:text-[#4729ff]">
+                            <button onClick={() => { setShowFollowingModal(true); fetchFollowing(); }} className="hover:text-[#4729ff]">
                                 <strong className="text-foreground">{dynamicStats.followingCount}</strong> takip
                             </button>
                         </div>
 
-                        <p className="text-xs text-muted-foreground mb-6">henüz 10 entry'yi tamamlamadığınızdan onay sırasında değilsiniz.</p>
+                        {userData.bio ? (
+                            <p className="text-sm text-foreground mb-6 whitespace-pre-wrap">{userData.bio}</p>
+                        ) : (
+                            <p className="text-xs text-muted-foreground mb-6">
+                                {isOwnProfile ? "Henüz bir biyografi eklemediniz." : "henüz 10 entry'yi tamamlamadığınızdan onay sırasında değilsiniz."}
+                            </p>
+                        )}
 
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
                             <Calendar className="w-4 h-4" />
@@ -310,32 +501,143 @@ export function UserProfile({ userData }: UserProfileProps) {
                         </div>
 
                         <div className="flex gap-3 mb-6">
-                            <button className="p-2 border rounded-full hover:bg-secondary transition-colors"><Share2 className="w-5 h-5" /></button>
-                            <button className="p-2 border rounded-full hover:bg-secondary transition-colors"><ChevronDown className="w-5 h-5" /></button>
+                            <div className="relative share-menu-container">
+                                <button
+                                    onClick={() => setShowShareMenu(!showShareMenu)}
+                                    className="p-2 border rounded-full hover:bg-secondary transition-colors"
+                                >
+                                    <Share2 className="w-5 h-5" />
+                                </button>
+                                {showShareMenu && (
+                                    <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
+                                        <button
+                                            onClick={() => {
+                                                const url = window.location.href;
+                                                const text = `${userData.nick} - Fitsözlük`;
+                                                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                                                setShowShareMenu(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                        >
+                                            <Twitter className="h-4 w-4" />
+                                            Twitter'da Paylaş
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const url = window.location.href;
+                                                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                                                setShowShareMenu(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                        >
+                                            <Facebook className="h-4 w-4" />
+                                            Facebook'ta Paylaş
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const url = window.location.href;
+                                                const text = `${userData.nick} - Fitsözlük`;
+                                                window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+                                                setShowShareMenu(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                        >
+                                            <MessageCircle className="h-4 w-4" />
+                                            WhatsApp'ta Paylaş
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const url = window.location.href;
+                                                const text = `${userData.nick} - Fitsözlük`;
+                                                window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                                                setShowShareMenu(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                        >
+                                            <Send className="h-4 w-4" />
+                                            Telegram'da Paylaş
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const url = window.location.href;
+                                                navigator.clipboard.writeText(url);
+                                                alert('Link kopyalandı!');
+                                                setShowShareMenu(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                            Linki Kopyala
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            {isOwnProfile && (
+                                <button
+                                    onClick={() => setShowBioEdit(true)}
+                                    className="p-2 border rounded-full hover:bg-secondary transition-colors"
+                                    title="Biyografiyi Düzenle"
+                                >
+                                    <Pencil className="w-5 h-5" />
+                                </button>
+                            )}
+                            {!isOwnProfile && (
+                                <div className="relative more-menu-container">
+                                    <button
+                                        onClick={() => setShowMoreMenu(!showMoreMenu)}
+                                        className="p-2 border rounded-full hover:bg-secondary transition-colors"
+                                    >
+                                        <MoreHorizontal className="w-5 h-5" />
+                                    </button>
+                                    {showMoreMenu && (
+                                        <div className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg py-2 z-50 w-48">
+                                            <button
+                                                onClick={() => {
+                                                    setShowReportModal(true);
+                                                    setShowMoreMenu(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm hover:bg-secondary flex items-center gap-2"
+                                            >
+                                                <Flag className="w-4 h-4" />
+                                                Şikayet Et
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <div className="relative ml-6">
+                    <div ref={photoMenuRef} className="relative ml-6">
                         <div
                             className={`w-36 h-36 rounded-full bg-muted flex items-center justify-center border-4 border-white shadow-sm overflow-hidden ${isOwnProfile ? 'cursor-pointer hover:opacity-80' : ''}`}
                             onClick={() => isOwnProfile && setShowPhotoMenu(!showPhotoMenu)}
                         >
-                            {profilePhoto || userData.picture ? (
-                                <img src={profilePhoto || userData.picture || undefined} className="w-full h-full object-cover" alt={userData.nick} />
+                            {profilePhoto ? (
+                                <img src={profilePhoto} className="w-full h-full object-cover" alt={userData.nick} />
                             ) : (
-                                <img src="https://res.cloudinary.com/da2qwsrbv/image/upload/v1767654180291.png" className="w-full h-full object-cover" alt="default" />
+                                <User className="w-16 h-16 text-muted-foreground" />
                             )}
                         </div>
                         {isOwnProfile && showPhotoMenu && (
                             <div className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg py-2 z-50 w-48">
-                                <button onClick={() => fileInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm hover:bg-secondary">Fotoğrafı Değiştir</button>
-                                {profilePhoto && <button onClick={() => { setProfilePhoto(null); localStorage.removeItem(`profilePhoto_${userData.nick}`) }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-secondary">Fotoğrafı Kaldır</button>}
+                                <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-secondary">{profilePhoto ? 'Fotoğrafı Değiştir' : 'Fotoğraf Yükle'}</button>
+                                {profilePhoto && <button onClick={() => {
+                                    setProfilePhoto(null);
+                                    localStorage.removeItem(`profilePhoto_${userData.nick}`);
+                                    setShowPhotoMenu(false);
+                                    window.dispatchEvent(new Event('profilePhotoUpdated'));
+                                }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-secondary">Fotoğrafı Kaldır</button>}
                             </div>
                         )}
                         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
                             const file = e.target.files?.[0]; if (file) {
                                 const reader = new FileReader(); reader.onloadend = () => {
-                                    const base64 = reader.result as string; setProfilePhoto(base64); localStorage.setItem(`profilePhoto_${userData.nick}`, base64);
+                                    const base64 = reader.result as string;
+                                    setProfilePhoto(base64);
+                                    localStorage.setItem(`profilePhoto_${userData.nick}`, base64);
+                                    setShowPhotoMenu(false);
+                                    window.dispatchEvent(new Event('profilePhotoUpdated'));
                                 }; reader.readAsDataURL(file);
                             }
                         }} />
@@ -364,67 +666,149 @@ export function UserProfile({ userData }: UserProfileProps) {
                     <div className="flex justify-center py-12">
                         <div className="w-8 h-8 border-4 border-[#4729ff] border-t-transparent rounded-full animate-spin" />
                     </div>
+                ) : activeTab === "takip edilen başlıklar" ? (
+                    <div className="space-y-4">
+                        {followedTopics.length > 0 ? (
+                            followedTopics.map((topic) => (
+                                <Link
+                                    key={topic._id}
+                                    href={`/${topic.slug}`}
+                                    className="block p-4 border border-border rounded-lg hover:bg-secondary transition-colors"
+                                >
+                                    <h3 className="text-lg font-bold text-foreground hover:text-[#4729ff] transition-colors mb-2">
+                                        {topic.title}
+                                    </h3>
+                                    <div className="flex gap-2 text-xs text-muted-foreground">
+                                        <span>{topic.entryCount || 0} entry</span>
+                                        {topic.createdAt && (
+                                            <>
+                                                <span>•</span>
+                                                <span>{new Date(topic.createdAt).toLocaleDateString('tr-TR')}</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </Link>
+                            ))
+                        ) : (
+                            <p className="text-center text-muted-foreground py-12">Henüz takip edilen başlık yok</p>
+                        )}
+                    </div>
                 ) : (
                     <div className="space-y-8">
                         {entries.length > 0 ? (
-                            entries.map((entry) => (
-                                <div key={entry._id} className="border-b border-border/40 pb-8 last:border-0">
-                                    <div className="mb-4">
-                                        <Link
-                                            href={`/${entry.topic?.slug || ''}`}
-                                            className="text-lg font-bold text-foreground hover:text-[#4729ff] transition-colors"
-                                        >
-                                            {entry.topic?.title}
-                                        </Link>
+                            <>
+                                {entries.slice(0, displayedEntryCount).map((entry) => (
+                                    <div key={entry._id} className="border-b border-border/40 pb-8 last:border-0">
+                                        <div className="mb-4">
+                                            <Link
+                                                href={`/${entry.topic?.slug || ''}`}
+                                                className="text-lg font-bold text-foreground hover:text-[#4729ff] transition-colors"
+                                            >
+                                                {entry.topic?.title}
+                                            </Link>
+                                        </div>
+                                        <EntryCard
+                                            id={entry._id}
+                                            content={entry.content}
+                                            author={entry.author?.nick}
+                                            authorPicture={entry.author?.picture}
+                                            date={new Date(entry.createdAt).toLocaleDateString('tr-TR')}
+                                            time={new Date(entry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                            favoriteCount={entry.favoriteCount}
+                                            likeCount={entry.likeCount}
+                                            dislikeCount={entry.dislikeCount}
+                                            isLiked={entry.likes?.includes(user?._id)}
+                                            isDisliked={entry.dislikes?.includes(user?._id)}
+                                            isFavorited={entry.favorites?.includes(user?._id)}
+                                            onDelete={handleDeleteEntry}
+                                        />
                                     </div>
-                                    <EntryCard
-                                        id={entry._id}
-                                        content={entry.content}
-                                        author={entry.author?.nick}
-                                        authorPicture={entry.author?.picture}
-                                        date={new Date(entry.createdAt).toLocaleDateString('tr-TR')}
-                                        time={new Date(entry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                        favoriteCount={entry.favoriteCount}
-                                        likeCount={entry.likeCount}
-                                        dislikeCount={entry.dislikeCount}
-                                        isLiked={entry.likes?.includes(user?._id)}
-                                        isDisliked={entry.dislikes?.includes(user?._id)}
-                                        isFavorited={entry.favorites?.includes(user?._id)}
-                                    />
-                                </div>
-                            ))
+                                ))}
+
+                                {/* Show More Button */}
+                                {entries.length > displayedEntryCount && (
+                                    <div className="flex justify-center pt-4">
+                                        <button
+                                            onClick={() => setDisplayedEntryCount(prev => prev + 10)}
+                                            className="px-6 py-2 text-sm font-medium text-[#4729ff] border border-[#4729ff] rounded-md hover:bg-[#4729ff] hover:text-white transition-colors"
+                                        >
+                                            daha fazla göster ({entries.length - displayedEntryCount} entry daha)
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         ) : null}
                     </div>
                 )}
             </div>
 
-            {showFollowersModal && (
-                <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowFollowersModal(false)}>
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border overflow-hidden" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between mb-4">
-                            <h3 className="text-lg font-medium">takipçiler</h3>
-                            <button onClick={() => setShowFollowersModal(false)}><X className="w-5 h-5" /></button>
-                        </div>
-                        <div className="max-h-[60vh] overflow-y-auto">
-                            <p className="text-center text-muted-foreground py-8">henüz takipçi yok</p>
+            {
+                showFollowersModal && (
+                    <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowFollowersModal(false)}>
+                        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="flex justify-between mb-4">
+                                <h3 className="text-lg font-medium">takipçiler</h3>
+                                <button onClick={() => setShowFollowersModal(false)}><X className="w-5 h-5" /></button>
+                            </div>
+                            <div className="max-h-[60vh] overflow-y-auto space-y-4">
+                                {followersList.length > 0 ? (
+                                    followersList.map(user => (
+                                        <Link key={user._id} href={`/yazar/${user.nick}`} className="flex items-center gap-3 hover:bg-secondary p-2 rounded-lg transition-colors" onClick={() => setShowFollowersModal(false)}>
+                                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                                                {user.picture ? (
+                                                    <img src={user.picture} alt={user.nick} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User className="w-5 h-5 text-muted-foreground" />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="font-medium text-foreground">@{user.nick}</div>
+                                                <div className="text-xs text-muted-foreground">{user.title || 'çaylak'}</div>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted-foreground py-8">henüz takipçi yok</p>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {showFollowingModal && (
-                <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowFollowingModal(false)}>
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border overflow-hidden" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between mb-4">
-                            <h3 className="text-lg font-medium">takip edilenler</h3>
-                            <button onClick={() => setShowFollowingModal(false)}><X className="w-5 h-5" /></button>
-                        </div>
-                        <div className="max-h-[60vh] overflow-y-auto">
-                            <p className="text-center text-muted-foreground py-8">henüz kimse takip edilmiyor</p>
+            {
+                showFollowingModal && (
+                    <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowFollowingModal(false)}>
+                        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="flex justify-between mb-4">
+                                <h3 className="text-lg font-medium">takip edilenler</h3>
+                                <button onClick={() => setShowFollowingModal(false)}><X className="w-5 h-5" /></button>
+                            </div>
+                            <div className="max-h-[60vh] overflow-y-auto space-y-4">
+                                {followingList.length > 0 ? (
+                                    followingList.map(user => (
+                                        <Link key={user._id} href={`/yazar/${user.nick}`} className="flex items-center gap-3 hover:bg-secondary p-2 rounded-lg transition-colors" onClick={() => setShowFollowingModal(false)}>
+                                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                                                {user.picture ? (
+                                                    <img src={user.picture} alt={user.nick} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User className="w-5 h-5 text-muted-foreground" />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="font-medium text-foreground">@{user.nick}</div>
+                                                <div className="text-xs text-muted-foreground">{user.title || 'çaylak'}</div>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted-foreground py-8">henüz kimse takip edilmiyor</p>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     )
 }

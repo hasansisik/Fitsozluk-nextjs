@@ -1,12 +1,13 @@
 "use client"
 
-import { Heart, Share2, Flag, User, X, Trash2, ThumbsUp, ThumbsDown } from "lucide-react"
+import { Heart, Share2, Flag, User, X, Trash2, ThumbsUp, ThumbsDown, Twitter, Facebook, MessageCircle, Send, Copy } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { likeEntry, dislikeEntry, toggleFavorite } from "@/redux/actions/entryActions"
+import { createReport } from "@/redux/actions/reportActions"
 
 interface EntryCardProps {
     id: string
@@ -57,6 +58,34 @@ export function EntryCard({
     const [showReportDialog, setShowReportDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showSpoilers, setShowSpoilers] = useState<{ [key: number]: boolean }>({})
+    const [reportReason, setReportReason] = useState("")
+    const [reportDescription, setReportDescription] = useState("")
+    const [isExpanded, setIsExpanded] = useState(false)
+    const [syncedProfilePicture, setSyncedProfilePicture] = useState<string | null>(authorPicture || null)
+    const reportDialogRef = useRef<HTMLDivElement>(null)
+
+    // Character limit for truncating long entries
+    const CHARACTER_LIMIT = 500
+    const shouldTruncate = content.length > CHARACTER_LIMIT
+
+    // Sync profile picture from localStorage
+    const syncPhoto = () => {
+        const savedPhoto = localStorage.getItem(`profilePhoto_${author}`)
+        if (savedPhoto) {
+            setSyncedProfilePicture(savedPhoto)
+        } else if (authorPicture) {
+            setSyncedProfilePicture(authorPicture)
+        } else {
+            setSyncedProfilePicture(null)
+        }
+    }
+
+    useEffect(() => {
+        syncPhoto()
+
+        window.addEventListener('profilePhotoUpdated', syncPhoto)
+        return () => window.removeEventListener('profilePhotoUpdated', syncPhoto)
+    }, [author, authorPicture])
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -64,16 +93,17 @@ export function EntryCard({
             if (!target.closest('.share-menu-container')) {
                 setShowShareMenu(false)
             }
+            // Close report dialog when clicking outside
+            if (reportDialogRef.current && !reportDialogRef.current.contains(event.target as Node)) {
+                setShowReportDialog(false)
+            }
         }
 
-        if (showShareMenu) {
-            document.addEventListener('mousedown', handleClickOutside)
-        }
-
+        document.addEventListener('mousedown', handleClickOutside)
         return () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [showShareMenu])
+    }, [])
 
     const handleLikeAction = async () => {
         if (!authUser) {
@@ -129,65 +159,194 @@ export function EntryCard({
         setShowReportDialog(true)
     }
 
-    const submitReport = (reason: string) => {
-        console.log('Report submitted:', reason)
-        setShowReportDialog(false)
+    const submitReport = async () => {
+        if (!reportReason) {
+            alert("Lütfen bir şikayet nedeni seçin")
+            return
+        }
+        if (!reportDescription.trim()) {
+            alert("Lütfen şikayet açıklaması girin")
+            return
+        }
+
+        try {
+            await dispatch(createReport({
+                reportType: 'entry',
+                reportedEntryId: id,
+                reason: reportReason,
+                description: reportDescription
+            })).unwrap()
+
+            alert("Şikayetiniz başarıyla gönderildi")
+            setShowReportDialog(false)
+            setReportReason("")
+            setReportDescription("")
+        } catch (error: any) {
+            alert(error || "Şikayet gönderilemedi")
+        }
     }
 
     const renderContent = () => {
+        const slugify = (text: string) => {
+            // Turkish character mapping
+            const turkishMap: { [key: string]: string } = {
+                'ç': 'c', 'Ç': 'c',
+                'ğ': 'g', 'Ğ': 'g',
+                'ı': 'i', 'İ': 'i',
+                'ö': 'o', 'Ö': 'o',
+                'ş': 's', 'Ş': 's',
+                'ü': 'u', 'Ü': 'u'
+            }
+
+            return text.trim()
+                .toLowerCase()
+                .split('')
+                .map(char => turkishMap[char] || char)
+                .join('')
+                .replace(/ /g, '-')
+                .replace(/[^\w-]+/g, '')
+        }
+
+        // Get the content to display (truncated or full)
+        const displayContent = shouldTruncate && !isExpanded
+            ? content.substring(0, CHARACTER_LIMIT) + '...'
+            : content
+
+        // 1. Split into parts by spoiler first (since it has priority/custom UI)
         const spoilerRegex = /--\s*`spoiler`\s*--([\s\S]*?)--\s*`spoiler`\s*--/g
-        const parts: React.ReactNode[] = []
+        let parts: any[] = []
         let lastIndex = 0
         let match
-        let spoilerIndex = 0
 
-        while ((match = spoilerRegex.exec(content)) !== null) {
+        while ((match = spoilerRegex.exec(displayContent)) !== null) {
             if (match.index > lastIndex) {
-                parts.push(
-                    <span key={`text-${lastIndex}`}>
-                        {content.substring(lastIndex, match.index)}
+                parts.push(displayContent.substring(lastIndex, match.index))
+            }
+            parts.push({ type: 'spoiler', content: match[1].trim() })
+            lastIndex = match.index + match[0].length
+        }
+        if (lastIndex < displayContent.length) {
+            parts.push(displayContent.substring(lastIndex))
+        }
+
+        // 2. Process each non-spoiler part for bkz and links
+        const finalElements: React.ReactNode[] = []
+        let spoilerCount = 0
+
+        parts.forEach((part, partIdx) => {
+            if (typeof part === 'string') {
+                // Combined regex for all patterns:
+                // 1. (bkz: text) - normal bkz
+                // 2. `text` - hede (bold link)
+                // 3. `:text` - asterisk (bold link with *)
+                // 4. URLs
+                const combinedRegex = /\(bkz:\s*([^\)]+)\)|`([^:`]+)`|`:([^`]+)`|(https?:\/\/[^\s]+)/g
+                let subParts: React.ReactNode[] = []
+                let subLastIndex = 0
+                let subMatch
+
+                while ((subMatch = combinedRegex.exec(part)) !== null) {
+                    // Text before the match
+                    if (subMatch.index > subLastIndex) {
+                        subParts.push(part.substring(subLastIndex, subMatch.index))
+                    }
+
+                    if (subMatch[1]) {
+                        // (bkz: text) format
+                        const bkzText = subMatch[1].trim()
+                        const slug = slugify(bkzText)
+
+                        subParts.push(
+                            <span key={`bkz-${subMatch.index}`}>
+                                (bkz: <Link
+                                    href={`/${slug}`}
+                                    className="text-[#4729ff] hover:underline"
+                                >
+                                    {bkzText}
+                                </Link>)
+                            </span>
+                        )
+                    } else if (subMatch[2]) {
+                        // `text` format (hede - bold link)
+                        const hedeText = subMatch[2].trim()
+                        const slug = slugify(hedeText)
+
+                        subParts.push(
+                            <Link
+                                key={`hede-${subMatch.index}`}
+                                href={`/${slug}`}
+                                className="text-[#4729ff] hover:underline font-bold"
+                            >
+                                {hedeText}
+                            </Link>
+                        )
+                    } else if (subMatch[3]) {
+                        // `:text` format (asterisk - bold link with *)
+                        const asteriskText = subMatch[3].trim()
+                        const slug = slugify(asteriskText)
+
+                        subParts.push(
+                            <Link
+                                key={`asterisk-${subMatch.index}`}
+                                href={`/${slug}`}
+                                className="text-[#4729ff] hover:underline font-bold"
+                            >
+                                {asteriskText}*
+                            </Link>
+                        )
+                    } else if (subMatch[4]) {
+                        // URL match
+                        const url = subMatch[4]
+                        subParts.push(
+                            <a
+                                key={`url-${subMatch.index}`}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#4729ff] hover:underline break-all"
+                            >
+                                {url}
+                            </a>
+                        )
+                    }
+
+                    subLastIndex = subMatch.index + subMatch[0].length
+                }
+
+                if (subLastIndex < part.length) {
+                    subParts.push(part.substring(subLastIndex))
+                }
+
+                finalElements.push(<span key={`part-${partIdx}`}>{subParts}</span>)
+            } else {
+                // It's a spoiler
+                const currentSpoilerIndex = spoilerCount++
+                finalElements.push(
+                    <span key={`spoiler-${currentSpoilerIndex}`} className="inline-block my-1">
+                        {showSpoilers[currentSpoilerIndex] ? (
+                            <span className="bg-gray-100 px-2 py-1 rounded">
+                                {part.content}
+                                <button
+                                    onClick={() => setShowSpoilers(prev => ({ ...prev, [currentSpoilerIndex]: false }))}
+                                    className="ml-2 text-xs text-[#4729ff] hover:underline"
+                                >
+                                    gizle
+                                </button>
+                            </span>
+                        ) : (
+                            <button
+                                onClick={() => setShowSpoilers(prev => ({ ...prev, [currentSpoilerIndex]: true }))}
+                                className="bg-gray-200 px-3 py-1 rounded text-sm text-gray-600 hover:bg-gray-300 transition-colors"
+                            >
+                                spoiler (göster)
+                            </button>
+                        )}
                     </span>
                 )
             }
+        })
 
-            const spoilerContent = match[1].trim()
-            const currentSpoilerIndex = spoilerIndex
-            parts.push(
-                <span key={`spoiler-${spoilerIndex}`} className="inline-block my-1">
-                    {showSpoilers[currentSpoilerIndex] ? (
-                        <span className="bg-gray-100 px-2 py-1 rounded">
-                            {spoilerContent}
-                            <button
-                                onClick={() => setShowSpoilers(prev => ({ ...prev, [currentSpoilerIndex]: false }))}
-                                className="ml-2 text-xs text-[#4729ff] hover:underline"
-                            >
-                                gizle
-                            </button>
-                        </span>
-                    ) : (
-                        <button
-                            onClick={() => setShowSpoilers(prev => ({ ...prev, [currentSpoilerIndex]: true }))}
-                            className="bg-gray-200 px-3 py-1 rounded text-sm text-gray-600 hover:bg-gray-300 transition-colors"
-                        >
-                            spoiler (göster)
-                        </button>
-                    )}
-                </span>
-            )
-
-            lastIndex = match.index + match[0].length
-            spoilerIndex++
-        }
-
-        if (lastIndex < content.length) {
-            parts.push(
-                <span key={`text-${lastIndex}`}>
-                    {content.substring(lastIndex)}
-                </span>
-            )
-        }
-
-        return parts.length > 0 ? parts : content
+        return finalElements.length > 0 ? finalElements : displayContent
     }
 
     return (
@@ -197,6 +356,16 @@ export function EntryCard({
                 <p className="text-sm leading-normal text-foreground whitespace-pre-wrap">
                     {renderContent()}
                 </p>
+
+                {/* Read More / Show Less Button */}
+                {shouldTruncate && (
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="mt-2 text-sm text-[#4729ff] hover:underline font-medium transition-colors"
+                    >
+                        {isExpanded ? 'daha az göster' : 'devamını oku'}
+                    </button>
+                )}
 
                 {/* Special Link */}
                 {isSpecial && (
@@ -269,11 +438,26 @@ export function EntryCard({
 
                             {showShareMenu && (
                                 <div className="absolute right-0 top-8 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
-                                    <button onClick={() => handleShare('twitter')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"><span>𝕏</span> Twitter'da Paylaş</button>
-                                    <button onClick={() => handleShare('facebook')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"><span>f</span> Facebook'ta Paylaş</button>
-                                    <button onClick={() => handleShare('whatsapp')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"><span>📱</span> WhatsApp'ta Paylaş</button>
-                                    <button onClick={() => handleShare('telegram')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"><span>✈️</span> Telegram'da Paylaş</button>
-                                    <button onClick={() => handleShare('copy')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"><span>📋</span> Linki Kopyala</button>
+                                    <button onClick={() => handleShare('twitter')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Twitter className="h-4 w-4" />
+                                        Twitter'da Paylaş
+                                    </button>
+                                    <button onClick={() => handleShare('facebook')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Facebook className="h-4 w-4" />
+                                        Facebook'ta Paylaş
+                                    </button>
+                                    <button onClick={() => handleShare('whatsapp')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <MessageCircle className="h-4 w-4" />
+                                        WhatsApp'ta Paylaş
+                                    </button>
+                                    <button onClick={() => handleShare('telegram')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Send className="h-4 w-4" />
+                                        Telegram'da Paylaş
+                                    </button>
+                                    <button onClick={() => handleShare('copy')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Copy className="h-4 w-4" />
+                                        Linki Kopyala
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -294,8 +478,8 @@ export function EntryCard({
                     <div className="flex items-center gap-3">
                         {/* User Picture */}
                         <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden border border-border">
-                            {authorPicture ? (
-                                <Image src={authorPicture} alt={author} width={40} height={40} className="w-full h-full object-cover" />
+                            {syncedProfilePicture ? (
+                                <Image src={syncedProfilePicture} alt={author} width={40} height={40} className="w-full h-full object-cover" />
                             ) : (
                                 <User className="h-5 w-5 text-muted-foreground" />
                             )}
@@ -332,18 +516,53 @@ export function EntryCard({
 
             {/* Report Dialog */}
             {showReportDialog && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none" onClick={() => setShowReportDialog(false)}>
-                    <div className="bg-white rounded-lg p-4 max-w-xs w-full mx-4 shadow-2xl border border-border pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div ref={reportDialogRef} className="bg-white rounded-lg p-4 max-w-md w-full mx-4 shadow-2xl border border-border">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-base font-medium">Şikayet Et</h3>
                             <button onClick={() => setShowReportDialog(false)}><X className="h-4 w-4 text-muted-foreground hover:text-foreground" /></button>
                         </div>
-                        <div className="space-y-2">
-                            {['spam', 'offensive', 'inappropriate', 'copyright', 'other'].map((type) => (
-                                <button key={type} onClick={() => submitReport(type)} className="w-full text-left px-3 py-2 text-sm border border-border rounded-md hover:bg-secondary transition-colors capitalize">
-                                    {type === 'offensive' ? 'Hakaret veya Nefret' : type === 'inappropriate' ? 'Uygunsuz İçerik' : type}
+                        <div className="space-y-2 mb-3">
+                            {[
+                                { value: 'spam', label: 'Spam' },
+                                { value: 'harassment', label: 'Hakaret veya Nefret' },
+                                { value: 'inappropriate', label: 'Uygunsuz İçerik' },
+                                { value: 'copyright', label: 'Telif Hakkı' },
+                                { value: 'other', label: 'Diğer' }
+                            ].map((type) => (
+                                <button
+                                    key={type.value}
+                                    onClick={() => setReportReason(type.value)}
+                                    className={`w-full text-left px-3 py-2 text-sm border rounded-md transition-colors ${reportReason === type.value ? 'border-[#4729ff] bg-[#4729ff]/5' : 'border-border hover:bg-secondary'
+                                        }`}
+                                >
+                                    {type.label}
                                 </button>
                             ))}
+                        </div>
+                        <textarea
+                            value={reportDescription}
+                            onChange={(e) => setReportDescription(e.target.value)}
+                            placeholder="Şikayet açıklaması (zorunlu)"
+                            className="w-full h-20 p-2 border border-border rounded-md text-sm focus:ring-2 focus:ring-[#4729ff] outline-none mb-3"
+                            maxLength={500}
+                        />
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">{reportDescription.length}/500</span>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowReportDialog(false)}
+                                    className="px-3 py-1.5 text-sm border border-border rounded-md hover:bg-secondary"
+                                >
+                                    İptal
+                                </button>
+                                <button
+                                    onClick={submitReport}
+                                    className="px-3 py-1.5 text-sm bg-[#4729ff] text-white rounded-md hover:bg-[#3820cc]"
+                                >
+                                    Gönder
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -351,8 +570,8 @@ export function EntryCard({
 
             {/* Delete Confirmation Dialog */}
             {showDeleteDialog && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-                    <div className="bg-white rounded-lg p-6 max-sm w-full mx-4 shadow-2xl border border-border pointer-events-auto">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-sm mx-4 shadow-2xl border border-border">
                         <div className="mb-4">
                             <h3 className="text-lg font-medium text-foreground mb-2">Entry'yi Sil</h3>
                             <p className="text-sm text-muted-foreground">Bu entry'yi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>

@@ -25,7 +25,7 @@ export function SidebarAd({ location: propLocation }: SidebarAdProps = {}) {
         }
 
         dispatch(getAdsByLocation(location)).then((result: any) => {
-            if (result.payload) {
+            if (result.payload && Array.isArray(result.payload)) {
                 const sidebarAds = result.payload.filter((ad: Ad) => ad.type === "sidebar" && ad.isActive)
                 if (sidebarAds.length > 0) {
                     setCurrentAd(sidebarAds[Math.floor(Math.random() * sidebarAds.length)])

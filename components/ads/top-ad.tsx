@@ -27,7 +27,7 @@ export function TopAd({ location: propLocation }: TopAdProps = {}) {
 
         // We can fetch specifically for this location
         dispatch(getAdsByLocation(location)).then((result: any) => {
-            if (result.payload) {
+            if (Array.isArray(result.payload)) {
                 const topAds = result.payload.filter((ad: Ad) => ad.type === "top" && ad.isActive)
                 if (topAds.length > 0) {
                     // Pick a random ad if multiple exist

@@ -4,6 +4,8 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAppSelector, useAppDispatch } from "@/redux/hook"
 import { loadUser } from "@/redux/actions/userActions"
+import { User, Mail, Shield, Settings, Calendar } from "lucide-react"
+import Link from "next/link"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -38,46 +40,151 @@ export default function DashboardPage() {
     )
   }
 
-  return (
-    <div className="flex-1 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Hoş Geldiniz, {user?.name || 'Kullanıcı'}!</h1>
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Belirtilmemiş"
+    const date = new Date(dateString)
+    return date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
 
-        <div className="grid gap-6">
-          {/* Welcome Card */}
-          <div className="bg-white border border-border rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
-            <p className="text-muted-foreground mb-4">
-              Hesabınıza başarıyla giriş yaptınız. Bu sayfadan profilinizi yönetebilir ve içeriklerinizi görebilirsiniz.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <div className="p-4 bg-secondary rounded-md">
-                <p className="text-sm text-muted-foreground">E-posta</p>
-                <p className="font-medium">{user?.email}</p>
+  return (
+    <div className="flex flex-col min-h-screen w-full bg-background overflow-hidden">
+      {/* Header Area - Fixed at Top */}
+      <div className="border-b border-border bg-background p-6">
+        <div className="flex flex-col">
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
+            Hoş Geldiniz, {user?.nick || 'Kullanıcı'}!
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Hesabınıza başarıyla giriş yaptınız. Bu sayfadan profilinizi yönetebilir ve içeriklerinizi görebilirsiniz.
+          </p>
+        </div>
+      </div>
+
+      {/* Content Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="w-full p-6">
+          {/* User Info Section */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-tight">
+              Kullanıcı Bilgileri
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Email */}
+              <div className="flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-colors">
+                <div className="p-2 rounded-md bg-secondary">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-tight mb-1">E-posta</p>
+                  <p className="text-sm font-medium text-foreground truncate">{user?.email}</p>
+                </div>
               </div>
-              <div className="p-4 bg-secondary rounded-md">
-                <p className="text-sm text-muted-foreground">Kullanıcı Adı</p>
-                <p className="font-medium">{user?.email?.split('@')[0]}</p>
+
+              {/* Username */}
+              <div className="flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-colors">
+                <div className="p-2 rounded-md bg-secondary">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-tight mb-1">Kullanıcı Adı</p>
+                  <p className="text-sm font-medium text-foreground truncate">{user?.nick}</p>
+                </div>
+              </div>
+
+              {/* Role */}
+              <div className="flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-colors">
+                <div className="p-2 rounded-md bg-secondary">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-tight mb-1">Rol</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {user?.role === 'admin' ? 'Yönetici' : 'Kullanıcı'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-colors">
+                <div className="p-2 rounded-md bg-secondary">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-tight mb-1">Durum</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {user?.status === 'active' ? 'Aktif' : 'Pasif'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-colors">
+                <div className="p-2 rounded-md bg-secondary">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-tight mb-1">Unvan</p>
+                  <p className="text-sm font-medium text-foreground capitalize">{user?.title || 'çaylak'}</p>
+                </div>
+              </div>
+
+              {/* Created Date */}
+              <div className="flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-colors">
+                <div className="p-2 rounded-md bg-secondary">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-tight mb-1">Kayıt Tarihi</p>
+                  <p className="text-sm font-medium text-foreground">{formatDate(user?.createdAt)}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white border border-border rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Hızlı İşlemler</h2>
+          {/* Quick Actions Section */}
+          <div>
+            <h2 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-tight">
+              Hızlı İşlemler
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="p-4 border border-border rounded-md hover:bg-secondary transition-colors text-left">
-                <p className="font-medium mb-1">Profil Ayarları</p>
-                <p className="text-sm text-muted-foreground">Profilinizi düzenleyin</p>
-              </button>
-              <button className="p-4 border border-border rounded-md hover:bg-secondary transition-colors text-left">
-                <p className="font-medium mb-1">Hesap Ayarları</p>
-                <p className="text-sm text-muted-foreground">Hesap bilgilerinizi yönetin</p>
-              </button>
-              <button className="p-4 border border-border rounded-md hover:bg-secondary transition-colors text-left">
-                <p className="font-medium mb-1">Güvenlik</p>
-                <p className="text-sm text-muted-foreground">Şifre ve güvenlik ayarları</p>
-              </button>
+              <Link
+                href={`/yazar/${user?.nick}`}
+                className="group flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-all duration-200"
+              >
+                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#4729ff] transition-colors">
+                  <User className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground mb-1">Profil Ayarları</p>
+                  <p className="text-xs text-muted-foreground">Profilinizi düzenleyin</p>
+                </div>
+              </Link>
+
+              <Link
+                href="/ayarlar"
+                className="group flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-all duration-200"
+              >
+                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#4729ff] transition-colors">
+                  <Settings className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground mb-1">Hesap Ayarları</p>
+                  <p className="text-xs text-muted-foreground">Hesap bilgilerinizi yönetin</p>
+                </div>
+              </Link>
+
+              <Link
+                href="/ayarlar"
+                className="group flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-all duration-200"
+              >
+                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#4729ff] transition-colors">
+                  <Shield className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground mb-1">Güvenlik</p>
+                  <p className="text-xs text-muted-foreground">Şifre ve güvenlik ayarları</p>
+                </div>
+              </Link>
             </div>
           </div>
         </div>

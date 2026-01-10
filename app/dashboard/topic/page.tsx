@@ -22,22 +22,33 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen } from "lucide-react"
+import { getAllMenus, Menu } from "@/redux/actions/menuActions"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 export default function TopicPage() {
     const dispatch = useAppDispatch()
     const { topics, loading, error } = useAppSelector((state) => state.topic)
+    const { menus } = useAppSelector((state) => state.menu)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null)
 
     const [formData, setFormData] = useState({
         title: "",
         slug: "",
-        description: ""
+        description: "",
+        category: "diğer"
     })
 
     useEffect(() => {
         dispatch(getAllTopics({}))
+        dispatch(getAllMenus({}))
     }, [dispatch])
 
     const generateSlug = (title: string) => {
@@ -75,7 +86,7 @@ export default function TopicPage() {
 
         setIsDialogOpen(false)
         setEditingTopic(null)
-        setFormData({ title: "", slug: "", description: "" })
+        setFormData({ title: "", slug: "", description: "", category: "diğer" })
         dispatch(getAllTopics({}))
     }
 
@@ -84,7 +95,8 @@ export default function TopicPage() {
         setFormData({
             title: topic.title,
             slug: topic.slug,
-            description: topic.description || ""
+            description: topic.description || "",
+            category: topic.category || "diğer"
         })
         setIsDialogOpen(true)
     }
@@ -122,7 +134,7 @@ export default function TopicPage() {
                     <Button
                         onClick={() => {
                             setEditingTopic(null)
-                            setFormData({ title: "", slug: "", description: "" })
+                            setFormData({ title: "", slug: "", description: "", category: "diğer" })
                             setIsDialogOpen(true)
                         }}
                         className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
@@ -163,7 +175,7 @@ export default function TopicPage() {
                                             </span>
                                         </div>
                                         <p className="text-[10px] text-muted-foreground truncate font-mono uppercase tracking-tight">
-                                            /{topic.slug}
+                                            /{topic.slug} <span className="ml-2 px-1.5 py-0.5 rounded-sm bg-secondary text-secondary-foreground">{topic.category || 'diğer'}</span>
                                         </p>
                                         {topic.description && (
                                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -245,6 +257,28 @@ export default function TopicPage() {
                                 className="focus-visible:ring-[#4729ff] min-h-[100px]"
                             />
                         </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="category">Kategori</Label>
+                            <Select
+                                value={formData.category}
+                                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                            >
+                                <SelectTrigger className="focus:ring-[#4729ff]">
+                                    <SelectValue placeholder="Kategori seçin" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {menus.map((menu: Menu) => (
+                                        <SelectItem key={menu._id} value={menu.label.trim().toLocaleLowerCase('tr-TR')}>
+                                            {menu.label}
+                                        </SelectItem>
+                                    ))}
+                                    {/* Ensure 'diğer' is always an option, distinct from menus if needed */}
+                                    {!menus.some(m => m.label.trim().toLocaleLowerCase('tr-TR') === 'diğer') && (
+                                        <SelectItem value="diğer">#diğer</SelectItem>
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-md">
@@ -253,7 +287,7 @@ export default function TopicPage() {
                         <Button
                             onClick={handleSubmit}
                             className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md"
-                            disabled={!formData.title || !formData.slug}
+                            disabled={!formData.title || !formData.slug || !formData.category}
                         >
                             {editingTopic ? "Güncelle" : "Oluştur"}
                         </Button>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import {
     getAllEntries,
@@ -46,6 +46,82 @@ export default function EntryPage() {
         content: "",
         topic: ""
     })
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        type: 'bkz' | 'hede' | 'asterisk' | 'link' | 'spoiler';
+        step: 1 | 2;
+        value1: string;
+        value2: string;
+    }>({
+        isOpen: false,
+        type: 'bkz',
+        step: 1,
+        value1: '',
+        value2: '',
+    })
+
+    const insertFormatting = (before: string, after: string = "", customText?: string) => {
+        const textarea = textareaRef.current
+        if (!textarea) return
+
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const selectedText = customText ?? formData.content.substring(start, end)
+        const newContent = formData.content.substring(0, start) + before + selectedText + after + formData.content.substring(end)
+
+        setFormData(prev => ({ ...prev, content: newContent }))
+
+        // Set cursor position after insertion
+        setTimeout(() => {
+            textarea.focus()
+            const newPosition = start + before.length + selectedText.length + after.length
+            textarea.setSelectionRange(newPosition, newPosition)
+        }, 0)
+    }
+
+    const openHelper = (type: 'bkz' | 'hede' | 'asterisk' | 'link' | 'spoiler') => {
+        const textarea = textareaRef.current
+        let initialValue = ''
+        if (textarea) {
+            initialValue = formData.content.substring(textarea.selectionStart, textarea.selectionEnd)
+        }
+
+        setModalConfig({
+            isOpen: true,
+            type,
+            step: 1,
+            value1: initialValue || (type === 'link' ? 'http://' : ''),
+            value2: '',
+        })
+    }
+
+    const handleModalSubmit = () => {
+        const { type, step, value1, value2 } = modalConfig
+
+        if (type === 'bkz') {
+            insertFormatting("(bkz: ", ")", value1)
+        } else if (type === 'hede') {
+            if (step === 1) {
+                setModalConfig(prev => ({ ...prev, step: 2 }))
+                return
+            }
+            insertFormatting(`(bkz: ${value1}/`, ")", value2)
+        } else if (type === 'asterisk') {
+            insertFormatting("(bkz: *", "*)", value1)
+        } else if (type === 'link') {
+            if (step === 1) {
+                setModalConfig(prev => ({ ...prev, step: 2 }))
+                return
+            }
+            insertFormatting(`(bkz: ${value1}/`, ")", value2)
+        } else if (type === 'spoiler') {
+            insertFormatting("-- `spoiler` --\n", "\n-- `spoiler` --", value1)
+        }
+
+        setModalConfig(prev => ({ ...prev, isOpen: false }))
+    }
 
     useEffect(() => {
         dispatch(getAllEntries({}))
@@ -238,8 +314,49 @@ export default function EntryPage() {
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="content">İçerik</Label>
+
+                            {/* Formatting toolbar */}
+                            <div className="flex gap-2 mb-1 flex-wrap">
+                                <button
+                                    type="button"
+                                    onClick={() => openHelper('bkz')}
+                                    className="px-2 py-1 text-[10px] border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
+                                >
+                                    (bkz:)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => openHelper('hede')}
+                                    className="px-2 py-1 text-[10px] border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
+                                >
+                                    hede
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => openHelper('asterisk')}
+                                    className="px-2 py-1 text-[10px] border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
+                                >
+                                    *
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => openHelper('spoiler')}
+                                    className="px-2 py-1 text-[10px] border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
+                                >
+                                    - spoiler -
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => openHelper('link')}
+                                    className="px-2 py-1 text-[10px] border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
+                                >
+                                    http://
+                                </button>
+                            </div>
+
                             <Textarea
                                 id="content"
+                                ref={textareaRef}
                                 value={formData.content}
                                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                 placeholder="Entry içeriğini yazın..."
@@ -247,6 +364,59 @@ export default function EntryPage() {
                             />
                         </div>
                     </div>
+
+                    {/* Helper Modal */}
+                    {modalConfig.isOpen && (
+                        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] animate-in fade-in duration-200">
+                            <div className="bg-white rounded-[20px] p-8 max-w-sm w-full mx-4 shadow-2xl border border-black/5 flex flex-col items-center text-center">
+                                <h3 className="text-lg font-bold text-[#1a1a1a] mb-2 leading-tight">
+                                    fitsozluk.com mesajı
+                                </h3>
+                                <p className="text-[#4b4b4b] text-sm mb-6">
+                                    {modalConfig.type === 'bkz' && "hangi başlığa bkz verilecek?"}
+                                    {modalConfig.type === 'hede' && (modalConfig.step === 1 ? "hangi başlık için link oluşturulacak?" : "verilecek linkin adı ne olacak?")}
+                                    {modalConfig.type === 'asterisk' && "yıldız içinde ne görünecek?"}
+                                    {modalConfig.type === 'link' && (modalConfig.step === 1 ? "hangi adrese gidecek?" : "verilecek linkin adı ne olacak?")}
+                                    {modalConfig.type === 'spoiler' && "spoiler metni ne olacak?"}
+                                </p>
+
+                                <input
+                                    key={`${modalConfig.type}-${modalConfig.step}`}
+                                    autoFocus
+                                    type="text"
+                                    value={modalConfig.step === 1 ? modalConfig.value1 : modalConfig.value2}
+                                    onChange={(e) => {
+                                        const val = e.target.value
+                                        setModalConfig(prev => ({
+                                            ...prev,
+                                            [modalConfig.step === 1 ? 'value1' : 'value2']: val
+                                        }))
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleModalSubmit()
+                                        if (e.key === 'Escape') setModalConfig(prev => ({ ...prev, isOpen: false }))
+                                    }}
+                                    className="w-full px-4 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-base focus:outline-none focus:border-[#4729ff] transition-all mb-6"
+                                />
+
+                                <div className="flex gap-3 w-full">
+                                    <Button
+                                        onClick={handleModalSubmit}
+                                        className="flex-1 bg-[#8b4513] hover:bg-[#723a10] text-white rounded-full font-bold"
+                                    >
+                                        Tamam
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+                                        className="flex-1 bg-[#ffdab9] hover:bg-[#fcd5b0] text-[#1a1a1a] rounded-full font-bold border-none"
+                                    >
+                                        İptal
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-md">
                             İptal

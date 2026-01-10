@@ -5,6 +5,7 @@ import { menuReducer } from "./reducers/menuReducer";
 import { topicReducer } from "./reducers/topicReducer";
 import { entryReducer } from "./reducers/entryReducer";
 import { adReducer } from "./reducers/adReducer";
+import { reportReducer } from "./reducers/reportReducer";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ const store = configureStore({
     topic: topicReducer,
     entry: entryReducer,
     ad: adReducer,
+    report: reportReducer,
   },
 });
 

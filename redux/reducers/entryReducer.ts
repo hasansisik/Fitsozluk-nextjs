@@ -9,6 +9,7 @@ import {
     likeEntry,
     dislikeEntry,
     toggleFavorite,
+    getEntriesFeed,
     Entry
 } from "../actions/entryActions";
 
@@ -49,6 +50,7 @@ export const entryReducer = createReducer(initialState, (builder) => {
         .addCase(getEntriesByTopic.pending, (state) => {
             state.loading = true;
             state.error = null;
+            state.entries = []; // Clear old entries immediately
         })
         .addCase(getEntriesByTopic.fulfilled, (state, action) => {
             state.loading = false;
@@ -162,6 +164,21 @@ export const entryReducer = createReducer(initialState, (builder) => {
             state.error = null;
         })
         .addCase(toggleFavorite.rejected, (state, action) => {
+            state.error = action.payload as string;
+        })
+
+        // Get entries feed
+        .addCase(getEntriesFeed.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getEntriesFeed.fulfilled, (state, action) => {
+            state.loading = false;
+            state.entries = action.payload;
+            state.error = null;
+        })
+        .addCase(getEntriesFeed.rejected, (state, action) => {
+            state.loading = false;
             state.error = action.payload as string;
         });
 });

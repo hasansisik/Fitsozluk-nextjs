@@ -2,11 +2,11 @@ import Link from "next/link"
 
 export function Footer() {
     const footerLinks = [
-        { href: "/iletisim", label: "iletişim" },
-        { href: "/seffaflik-raporlari", label: "şeffaflık raporları" },
-        { href: "/sozluk-kurallari", label: "sözlük kuralları" },
-        { href: "/kullanim-kosullari", label: "kullanım koşulları" },
-        { href: "/gizlilik-politikasi", label: "gizlilik politikamız" },
+        { href: "/politikalar/iletisim", label: "iletişim" },
+        { href: "/politikalar/seffaflik-raporlari", label: "şeffaflık raporları" },
+        { href: "/politikalar/sozluk-kurallari", label: "sözlük kuralları" },
+        { href: "/politikalar/kullanim-kosullari", label: "kullanım koşulları" },
+        { href: "/politikalar/gizlilik-politikasi", label: "gizlilik politikamız" },
     ]
 
     return (
