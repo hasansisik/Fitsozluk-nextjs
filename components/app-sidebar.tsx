@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Home, Menu as MenuIcon, List, BookOpen, MessageSquare, Megaphone, FileText, Users, Flag } from "lucide-react"
+import { List, BookOpen, MessageSquare, Megaphone, FileText, Users, Flag } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { useAppSelector } from "@/redux/hook"
+import Image from "next/image"
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +24,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: Home,
+      icon: List,
       isActive: true,
     },
     {
@@ -85,14 +86,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Home className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Dashboard</span>
-                  <span className="truncate text-xs">Ana Sayfa</span>
-                </div>
+              <a href="/dashboard" className="flex items-center justify-center py-2">
+                <Image
+                  src="/fitsözlük.png"
+                  alt="Fitsözlük"
+                  width={120}
+                  height={40}
+                  className="object-contain"
+                />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
