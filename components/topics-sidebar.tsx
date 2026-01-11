@@ -57,7 +57,7 @@ export function TopicsSidebar() {
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
                                 max={new Date().toISOString().split('T')[0]}
-                                className="w-full pl-8 pr-3 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
+                                className="w-full pl-8 pr-3 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
                             />
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -76,7 +76,7 @@ export function TopicsSidebar() {
 
                 {sidebarLoading ? (
                     <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-5 w-5 animate-spin text-[#4729ff]" />
+                        <Loader2 className="h-5 w-5 animate-spin text-[#ff6600]" />
                     </div>
                 ) : (
                     <ul className="space-y-3">
@@ -86,7 +86,7 @@ export function TopicsSidebar() {
                                     href={`/${topic.slug}`}
                                     className="flex items-start justify-between group hover:bg-secondary p-2 rounded-md transition-colors"
                                 >
-                                    <span className="text-sm text-foreground group-hover:text-[#4729ff] transition-colors flex-1 leading-snug">
+                                    <span className="text-sm text-foreground group-hover:text-[#ff6600] transition-colors flex-1 leading-snug">
                                         {topic.title}
                                     </span>
                                     <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">

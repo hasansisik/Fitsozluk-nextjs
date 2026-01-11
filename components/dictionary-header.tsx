@@ -257,7 +257,7 @@ export function DictionaryHeader() {
                                 <div className="relative">
                                     <button
                                         type="submit"
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 cursor-pointer hover:text-blue-500 transition-colors"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 cursor-pointer hover:text-orange-500 transition-colors"
                                     >
                                         <Search className="h-4 w-4 text-muted-foreground" />
                                     </button>
@@ -272,7 +272,7 @@ export function DictionaryHeader() {
                                                 setShowFilters(false)
                                             }
                                         }}
-                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-20 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-offset-0"
+                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-20 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:border-orange-500 focus-visible:ring-offset-0"
                                     />
                                     {/* Clear button */}
                                     {searchQuery && (
@@ -317,13 +317,13 @@ export function DictionaryHeader() {
                                                             type="date"
                                                             value={startDate}
                                                             onChange={(e) => setStartDate(e.target.value)}
-                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
+                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
                                                         />
                                                         <input
                                                             type="date"
                                                             value={endDate}
                                                             onChange={(e) => setEndDate(e.target.value)}
-                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
+                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
                                                         />
                                                     </div>
                                                 </div>
@@ -341,7 +341,7 @@ export function DictionaryHeader() {
                                                                 value="newest"
                                                                 checked={sortOrder === "newest"}
                                                                 onChange={(e) => setSortOrder(e.target.value as "newest")}
-                                                                className="w-4 h-4 text-[#4729ff] focus:ring-[#4729ff]"
+                                                                className="w-4 h-4 text-[#ff6600] focus:ring-[#ff6600]"
                                                             />
                                                             <span className="text-sm">Yeniden Eskiye</span>
                                                         </label>
@@ -352,7 +352,7 @@ export function DictionaryHeader() {
                                                                 value="oldest"
                                                                 checked={sortOrder === "oldest"}
                                                                 onChange={(e) => setSortOrder(e.target.value as "oldest")}
-                                                                className="w-4 h-4 text-[#4729ff] focus:ring-[#4729ff]"
+                                                                className="w-4 h-4 text-[#ff6600] focus:ring-[#ff6600]"
                                                             />
                                                             <span className="text-sm">Eskiden Yeniye</span>
                                                         </label>
@@ -389,7 +389,7 @@ export function DictionaryHeader() {
                                                                 setShowFilters(false)
                                                             }
                                                         }}
-                                                        className="flex-1 px-3 py-1.5 text-sm bg-[#4729ff] text-white rounded hover:bg-[#3820cc] transition-colors"
+                                                        className="flex-1 px-3 py-1.5 text-sm bg-[#ff6600] text-white rounded hover:bg-[#e65c00] transition-colors"
                                                     >
                                                         Uygula
                                                     </button>
@@ -437,7 +437,7 @@ export function DictionaryHeader() {
                                 <>
                                     <Link
                                         href={`/yazar/${user.nick}`}
-                                        className="p-2 text-foreground hover:text-[#4729ff] transition-colors"
+                                        className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
                                         title="Profilim"
                                     >
                                         <User className="h-5 w-5" />
@@ -449,7 +449,7 @@ export function DictionaryHeader() {
                                                 setShowSettingsMenu(!showSettingsMenu)
                                                 setShowMoreTopics(false) // Close more topics when opening settings
                                             }}
-                                            className="p-2 text-foreground hover:text-[#4729ff] transition-colors"
+                                            className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
                                             title="Ayarlar"
                                         >
                                             <Settings className="h-5 w-5" />
@@ -460,14 +460,14 @@ export function DictionaryHeader() {
                                             <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[200px] z-50">
                                                 <Link
                                                     href={`/yazar/${user.nick}`}
-                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
+                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
                                                     onClick={() => setShowSettingsMenu(false)}
                                                 >
                                                     Profil Ayarları
                                                 </Link>
                                                 <Link
                                                     href="/ayarlar"
-                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
+                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
                                                     onClick={() => setShowSettingsMenu(false)}
                                                 >
                                                     Hesap Ayarları
@@ -488,13 +488,13 @@ export function DictionaryHeader() {
                                 <>
                                     <Link
                                         href="/giris"
-                                        className="text-sm font-medium text-foreground hover:text-[#4729ff] transition-colors"
+                                        className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors"
                                     >
                                         giriş
                                     </Link>
                                     <Link
                                         href="/kayitol"
-                                        className="rounded-md bg-[#4729ff] px-4 py-2 text-sm font-medium text-white hover:bg-[#3820cc] transition-colors"
+                                        className="rounded-md bg-[#ff6600] px-4 py-2 text-sm font-medium text-white hover:bg-[#e65c00] transition-colors"
                                     >
                                         kayıt ol
                                     </Link>
@@ -547,7 +547,7 @@ export function DictionaryHeader() {
                                 <Link
                                     key={menu._id}
                                     href={href}
-                                    className="text-sm font-medium text-foreground hover:text-[#4729ff] hover:underline transition-colors whitespace-nowrap"
+                                    className="text-sm font-medium text-foreground hover:text-[#ff6600] hover:underline transition-colors whitespace-nowrap"
                                 >
                                     {menu.label}
                                 </Link>
@@ -562,7 +562,7 @@ export function DictionaryHeader() {
                                         setShowMoreTopics(!showMoreTopics)
                                         setShowSettingsMenu(false) // Close settings when opening more topics
                                     }}
-                                    className="text-sm text-foreground hover:text-[#4729ff] transition-colors flex items-center"
+                                    className="text-sm text-foreground hover:text-[#ff6600] transition-colors flex items-center"
                                 >
                                     <MoreHorizontal className="h-4 w-4" />
                                 </button>
@@ -594,7 +594,7 @@ export function DictionaryHeader() {
                                                 <Link
                                                     key={menu._id}
                                                     href={href}
-                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#4729ff] transition-colors"
+                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
                                                     onClick={() => setShowMoreTopics(false)}
                                                 >
                                                     {menu.label}

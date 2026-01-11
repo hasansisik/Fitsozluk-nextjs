@@ -107,7 +107,7 @@ export function ResetPasswordForm() {
                 </p>
                 <Link
                     href="/giris"
-                    className="inline-block px-6 py-2 bg-[#4729ff] text-white font-medium rounded-md hover:bg-[#3618ee] transition-colors"
+                    className="inline-block px-6 py-2 bg-[#ff6600] text-white font-medium rounded-md hover:bg-[#e65c00] transition-colors"
                 >
                     Giriş Yap
                 </Link>
@@ -128,11 +128,11 @@ export function ResetPasswordForm() {
 
             {/* Email notification banner */}
             {email && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <p className="text-sm text-orange-800">
                         Şifre sıfırlama kodu <strong>{email}</strong> adresine gönderildi.
                     </p>
-                    <p className="text-xs text-blue-600 mt-1">
+                    <p className="text-xs text-orange-600 mt-1">
                         E-postanızı kontrol edin ve 4 haneli kodu aşağıya girin.
                     </p>
                 </div>
@@ -156,7 +156,7 @@ export function ResetPasswordForm() {
                             setErrors({ ...errors, verificationCode: undefined })
                         }}
                         placeholder="E-postanıza gönderilen 4 haneli kod"
-                        className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4729ff] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent"
                     />
                     {errors.verificationCode && (
                         <p className="mt-2 text-sm text-red-600">{errors.verificationCode}</p>
@@ -178,7 +178,7 @@ export function ResetPasswordForm() {
                                 setErrors({ ...errors, password: undefined })
                             }}
                             placeholder="En az 8 karakter"
-                            className="w-full px-4 py-2 pr-10 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4729ff] focus:border-transparent"
+                            className="w-full px-4 py-2 pr-10 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent"
                         />
                         <button
                             type="button"
@@ -208,7 +208,7 @@ export function ResetPasswordForm() {
                                 setErrors({ ...errors, confirmPassword: undefined })
                             }}
                             placeholder="Şifrenizi tekrar girin"
-                            className="w-full px-4 py-2 pr-10 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4729ff] focus:border-transparent"
+                            className="w-full px-4 py-2 pr-10 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent"
                         />
                         <button
                             type="button"
@@ -227,7 +227,7 @@ export function ResetPasswordForm() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full px-4 py-2 bg-[#4729ff] text-white font-medium rounded-md hover:bg-[#3618ee] transition-colors disabled:opacity-50"
+                    className="w-full px-4 py-2 bg-[#ff6600] text-white font-medium rounded-md hover:bg-[#e65c00] transition-colors disabled:opacity-50"
                 >
                     {loading ? "Şifre değiştiriliyor..." : "Şifreyi Değiştir"}
                 </button>

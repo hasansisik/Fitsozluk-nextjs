@@ -164,8 +164,8 @@ export default function UserProfilePage({ params }: PageProps) {
         return (
             <div className="w-full flex items-center justify-center min-h-[calc(100vh-6.5rem)] bg-white">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-4 border-[#4729ff] border-t-transparent rounded-full animate-spin" />
-                    <div className="text-[#4729ff] font-medium animate-pulse">yükleniyor...</div>
+                    <div className="w-10 h-10 border-4 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
+                    <div className="text-[#ff6600] font-medium animate-pulse">yükleniyor...</div>
                 </div>
             </div>
         )
@@ -189,7 +189,7 @@ export default function UserProfilePage({ params }: PageProps) {
                                 </p>
                                 <Link
                                     href="/ayarlar"
-                                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#4729ff] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#3820cc]"
+                                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#ff6600] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#e65c00]"
                                 >
                                     Ayarlar'a Git
                                 </Link>
@@ -228,16 +228,16 @@ export default function UserProfilePage({ params }: PageProps) {
                                 value={noteText}
                                 onChange={(e) => setNoteText(e.target.value)}
                                 placeholder="yazar hakkındaki notlarım"
-                                className="w-full h-32 p-3 text-sm border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
+                                className="w-full h-32 p-3 text-sm border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
                             />
                             <button
                                 onClick={handleSaveNote}
-                                className="mt-2 w-full bg-[#4729ff] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#3820cc] transition-colors"
+                                className="mt-2 w-full bg-[#ff6600] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#e65c00] transition-colors"
                             >
                                 kaydet
                             </button>
                             {showSavedMessage && (
-                                <div className="mt-2 text-center text-sm text-[#4729ff] font-medium">
+                                <div className="mt-2 text-center text-sm text-[#ff6600] font-medium">
                                     ✓ Kaydedildi
                                 </div>
                             )}

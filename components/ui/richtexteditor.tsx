@@ -663,7 +663,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         openOnClick: false,
         validate: href => /^https?:\/\//.test(href),
         HTMLAttributes: {
-          class: 'text-blue-600 underline',
+          class: 'text-orange-600 underline',
         },
       }),
       VideoExtension,
@@ -1053,14 +1053,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         editor
           .chain()
           .focus()
-          .insertContent(`<a href="${url}" class="text-blue-600 underline">${linkText}</a>`)
+          .insertContent(`<a href="${url}" class="text-orange-600 underline">${linkText}</a>`)
           .run();
       } else {
         // If no text is selected and no link text, insert the URL as clickable text
         editor
           .chain()
           .focus()
-          .insertContent(`<a href="${url}" class="text-blue-600 underline">${url}</a>`)
+          .insertContent(`<a href="${url}" class="text-orange-600 underline">${url}</a>`)
           .run();
       }
 
@@ -1483,7 +1483,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                   <button
                     key={color}
                     type="button"
-                    className="w-5 h-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="w-5 h-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                     style={{ backgroundColor: color }}
                     onClick={(e) => {
                       e.preventDefault();

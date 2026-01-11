@@ -69,7 +69,7 @@ export default function Home() {
               <main className="flex-1 min-w-0">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-24">
-                    <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -81,7 +81,7 @@ export default function Home() {
                           {/* Eğer entry içinde topic populate edilmişse (getEntriesFeed case) */}
                           {entry.topic && (
                             <Link href={`/${entry.topic.slug}`} className="block group">
-                              <h2 className="text-xl font-bold text-[#1a1a1a] group-hover:text-[#4729ff] transition-colors cursor-pointer leading-tight">
+                              <h2 className="text-xl font-bold text-[#1a1a1a] group-hover:text-[#ff6600] transition-colors cursor-pointer leading-tight">
                                 {entry.topic.title}
                               </h2>
                             </Link>

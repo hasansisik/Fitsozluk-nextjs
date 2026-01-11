@@ -264,7 +264,7 @@ export default function BasliklarPage() {
                             setFormData({ label: "", href: "", isFeatured: true })
                             setIsDialogOpen(true)
                         }}
-                        className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
+                        className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Yeni Başlık
@@ -277,7 +277,7 @@ export default function BasliklarPage() {
                 <div className="w-full">
                     {loading && localMenus.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
                             <p className="text-sm text-muted-foreground animate-pulse">Başlıklar yükleniyor...</p>
                         </div>
                     ) : localMenus.length === 0 ? (
@@ -329,7 +329,7 @@ export default function BasliklarPage() {
                                 value={formData.label}
                                 onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                                 placeholder="Örn: Gündem"
-                                className="focus-visible:ring-[#4729ff]"
+                                className="focus-visible:ring-[#ff6600]"
                             />
                         </div>
                         <div className="grid gap-2">
@@ -339,7 +339,7 @@ export default function BasliklarPage() {
                                 value={formData.href}
                                 onChange={(e) => setFormData({ ...formData, href: e.target.value })}
                                 placeholder="Örn: /gundem"
-                                className="focus-visible:ring-[#4729ff]"
+                                className="focus-visible:ring-[#ff6600]"
                             />
                         </div>
                         <div className="flex items-center space-x-2 mt-2">
@@ -348,7 +348,7 @@ export default function BasliklarPage() {
                                 id="isFeatured"
                                 checked={formData.isFeatured}
                                 onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                                className="h-4 w-4 rounded border-gray-300 text-[#4729ff] focus:ring-[#4729ff]"
+                                className="h-4 w-4 rounded border-gray-300 text-[#ff6600] focus:ring-[#ff6600]"
                             />
                             <Label htmlFor="isFeatured" className="text-sm font-normal cursor-pointer">
                                 Bu başlığı öne çıkar
@@ -359,7 +359,7 @@ export default function BasliklarPage() {
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-md">
                             İptal
                         </Button>
-                        <Button onClick={handleSubmit} className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md">
+                        <Button onClick={handleSubmit} className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md">
                             {editingMenu ? "Güncelle" : "Oluştur"}
                         </Button>
                     </DialogFooter>

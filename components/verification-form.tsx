@@ -137,7 +137,7 @@ function VerificationFormContent() {
                 </p>
                 <Link
                     href="/giris"
-                    className="inline-block px-6 py-2 bg-[#4729ff] text-white font-medium rounded-md hover:bg-[#3618ee] transition-colors"
+                    className="inline-block px-6 py-2 bg-[#ff6600] text-white font-medium rounded-md hover:bg-[#e65c00] transition-colors"
                 >
                     Giriş Yap
                 </Link>
@@ -149,7 +149,7 @@ function VerificationFormContent() {
         <div className="w-full">
             <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-                    <Mail className="h-8 w-8 text-[#4729ff]" />
+                    <Mail className="h-8 w-8 text-[#ff6600]" />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
                     E-posta Doğrulama
@@ -174,7 +174,7 @@ function VerificationFormContent() {
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 onPaste={index === 0 ? handlePaste : undefined}
-                                className="w-10 h-10 text-center text-base font-semibold border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4729ff] focus:border-transparent"
+                                className="w-10 h-10 text-center text-base font-semibold border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent"
                             />
                         ))}
                     </div>
@@ -192,7 +192,7 @@ function VerificationFormContent() {
                         type="button"
                         onClick={handleResend}
                         disabled={loading}
-                        className="text-sm font-medium text-[#4729ff] hover:text-[#3618ee] transition-colors disabled:opacity-50"
+                        className="text-sm font-medium text-[#ff6600] hover:text-[#e65c00] transition-colors disabled:opacity-50"
                     >
                         {loading ? "Gönderiliyor..." : "Kodu Tekrar Gönder"}
                     </button>
@@ -205,7 +205,7 @@ function VerificationFormContent() {
                 <div className="text-center pt-4 border-t border-border">
                     <Link
                         href="/giris"
-                        className="text-sm text-muted-foreground hover:text-[#4729ff] transition-colors"
+                        className="text-sm text-muted-foreground hover:text-[#ff6600] transition-colors"
                     >
                         Giriş sayfasına dön
                     </Link>
@@ -220,7 +220,7 @@ export function VerificationForm() {
         <Suspense fallback={
             <div className="w-full text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-                    <Mail className="h-8 w-8 text-[#4729ff]" />
+                    <Mail className="h-8 w-8 text-[#ff6600]" />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
                     E-posta Doğrulama

@@ -127,7 +127,7 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
             <div className="relative">
                 <button
                     onClick={() => toggleDropdown('time')}
-                    className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#4729ff] transition-colors"
+                    className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#ff6600] transition-colors"
                 >
                     zaman aralığı
                     <ChevronDown className="h-3 w-3 opacity-40" />
@@ -144,7 +144,7 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
                                         onFilterChange(option.value, selectedFilterType)
                                     }
                                 }}
-                                className={`w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors ${timeFilter === option.value ? 'text-[#4729ff] font-medium' : 'text-foreground'
+                                className={`w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors ${timeFilter === option.value ? 'text-[#ff6600] font-medium' : 'text-foreground'
                                     }`}
                             >
                                 {option.label}
@@ -158,7 +158,7 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
             <div className="relative">
                 <button
                     onClick={() => toggleDropdown('search')}
-                    className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#4729ff] transition-colors"
+                    className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#ff6600] transition-colors"
                 >
                     başlıkta ara
                     <ChevronDown className="h-3 w-3 opacity-40" />
@@ -175,7 +175,7 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
                                         onFilterChange(timeFilter, opt.value)
                                     }
                                 }}
-                                className={`w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors ${selectedFilterType === opt.value ? 'text-[#4729ff] font-medium' : 'text-foreground'}`}
+                                className={`w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors ${selectedFilterType === opt.value ? 'text-[#ff6600] font-medium' : 'text-foreground'}`}
                             >
                                 {opt.label}
                             </button>
@@ -206,7 +206,7 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
             {/* Takip Et (Topic Follow - kept as receives prop) */}
             <button
                 onClick={onFollowToggle}
-                className="text-xs text-foreground hover:text-[#4729ff] transition-colors"
+                className="text-xs text-foreground hover:text-[#ff6600] transition-colors"
             >
                 {isFollowing ? "takibi bırak" : "takip et"}
             </button>
@@ -215,7 +215,7 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
             <div className="relative">
                 <button
                     onClick={() => toggleDropdown('creator')}
-                    className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#4729ff] transition-colors"
+                    className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#ff6600] transition-colors"
                 >
                     başlığı açan
                     <ChevronDown className="h-3 w-3 opacity-40" />

@@ -260,7 +260,7 @@ export function EntryCard({
                             <span key={`bkz-${subMatch.index}`}>
                                 (bkz: <Link
                                     href={`/${slug}`}
-                                    className="text-[#4729ff] hover:underline"
+                                    className="text-[#ff6600] hover:underline"
                                 >
                                     {bkzText}
                                 </Link>)
@@ -275,7 +275,7 @@ export function EntryCard({
                             <Link
                                 key={`hede-${subMatch.index}`}
                                 href={`/${slug}`}
-                                className="text-[#4729ff] hover:underline font-bold"
+                                className="text-[#ff6600] hover:underline font-bold"
                             >
                                 {hedeText}
                             </Link>
@@ -289,7 +289,7 @@ export function EntryCard({
                             <Link
                                 key={`asterisk-${subMatch.index}`}
                                 href={`/${slug}`}
-                                className="text-[#4729ff] hover:underline font-bold"
+                                className="text-[#ff6600] hover:underline font-bold"
                             >
                                 {asteriskText}*
                             </Link>
@@ -303,7 +303,7 @@ export function EntryCard({
                                 href={url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[#4729ff] hover:underline break-all"
+                                className="text-[#ff6600] hover:underline break-all"
                             >
                                 {url}
                             </a>
@@ -328,7 +328,7 @@ export function EntryCard({
                                 {part.content}
                                 <button
                                     onClick={() => setShowSpoilers(prev => ({ ...prev, [currentSpoilerIndex]: false }))}
-                                    className="ml-2 text-xs text-[#4729ff] hover:underline"
+                                    className="ml-2 text-xs text-[#ff6600] hover:underline"
                                 >
                                     gizle
                                 </button>
@@ -361,7 +361,7 @@ export function EntryCard({
                 {shouldTruncate && (
                     <button
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="mt-2 text-sm text-[#4729ff] hover:underline font-medium transition-colors"
+                        className="mt-2 text-sm text-[#ff6600] hover:underline font-medium transition-colors"
                     >
                         {isExpanded ? 'daha az göster' : 'devamını oku'}
                     </button>
@@ -369,7 +369,7 @@ export function EntryCard({
 
                 {/* Special Link */}
                 {isSpecial && (
-                    <a href="#" className="text-xs text-muted-foreground hover:text-[#4729ff] transition-colors">
+                    <a href="#" className="text-xs text-muted-foreground hover:text-[#ff6600] transition-colors">
                         bu başka bir şey mi?
                     </a>
                 )}
@@ -381,7 +381,7 @@ export function EntryCard({
                         {/* Thumbs Up */}
                         <button
                             onClick={handleLikeAction}
-                            className={`flex items-center gap-1 transition-colors ${isLikedProp ? 'text-[#4729ff]' : 'text-muted-foreground hover:text-[#4729ff]'}`}
+                            className={`flex items-center gap-1 transition-colors ${isLikedProp ? 'text-[#ff6600]' : 'text-muted-foreground hover:text-[#ff6600]'}`}
                             title="Beğen"
                         >
                             <ThumbsUp
@@ -430,7 +430,7 @@ export function EntryCard({
                         <div className="relative share-menu-container">
                             <button
                                 onClick={() => setShowShareMenu(!showShareMenu)}
-                                className="text-muted-foreground hover:text-[#4729ff] transition-colors"
+                                className="text-muted-foreground hover:text-[#ff6600] transition-colors"
                                 title="Paylaş"
                             >
                                 <Share2 className="h-3.5 w-3.5" />
@@ -489,7 +489,7 @@ export function EntryCard({
                         <div className="flex flex-col">
                             <Link
                                 href={`/yazar/${encodeURIComponent(author)}`}
-                                className="text-sm text-muted-foreground hover:text-[#4729ff] transition-colors"
+                                className="text-sm text-muted-foreground hover:text-[#ff6600] transition-colors"
                             >
                                 {author}
                             </Link>
@@ -533,7 +533,7 @@ export function EntryCard({
                                 <button
                                     key={type.value}
                                     onClick={() => setReportReason(type.value)}
-                                    className={`w-full text-left px-3 py-2 text-sm border rounded-md transition-colors ${reportReason === type.value ? 'border-[#4729ff] bg-[#4729ff]/5' : 'border-border hover:bg-secondary'
+                                    className={`w-full text-left px-3 py-2 text-sm border rounded-md transition-colors ${reportReason === type.value ? 'border-[#ff6600] bg-[#ff6600]/5' : 'border-border hover:bg-secondary'
                                         }`}
                                 >
                                     {type.label}
@@ -544,7 +544,7 @@ export function EntryCard({
                             value={reportDescription}
                             onChange={(e) => setReportDescription(e.target.value)}
                             placeholder="Şikayet açıklaması (zorunlu)"
-                            className="w-full h-20 p-2 border border-border rounded-md text-sm focus:ring-2 focus:ring-[#4729ff] outline-none mb-3"
+                            className="w-full h-20 p-2 border border-border rounded-md text-sm focus:ring-2 focus:ring-[#ff6600] outline-none mb-3"
                             maxLength={500}
                         />
                         <div className="flex justify-between items-center">
@@ -558,7 +558,7 @@ export function EntryCard({
                                 </button>
                                 <button
                                     onClick={submitReport}
-                                    className="px-3 py-1.5 text-sm bg-[#4729ff] text-white rounded-md hover:bg-[#3820cc]"
+                                    className="px-3 py-1.5 text-sm bg-[#ff6600] text-white rounded-md hover:bg-[#e65c00]"
                                 >
                                     Gönder
                                 </button>

@@ -30,7 +30,7 @@ export function DynamicPageContent({ slug }: DynamicPageContentProps) {
     if (loading) {
         return (
             <div className="w-full bg-white flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4729ff]"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff6600]"></div>
             </div>
         )
     }

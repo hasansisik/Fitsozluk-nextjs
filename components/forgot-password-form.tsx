@@ -67,7 +67,7 @@ export function ForgotPasswordForm() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="ornek@email.com"
-                        className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4729ff] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent"
                     />
                     {error && (
                         <p className="mt-2 text-sm text-red-600">{error}</p>
@@ -78,7 +78,7 @@ export function ForgotPasswordForm() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full px-4 py-2 bg-[#4729ff] text-white font-medium rounded-md hover:bg-[#3618ee] transition-colors disabled:opacity-50"
+                    className="w-full px-4 py-2 bg-[#ff6600] text-white font-medium rounded-md hover:bg-[#e65c00] transition-colors disabled:opacity-50"
                 >
                     {loading ? "Gönderiliyor..." : "Şifre Sıfırlama Kodu Gönder"}
                 </button>
@@ -87,7 +87,7 @@ export function ForgotPasswordForm() {
                 <div className="text-center">
                     <Link
                         href="/giris"
-                        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-[#4729ff] transition-colors"
+                        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-[#ff6600] transition-colors"
                     >
                         <ArrowLeft className="h-4 w-4" />
                         Giriş sayfasına dön

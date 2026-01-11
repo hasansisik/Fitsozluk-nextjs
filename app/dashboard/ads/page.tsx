@@ -218,7 +218,7 @@ export default function AdsPage() {
                             })
                             setIsDialogOpen(true)
                         }}
-                        className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
+                        className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Yeni Reklam
@@ -243,7 +243,7 @@ export default function AdsPage() {
                 <div className="w-full">
                     {loading && ads.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
                             <p className="text-sm text-muted-foreground animate-pulse">Reklamlar yükleniyor...</p>
                         </div>
                     ) : ads.length === 0 ? (
@@ -283,7 +283,7 @@ export default function AdsPage() {
                                     value={formData.location}
                                     onValueChange={(val) => setFormData({ ...formData, location: val })}
                                 >
-                                    <SelectTrigger id="location" className="focus:ring-[#4729ff]">
+                                    <SelectTrigger id="location" className="focus:ring-[#ff6600]">
                                         <SelectValue placeholder="Sayfa seçin" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -300,7 +300,7 @@ export default function AdsPage() {
                                     value={formData.type}
                                     onValueChange={(val) => setFormData({ ...formData, type: val })}
                                 >
-                                    <SelectTrigger id="type" className="focus:ring-[#4729ff]">
+                                    <SelectTrigger id="type" className="focus:ring-[#ff6600]">
                                         <SelectValue placeholder="Tür seçin" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -320,12 +320,12 @@ export default function AdsPage() {
                                         type="file"
                                         accept="image/*"
                                         onChange={handleFileUpload}
-                                        className="focus-visible:ring-[#4729ff] cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-[#4729ff] hover:file:bg-indigo-100"
+                                        className="focus-visible:ring-[#ff6600] cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-[#ff6600] hover:file:bg-indigo-100"
                                         disabled={isUploading}
                                     />
                                     {isUploading && (
                                         <div className="flex items-center justify-center px-3">
-                                            <Loader2 className="h-4 w-4 animate-spin text-[#4729ff]" />
+                                            <Loader2 className="h-4 w-4 animate-spin text-[#ff6600]" />
                                         </div>
                                     )}
                                 </div>
@@ -337,7 +337,7 @@ export default function AdsPage() {
                                             alt="Preview"
                                             className="h-full w-full object-contain"
                                         />
-                                        <div className="absolute top-1 right-1 bg-[#4729ff] text-white text-[8px] px-1 rounded">yüklendi</div>
+                                        <div className="absolute top-1 right-1 bg-[#ff6600] text-white text-[8px] px-1 rounded">yüklendi</div>
                                     </div>
                                 )}
                             </div>
@@ -350,7 +350,7 @@ export default function AdsPage() {
                                 value={formData.linkUrl}
                                 onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
                                 placeholder="https://..."
-                                className="focus-visible:ring-[#4729ff]"
+                                className="focus-visible:ring-[#ff6600]"
                             />
                         </div>
 
@@ -360,7 +360,7 @@ export default function AdsPage() {
                                 id="isActiveAd"
                                 checked={formData.isActive}
                                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                                className="h-4 w-4 rounded border-gray-300 text-[#4729ff] focus:ring-[#4729ff]"
+                                className="h-4 w-4 rounded border-gray-300 text-[#ff6600] focus:ring-[#ff6600]"
                             />
                             <Label htmlFor="isActiveAd" className="text-sm font-normal cursor-pointer">
                                 Bu reklamı hemen yayına al
@@ -371,7 +371,7 @@ export default function AdsPage() {
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-md">
                             İptal
                         </Button>
-                        <Button onClick={handleSubmit} className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md" disabled={isUploading}>
+                        <Button onClick={handleSubmit} className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md" disabled={isUploading}>
                             {isUploading ? "Görsel Yükleniyor..." : (editingAd ? "Güncelle" : "Oluştur")}
                         </Button>
                     </DialogFooter>

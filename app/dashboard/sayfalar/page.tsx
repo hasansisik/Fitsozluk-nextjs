@@ -110,7 +110,7 @@ export default function PagesDashboard() {
                         <p className="text-slate-500 text-sm">Dinamik içerik sayfalarını buradan yönetin</p>
                     </div>
                     {!isEditing && (
-                        <Button onClick={handleCreateNew} className="bg-[#4729ff] hover:bg-[#3820cc]">
+                        <Button onClick={handleCreateNew} className="bg-[#ff6600] hover:bg-[#e65c00]">
                             <Plus className="w-4 h-4 mr-2" />
                             Yeni Sayfa Ekle
                         </Button>
@@ -166,7 +166,7 @@ export default function PagesDashboard() {
                                 id="isActive"
                                 checked={editPage?.isActive}
                                 onChange={e => setEditPage({ ...editPage, isActive: e.target.checked })}
-                                className="w-4 h-4 text-[#4729ff] rounded"
+                                className="w-4 h-4 text-[#ff6600] rounded"
                             />
                             <label htmlFor="isActive" className="text-sm font-medium text-slate-700 cursor-pointer">
                                 Sayfayı Yayınla
@@ -177,7 +177,7 @@ export default function PagesDashboard() {
                             <Button variant="outline" onClick={() => { setIsEditing(false); setEditPage(null); }}>
                                 İptal
                             </Button>
-                            <Button onClick={handleSave} className="bg-[#4729ff] hover:bg-[#3820cc]">
+                            <Button onClick={handleSave} className="bg-[#ff6600] hover:bg-[#e65c00]">
                                 Kaydet
                             </Button>
                         </div>
@@ -191,10 +191,10 @@ export default function PagesDashboard() {
                             </div>
                         ) : (
                             pages.map(page => (
-                                <div key={page._id} className="bg-white p-4 rounded-xl shadow-sm border flex items-center justify-between hover:border-[#4729ff]/30 transition-colors">
+                                <div key={page._id} className="bg-white p-4 rounded-xl shadow-sm border flex items-center justify-between hover:border-[#ff6600]/30 transition-colors">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-lg bg-[#4729ff]/5 flex items-center justify-center">
-                                            <FileText className="w-5 h-5 text-[#4729ff]" />
+                                        <div className="w-10 h-10 rounded-lg bg-[#ff6600]/5 flex items-center justify-center">
+                                            <FileText className="w-5 h-5 text-[#ff6600]" />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-slate-900">{page.title}</h3>

@@ -162,7 +162,7 @@ export default function TopicPage() {
     if (!currentTopic) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
             </div>
         )
     }
@@ -219,7 +219,7 @@ export default function TopicPage() {
                                 <div className="space-y-12">
                                     {entriesLoading && entries.length === 0 ? (
                                         <div className="flex items-center justify-center py-12">
-                                            <Loader2 className="h-6 w-6 animate-spin text-[#4729ff]" />
+                                            <Loader2 className="h-6 w-6 animate-spin text-[#ff6600]" />
                                         </div>
                                     ) : currentEntries.length > 0 ? (
                                         currentEntries.map((entry) => (

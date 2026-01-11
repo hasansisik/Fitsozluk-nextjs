@@ -191,7 +191,7 @@ export default function EntryPage() {
                             setFormData({ content: "", topic: "" })
                             setIsDialogOpen(true)
                         }}
-                        className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
+                        className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Yeni Entry
@@ -204,7 +204,7 @@ export default function EntryPage() {
                 <div className="w-full">
                     {loading && entries.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
                             <p className="text-sm text-muted-foreground animate-pulse">Entry'ler yükleniyor...</p>
                         </div>
                     ) : entries.length === 0 ? (
@@ -222,7 +222,7 @@ export default function EntryPage() {
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-xs font-medium text-[#4729ff]">
+                                                <span className="text-xs font-medium text-[#ff6600]">
                                                     {entry.topic.title}
                                                 </span>
                                                 <span className="text-xs text-muted-foreground">•</span>
@@ -300,7 +300,7 @@ export default function EntryPage() {
                                 onValueChange={(value) => setFormData({ ...formData, topic: value })}
                                 disabled={!!editingEntry}
                             >
-                                <SelectTrigger className="focus:ring-[#4729ff]">
+                                <SelectTrigger className="focus:ring-[#ff6600]">
                                     <SelectValue placeholder="Topic seçin" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -360,7 +360,7 @@ export default function EntryPage() {
                                 value={formData.content}
                                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                 placeholder="Entry içeriğini yazın..."
-                                className="focus-visible:ring-[#4729ff] min-h-[200px]"
+                                className="focus-visible:ring-[#ff6600] min-h-[200px]"
                             />
                         </div>
                     </div>
@@ -396,7 +396,7 @@ export default function EntryPage() {
                                         if (e.key === 'Enter') handleModalSubmit()
                                         if (e.key === 'Escape') setModalConfig(prev => ({ ...prev, isOpen: false }))
                                     }}
-                                    className="w-full px-4 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-base focus:outline-none focus:border-[#4729ff] transition-all mb-6"
+                                    className="w-full px-4 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-base focus:outline-none focus:border-[#ff6600] transition-all mb-6"
                                 />
 
                                 <div className="flex gap-3 w-full">
@@ -423,7 +423,7 @@ export default function EntryPage() {
                         </Button>
                         <Button
                             onClick={handleSubmit}
-                            className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md"
+                            className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md"
                             disabled={!formData.content || !formData.topic}
                         >
                             {editingEntry ? "Güncelle" : "Oluştur"}

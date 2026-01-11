@@ -137,7 +137,7 @@ export default function TopicPage() {
                             setFormData({ title: "", slug: "", description: "", category: "diğer" })
                             setIsDialogOpen(true)
                         }}
-                        className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
+                        className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md px-6 font-medium transition-all active:scale-95 shadow-none"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Yeni Topic
@@ -150,7 +150,7 @@ export default function TopicPage() {
                 <div className="w-full">
                     {loading && topics.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
                             <p className="text-sm text-muted-foreground animate-pulse">Topic'ler yükleniyor...</p>
                         </div>
                     ) : topics.length === 0 ? (
@@ -234,7 +234,7 @@ export default function TopicPage() {
                                 value={formData.title}
                                 onChange={(e) => handleTitleChange(e.target.value)}
                                 placeholder="Örn: Atatürk'ün Hiç Seçime Girmeden Ülkeyi Yönetmesi"
-                                className="focus-visible:ring-[#4729ff]"
+                                className="focus-visible:ring-[#ff6600]"
                             />
                         </div>
                         <div className="grid gap-2">
@@ -244,7 +244,7 @@ export default function TopicPage() {
                                 value={formData.slug}
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                 placeholder="Örn: ataturkun-hic-secime-girmeden-ulkeyi-yonetmesi"
-                                className="focus-visible:ring-[#4729ff] font-mono text-sm"
+                                className="focus-visible:ring-[#ff6600] font-mono text-sm"
                             />
                         </div>
                         <div className="grid gap-2">
@@ -254,7 +254,7 @@ export default function TopicPage() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Topic hakkında kısa bir açıklama..."
-                                className="focus-visible:ring-[#4729ff] min-h-[100px]"
+                                className="focus-visible:ring-[#ff6600] min-h-[100px]"
                             />
                         </div>
                         <div className="grid gap-2">
@@ -263,7 +263,7 @@ export default function TopicPage() {
                                 value={formData.category}
                                 onValueChange={(value) => setFormData({ ...formData, category: value })}
                             >
-                                <SelectTrigger className="focus:ring-[#4729ff]">
+                                <SelectTrigger className="focus:ring-[#ff6600]">
                                     <SelectValue placeholder="Kategori seçin" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -286,7 +286,7 @@ export default function TopicPage() {
                         </Button>
                         <Button
                             onClick={handleSubmit}
-                            className="bg-[#4729ff] hover:bg-[#3820cc] text-white rounded-md"
+                            className="bg-[#ff6600] hover:bg-[#e65c00] text-white rounded-md"
                             disabled={!formData.title || !formData.slug || !formData.category}
                         >
                             {editingTopic ? "Güncelle" : "Oluştur"}

@@ -80,7 +80,7 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
         <Button
             type="button"
             className={className || "w-full py-5 text-white border-none hover:opacity-90 transition-opacity flex items-center justify-center gap-3"}
-            style={{ backgroundColor: "#4a0e70" }}
+            style={{ backgroundColor: "#ff6600" }}
             onClick={handleFitmailAuth}
         >
             <img

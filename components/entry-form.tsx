@@ -222,19 +222,19 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
                                 if (e.key === 'Enter') handleModalSubmit()
                                 if (e.key === 'Escape') setModalConfig(prev => ({ ...prev, isOpen: false }))
                             }}
-                            className="w-full px-3 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-sm focus:outline-none focus:border-[#4729ff] transition-all mb-5"
+                            className="w-full px-3 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-sm focus:outline-none focus:border-[#ff6600] transition-all mb-5"
                         />
 
                         <div className="flex gap-3 w-full">
                             <button
                                 onClick={handleModalSubmit}
-                                className="flex-1 py-2.5 bg-[#4729ff] text-white rounded-full text-sm font-bold hover:bg-[#3820cc] transition-colors"
+                                className="flex-1 py-2.5 bg-[#ff6600] text-white rounded-full text-sm font-bold hover:bg-[#e65c00] transition-colors"
                             >
                                 Tamam
                             </button>
                             <button
                                 onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
-                                className="flex-1 py-2.5 bg-[#eef2ff] text-[#4729ff] rounded-full text-sm font-bold hover:bg-[#e0e7ff] transition-colors"
+                                className="flex-1 py-2.5 bg-[#fff7ed] text-[#ff6600] rounded-full text-sm font-bold hover:bg-[#ffedd5] transition-colors"
                             >
                                 İptal
                             </button>
@@ -250,7 +250,7 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
                 onChange={(e) => setContent(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={`"${topicTitle}" hakkında bilgi verin`}
-                className="w-full min-h-[160px] p-4 text-sm border border-border rounded-md resize-y focus:outline-none focus:ring-1 focus:ring-[#4729ff] bg-white"
+                className="w-full min-h-[160px] p-4 text-sm border border-border rounded-md resize-y focus:outline-none focus:ring-1 focus:ring-[#ff6600] bg-white"
             />
 
             {/* Bottom controls */}
@@ -261,7 +261,7 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
                 <button
                     onClick={handleSubmit}
                     disabled={isSubmitting || !content.trim()}
-                    className="px-6 py-2 bg-[#4729ff] text-white rounded-md text-sm font-medium hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+                    className="px-6 py-2 bg-[#ff6600] text-white rounded-md text-sm font-medium hover:bg-[#e65c00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
                 >
                     {isSubmitting ? (
                         <>

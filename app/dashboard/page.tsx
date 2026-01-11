@@ -33,7 +33,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4729ff] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff6600] mx-auto mb-4"></div>
           <p className="text-muted-foreground">Yükleniyor...</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                 href={`/yazar/${user?.nick}`}
                 className="group flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-all duration-200"
               >
-                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#4729ff] transition-colors">
+                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#ff6600] transition-colors">
                   <User className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex-1">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
                 href="/ayarlar"
                 className="group flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-all duration-200"
               >
-                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#4729ff] transition-colors">
+                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#ff6600] transition-colors">
                   <Settings className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex-1">
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 href="/ayarlar"
                 className="group flex items-start gap-3 p-4 border border-border rounded-md bg-background hover:bg-secondary/30 transition-all duration-200"
               >
-                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#4729ff] transition-colors">
+                <div className="p-2 rounded-md bg-secondary group-hover:bg-[#ff6600] transition-colors">
                   <Shield className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex-1">

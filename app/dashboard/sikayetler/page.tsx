@@ -105,7 +105,7 @@ export default function SikayetlerPage() {
     const getStatusBadge = (status: string) => {
         const badges: Record<string, { label: string; className: string }> = {
             pending: { label: "Beklemede", className: "bg-yellow-100 text-yellow-800" },
-            reviewed: { label: "İncelendi", className: "bg-blue-100 text-blue-800" },
+            reviewed: { label: "İncelendi", className: "bg-orange-100 text-orange-800" },
             resolved: { label: "Çözüldü", className: "bg-green-100 text-green-800" },
             dismissed: { label: "Reddedildi", className: "bg-gray-100 text-gray-800" }
         }
@@ -122,7 +122,7 @@ export default function SikayetlerPage() {
             <div className="flex flex-col min-h-screen w-full bg-background">
                 <div className="flex items-center justify-center flex-1">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4729ff] mx-auto mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff6600] mx-auto mb-4"></div>
                         <p className="text-muted-foreground">Yükleniyor...</p>
                     </div>
                 </div>
@@ -157,7 +157,7 @@ export default function SikayetlerPage() {
                             </div>
                             <div className="p-3 border border-border rounded-md">
                                 <p className="text-xs text-muted-foreground">İncelendi</p>
-                                <p className="text-lg font-bold text-blue-600">{reportStats.reviewed || 0}</p>
+                                <p className="text-lg font-bold text-orange-600">{reportStats.reviewed || 0}</p>
                             </div>
                             <div className="p-3 border border-border rounded-md">
                                 <p className="text-xs text-muted-foreground">Çözüldü</p>
@@ -221,7 +221,7 @@ export default function SikayetlerPage() {
                                                 <span className="text-xs px-2 py-1 bg-secondary rounded-full">
                                                     {getReasonLabel(report.reason)}
                                                 </span>
-                                                <span className={`text-xs px-2 py-1 rounded-full ${report.reportType === 'entry' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                                                <span className={`text-xs px-2 py-1 rounded-full ${report.reportType === 'entry' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800'
                                                     }`}>
                                                     {report.reportType === 'entry' ? 'Entry' : 'Kullanıcı'}
                                                 </span>
@@ -230,7 +230,7 @@ export default function SikayetlerPage() {
                                                 {report.reportType === 'user' ? (
                                                     <p className="text-sm">
                                                         <span className="font-medium">Şikayet Edilen:</span>{" "}
-                                                        <span className="text-[#4729ff]">{report.reportedUser?.nick || 'Bilinmiyor'}</span>
+                                                        <span className="text-[#ff6600]">{report.reportedUser?.nick || 'Bilinmiyor'}</span>
                                                     </p>
                                                 ) : (
                                                     <p className="text-sm">
@@ -315,7 +315,7 @@ export default function SikayetlerPage() {
                             {/* Report Type */}
                             <div>
                                 <p className="text-sm font-medium mb-1">Şikayet Tipi</p>
-                                <span className={`text-xs px-2 py-1 rounded-full ${selectedReport.reportType === 'entry' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                                <span className={`text-xs px-2 py-1 rounded-full ${selectedReport.reportType === 'entry' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800'
                                     }`}>
                                     {selectedReport.reportType === 'entry' ? 'Entry' : 'Kullanıcı'}
                                 </span>
@@ -325,7 +325,7 @@ export default function SikayetlerPage() {
                             {selectedReport.reportType === 'user' ? (
                                 <div>
                                     <p className="text-sm font-medium mb-1">Şikayet Edilen Kullanıcı</p>
-                                    <p className="text-sm text-[#4729ff]">{selectedReport.reportedUser?.nick || 'Bilinmiyor'}</p>
+                                    <p className="text-sm text-[#ff6600]">{selectedReport.reportedUser?.nick || 'Bilinmiyor'}</p>
                                     <p className="text-xs text-muted-foreground">{selectedReport.reportedUser?.email}</p>
                                 </div>
                             ) : (

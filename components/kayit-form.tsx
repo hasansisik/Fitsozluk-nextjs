@@ -123,7 +123,7 @@ export function KayitForm({
             <select
               value={birthDay}
               onChange={(e) => setBirthDay(e.target.value)}
-              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4729ff] focus-visible:ring-offset-0"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6600] focus-visible:ring-offset-0"
               required
               disabled={loading}
             >
@@ -135,7 +135,7 @@ export function KayitForm({
             <select
               value={birthMonth}
               onChange={(e) => setBirthMonth(e.target.value)}
-              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4729ff] focus-visible:ring-offset-0"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6600] focus-visible:ring-offset-0"
               required
               disabled={loading}
             >
@@ -147,7 +147,7 @@ export function KayitForm({
             <select
               value={birthYear}
               onChange={(e) => setBirthYear(e.target.value)}
-              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4729ff] focus-visible:ring-offset-0"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6600] focus-visible:ring-offset-0"
               required
               disabled={loading}
             >
@@ -170,7 +170,7 @@ export function KayitForm({
                 value="kadın"
                 checked={gender === "kadın"}
                 onChange={(e) => setGender(e.target.value)}
-                className="w-4 h-4 text-[#4729ff] border-gray-300 focus:ring-[#4729ff]"
+                className="w-4 h-4 text-[#ff6600] border-gray-300 focus:ring-[#ff6600]"
                 disabled={loading}
               />
               <span className="text-sm">kadın</span>
@@ -182,7 +182,7 @@ export function KayitForm({
                 value="erkek"
                 checked={gender === "erkek"}
                 onChange={(e) => setGender(e.target.value)}
-                className="w-4 h-4 text-[#4729ff] border-gray-300 focus:ring-[#4729ff]"
+                className="w-4 h-4 text-[#ff6600] border-gray-300 focus:ring-[#ff6600]"
                 disabled={loading}
               />
               <span className="text-sm">erkek</span>
@@ -229,7 +229,7 @@ export function KayitForm({
           <Button
             type="submit"
             disabled={loading || (password !== confirmPassword && confirmPassword !== "")}
-            className="bg-[#4729ff] hover:bg-[#3820cc] text-white"
+            className="bg-[#ff6600] hover:bg-[#e65c00] text-white"
           >
             {loading ? "Kayıt yapılıyor..." : "kayıt ol"}
           </Button>
@@ -247,7 +247,7 @@ export function KayitForm({
         <Field>
           <FieldDescription className="text-center">
             Zaten hesabınız var mı?{" "}
-            <Link href="/giris" className="underline underline-offset-4 text-[#4729ff] hover:text-[#3820cc]">
+            <Link href="/giris" className="underline underline-offset-4 text-[#ff6600] hover:text-[#e65c00]">
               Giriş yap
             </Link>
           </FieldDescription>

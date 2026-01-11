@@ -162,7 +162,7 @@ export default function KullanicilarPage() {
                                 placeholder="Kullanıcı ara (nick veya email)..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 focus-visible:ring-[#4729ff]"
+                                className="pl-10 focus-visible:ring-[#ff6600]"
                             />
                         </div>
                         <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -206,7 +206,7 @@ export default function KullanicilarPage() {
                             <Button
                                 onClick={handleSaveChanges}
                                 disabled={isSaving}
-                                className="bg-[#4729ff] hover:bg-[#3820cc] text-white"
+                                className="bg-[#ff6600] hover:bg-[#e65c00] text-white"
                             >
                                 {isSaving ? (
                                     <>
@@ -234,7 +234,7 @@ export default function KullanicilarPage() {
                 <div className="w-full">
                     {usersLoading && filteredUsers.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
                             <p className="text-sm text-muted-foreground animate-pulse">Kullanıcılar yükleniyor...</p>
                         </div>
                     ) : filteredUsers.length === 0 ? (

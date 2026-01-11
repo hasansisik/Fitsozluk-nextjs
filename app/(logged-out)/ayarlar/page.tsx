@@ -225,13 +225,13 @@ export default function SettingsPage() {
                                                 setCurrentPassword("")
                                             }}
                                             className={`pb-3 px-1 text-xs uppercase tracking-wider transition-colors relative ${activeTab === tab.id
-                                                ? "text-[#4729ff] font-bold"
+                                                ? "text-[#ff6600] font-bold"
                                                 : "text-muted-foreground hover:text-foreground"
                                                 }`}
                                         >
                                             {tab.label}
                                             {activeTab === tab.id && (
-                                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4729ff]" />
+                                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff6600]" />
                                             )}
                                         </button>
                                     ))}
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                                                 type="password"
                                                 value={currentPassword}
                                                 onChange={(e) => setCurrentPassword(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
                                                 type="password"
                                                 value={newPassword}
                                                 onChange={(e) => setNewPassword(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
@@ -269,14 +269,14 @@ export default function SettingsPage() {
                                                 type="password"
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
                                         <button
                                             type="submit"
                                             disabled={loading}
-                                            className="h-10 px-6 bg-[#4729ff] text-white text-sm font-semibold rounded hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            className="h-10 px-6 bg-[#ff6600] text-white text-sm font-semibold rounded hover:bg-[#e65c00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         >
                                             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                                             şifreyi değiştir
@@ -287,7 +287,7 @@ export default function SettingsPage() {
                                 {/* E-mail Tab */}
                                 {activeTab === "e-mail" && (
                                     <form onSubmit={handleEmailChange} className="space-y-5">
-                                        <div className="bg-blue-50/50 p-4 rounded border border-blue-100 mb-6 text-sm text-blue-800">
+                                        <div className="bg-orange-50/50 p-4 rounded border border-orange-100 mb-6 text-sm text-orange-800">
                                             Mevcut e-postanız: <strong>{user?.email}</strong>
                                         </div>
                                         <div className="space-y-2">
@@ -296,7 +296,7 @@ export default function SettingsPage() {
                                                 type="password"
                                                 value={currentPassword}
                                                 onChange={(e) => setCurrentPassword(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
@@ -306,14 +306,14 @@ export default function SettingsPage() {
                                                 type="email"
                                                 value={newEmail}
                                                 onChange={(e) => setNewEmail(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
                                         <button
                                             type="submit"
                                             disabled={loading}
-                                            className="h-10 px-6 bg-[#4729ff] text-white text-sm font-semibold rounded hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            className="h-10 px-6 bg-[#ff6600] text-white text-sm font-semibold rounded hover:bg-[#e65c00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         >
                                             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                                             e-mail'i değiştir
@@ -324,7 +324,7 @@ export default function SettingsPage() {
                                 {/* Kullanıcı Adı Tab */}
                                 {activeTab === "kullanici-adi" && (
                                     <form onSubmit={handleUsernameChange} className="space-y-5">
-                                        <div className="bg-blue-50/50 p-4 rounded border border-blue-100 mb-6 text-sm text-blue-800">
+                                        <div className="bg-orange-50/50 p-4 rounded border border-orange-100 mb-6 text-sm text-orange-800">
                                             Mevcut kullanıcı adınız: <strong>{user?.nick}</strong>
                                         </div>
                                         <div className="space-y-2">
@@ -333,7 +333,7 @@ export default function SettingsPage() {
                                                 type="password"
                                                 value={currentPassword}
                                                 onChange={(e) => setCurrentPassword(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
@@ -343,14 +343,14 @@ export default function SettingsPage() {
                                                 type="text"
                                                 value={newUsername}
                                                 onChange={(e) => setNewUsername(e.target.value)}
-                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#4729ff] focus:outline-none transition-colors"
+                                                className="w-full h-10 px-3 text-sm border border-border/60 rounded focus:border-[#ff6600] focus:outline-none transition-colors"
                                                 required
                                             />
                                         </div>
                                         <button
                                             type="submit"
                                             disabled={loading}
-                                            className="h-10 px-6 bg-[#4729ff] text-white text-sm font-semibold rounded hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            className="h-10 px-6 bg-[#ff6600] text-white text-sm font-semibold rounded hover:bg-[#e65c00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         >
                                             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                                             kullanıcı adını değiştir
@@ -372,7 +372,7 @@ export default function SettingsPage() {
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                                                                 <img
-                                                                    src={blockedUser.picture || "https://res.cloudinary.com/da2qwsrbv/image/upload/v1757687384/sj3lcvvd7mjuuwpzann8.png"}
+                                                                    src={blockedUser.picture || "https://res.cloudinary.com/dxmyphljd/image/upload/v1768134400/favicon_Orange_lkigyi.png"}
                                                                     alt={blockedUser.nick}
                                                                     className="w-full h-full object-cover"
                                                                 />

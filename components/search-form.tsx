@@ -237,7 +237,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
                       </p>
                       <Link
                         href={`/baslik-olustur?title=${encodeURIComponent(searchQuery)}`}
-                        className="block w-full px-4 py-2 bg-[#4729ff] text-white rounded hover:bg-[#3820cc] transition-colors text-center text-sm"
+                        className="block w-full px-4 py-2 bg-[#ff6600] text-white rounded hover:bg-[#e65c00] transition-colors text-center text-sm"
                         onClick={() => {
                           setShowResults(false)
                         }}
@@ -266,14 +266,14 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
+                  className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
                   placeholder="Başlangıç"
                 />
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#4729ff]"
+                  className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
                   placeholder="Bitiş"
                 />
               </div>
@@ -292,7 +292,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
                     value="newest"
                     checked={sortOrder === "newest"}
                     onChange={(e) => setSortOrder(e.target.value as "newest")}
-                    className="w-4 h-4 text-[#4729ff] focus:ring-[#4729ff]"
+                    className="w-4 h-4 text-[#ff6600] focus:ring-[#ff6600]"
                   />
                   <span className="text-sm">Yeniden Eskiye</span>
                 </label>
@@ -303,7 +303,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
                     value="oldest"
                     checked={sortOrder === "oldest"}
                     onChange={(e) => setSortOrder(e.target.value as "oldest")}
-                    className="w-4 h-4 text-[#4729ff] focus:ring-[#4729ff]"
+                    className="w-4 h-4 text-[#ff6600] focus:ring-[#ff6600]"
                   />
                   <span className="text-sm">Eskiden Yeniye</span>
                 </label>
@@ -322,7 +322,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
               <button
                 type="button"
                 onClick={handleApply}
-                className="flex-1 px-3 py-1.5 text-sm bg-[#4729ff] text-white rounded hover:bg-[#3820cc] transition-colors"
+                className="flex-1 px-3 py-1.5 text-sm bg-[#ff6600] text-white rounded hover:bg-[#e65c00] transition-colors"
               >
                 Uygula
               </button>

@@ -166,13 +166,13 @@ function SearchContent() {
                                     <>
                                         {/* Create Topic Button - Show IF NO EXACT MATCH IN ENTIRE DB */}
                                         {query.trim().length >= 2 && !exactMatchExists && (
-                                            <div className="bg-gradient-to-r from-[#4729ff]/10 to-[#4729ff]/5 border-2 border-[#4729ff]/20 rounded-lg p-6 mb-6">
+                                            <div className="bg-gradient-to-r from-[#ff6600]/10 to-[#ff6600]/5 border-2 border-[#ff6600]/20 rounded-lg p-6 mb-6">
                                                 <p className="text-sm text-muted-foreground text-center mb-3">
                                                     <span className="font-semibold text-foreground">"{query}"</span> başlığı henüz oluşturulmamış
                                                 </p>
                                                 <Link
                                                     href={`/baslik-olustur?title=${encodeURIComponent(query)}`}
-                                                    className="block w-full max-w-md mx-auto px-6 py-3 bg-[#4729ff] text-white rounded-lg hover:bg-[#3820cc] transition-colors text-center font-medium"
+                                                    className="block w-full max-w-md mx-auto px-6 py-3 bg-[#ff6600] text-white rounded-lg hover:bg-[#e65c00] transition-colors text-center font-medium"
                                                 >
                                                     Bu başlığı oluştur
                                                 </Link>
@@ -188,7 +188,7 @@ function SearchContent() {
                                                             <Link href={`/${result.slug}`}>
                                                                 <div className="flex items-start justify-between">
                                                                     <div>
-                                                                        <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
+                                                                        <h3 className="text-lg font-medium text-foreground hover:text-[#ff6600] transition-colors">
                                                                             {result.title}
                                                                         </h3>
                                                                         <p className="text-sm text-muted-foreground mt-1">
@@ -204,7 +204,7 @@ function SearchContent() {
                                                             <Link href={`/yazar/${result.nick}`}>
                                                                 <div className="flex items-start justify-between">
                                                                     <div>
-                                                                        <h3 className="text-lg font-medium text-foreground hover:text-[#4729ff] transition-colors">
+                                                                        <h3 className="text-lg font-medium text-foreground hover:text-[#ff6600] transition-colors">
                                                                             @{result.nick}
                                                                         </h3>
                                                                         <p className="text-sm text-muted-foreground mt-1">
@@ -221,7 +221,7 @@ function SearchContent() {
                                                                 <div className="flex items-start justify-between">
                                                                     <div className="flex-1">
                                                                         <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                                                                            {result.topicTitle} &gt; <span className="text-[#4729ff]">@{result.author}</span>
+                                                                            {result.topicTitle} &gt; <span className="text-[#ff6600]">@{result.author}</span>
                                                                         </h3>
                                                                         <p className="text-base text-foreground line-clamp-3">
                                                                             {result.content}

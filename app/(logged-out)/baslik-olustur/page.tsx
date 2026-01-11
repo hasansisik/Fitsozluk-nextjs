@@ -149,7 +149,7 @@ export default function CreateTopicPage() {
     if (!user) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-[#4729ff]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
             </div>
         )
     }
@@ -190,7 +190,7 @@ export default function CreateTopicPage() {
                                         <select
                                             value={category}
                                             onChange={(e) => setCategory(e.target.value)}
-                                            className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4729ff] text-sm"
+                                            className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff6600] text-sm"
                                             disabled={user.title === "çaylak"}
                                             required
                                         >
@@ -265,7 +265,7 @@ export default function CreateTopicPage() {
                                             value={entryContent}
                                             onChange={(e) => setEntryContent(e.target.value)}
                                             placeholder={`"${title || "bu başlık"}" hakkında bilgi verin`}
-                                            className="w-full min-h-[300px] px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4729ff] text-sm resize-y"
+                                            className="w-full min-h-[300px] px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff6600] text-sm resize-y"
                                             disabled={user.title === "çaylak"}
                                         />
                                     </div>
@@ -275,7 +275,7 @@ export default function CreateTopicPage() {
                                         <button
                                             type="submit"
                                             disabled={isSubmitting || user.title === "çaylak"}
-                                            className="px-6 py-2 bg-[#4729ff] text-white rounded-lg hover:bg-[#3820cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            className="px-6 py-2 bg-[#ff6600] text-white rounded-lg hover:bg-[#e65c00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         >
                                             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                                             {isSubmitting ? "Oluşturuluyor..." : "Başlığı Oluştur"}

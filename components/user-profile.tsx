@@ -283,7 +283,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                     <p className="text-muted-foreground mb-6">@{userData.nick}</p>
                     <div className="bg-secondary p-8 rounded-lg max-w-md mx-auto">
                         <p className="mb-4">Bu kullanıcıyı engellediniz</p>
-                        <button onClick={handleUnblock} className="px-6 py-2 bg-[#4729ff] text-white rounded-md">Engeli Kaldır</button>
+                        <button onClick={handleUnblock} className="px-6 py-2 bg-[#ff6600] text-white rounded-md">Engeli Kaldır</button>
                     </div>
                 </div>
             </div>
@@ -355,14 +355,14 @@ export function UserProfile({ userData }: UserProfileProps) {
                         <textarea
                             value={bioText}
                             onChange={(e) => setBioText(e.target.value)}
-                            className="w-full h-32 p-3 border rounded-md focus:ring-2 focus:ring-[#4729ff] outline-none"
+                            className="w-full h-32 p-3 border rounded-md focus:ring-2 focus:ring-[#ff6600] outline-none"
                             maxLength={200}
                         />
                         <div className="flex justify-between mt-4">
                             <span className="text-xs text-muted-foreground">{bioText.length}/200</span>
                             <div className="flex gap-2">
                                 <button onClick={() => setShowBioEdit(false)} className="px-4 py-2 text-sm font-medium">iptal</button>
-                                <button onClick={handleSaveBio} className="px-4 py-2 text-sm font-medium bg-[#4729ff] text-white rounded-md">kaydet</button>
+                                <button onClick={handleSaveBio} className="px-4 py-2 text-sm font-medium bg-[#ff6600] text-white rounded-md">kaydet</button>
                             </div>
                         </div>
                     </div>
@@ -383,35 +383,35 @@ export function UserProfile({ userData }: UserProfileProps) {
                         <div className="space-y-3 mb-4">
                             <button
                                 onClick={() => setReportReason("spam")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "spam" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "spam" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
                                     }`}
                             >
                                 Spam
                             </button>
                             <button
                                 onClick={() => setReportReason("harassment")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "harassment" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "harassment" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
                                     }`}
                             >
                                 Hakaret Veya Nefret
                             </button>
                             <button
                                 onClick={() => setReportReason("inappropriate")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "inappropriate" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "inappropriate" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
                                     }`}
                             >
                                 Uygunsuz İçerik
                             </button>
                             <button
                                 onClick={() => setReportReason("copyright")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "copyright" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "copyright" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
                                     }`}
                             >
                                 Copyright
                             </button>
                             <button
                                 onClick={() => setReportReason("other")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "other" ? "border-[#4729ff] bg-[#4729ff]/5" : "border-border hover:bg-secondary"
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "other" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
                                     }`}
                             >
                                 Other
@@ -422,7 +422,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                             value={reportText}
                             onChange={(e) => setReportText(e.target.value)}
                             placeholder="Şikayet açıklaması (zorunlu)"
-                            className="w-full h-24 p-3 border rounded-md focus:ring-2 focus:ring-[#4729ff] outline-none mb-4"
+                            className="w-full h-24 p-3 border rounded-md focus:ring-2 focus:ring-[#ff6600] outline-none mb-4"
                             maxLength={500}
                         />
 
@@ -437,7 +437,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                                 </button>
                                 <button
                                     onClick={handleReport}
-                                    className="px-4 py-2 text-sm font-medium bg-[#4729ff] text-white rounded-md hover:bg-[#3820cc]"
+                                    className="px-4 py-2 text-sm font-medium bg-[#ff6600] text-white rounded-md hover:bg-[#e65c00]"
                                 >
                                     Gönder
                                 </button>
@@ -456,7 +456,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                             {!isOwnProfile && (
                                 <button
                                     onClick={handleFollow}
-                                    className={`px-4 py-1 rounded-full text-xs font-semibold transition-all ${isFollowing ? "bg-secondary text-foreground" : "bg-[#4729ff] text-white"
+                                    className={`px-4 py-1 rounded-full text-xs font-semibold transition-all ${isFollowing ? "bg-secondary text-foreground" : "bg-[#ff6600] text-white"
                                         }`}
                                 >
                                     {isFollowing ? "takipten vazgeç" : "takip et"}
@@ -466,7 +466,7 @@ export function UserProfile({ userData }: UserProfileProps) {
 
                         <div className="flex gap-2 mb-6">
                             <div className={`text-white text-xs px-3 py-1.5 rounded-sm font-medium ${userData.title === 'çaylak' ? 'bg-[#f2a154]' :
-                                userData.title === 'yazar' ? 'bg-[#4729ff]' :
+                                userData.title === 'yazar' ? 'bg-[#ff6600]' :
                                     userData.title === 'usta' ? 'bg-[#2ecc71]' :
                                         userData.title === 'moderatör' ? 'bg-[#e74c3c]' :
                                             userData.title === 'admin' ? 'bg-[#9b59b6]' : 'bg-[#f2a154]'
@@ -478,11 +478,11 @@ export function UserProfile({ userData }: UserProfileProps) {
                         <div className="flex gap-1.5 text-xs text-muted-foreground mb-2">
                             <span><strong className="text-foreground">{dynamicStats.entryCount}</strong> entry</span>
                             <span>•</span>
-                            <button onClick={() => { setShowFollowersModal(true); fetchFollowers(); }} className="hover:text-[#4729ff]">
+                            <button onClick={() => { setShowFollowersModal(true); fetchFollowers(); }} className="hover:text-[#ff6600]">
                                 <strong className="text-foreground">{dynamicStats.followerCount}</strong> takipçi
                             </button>
                             <span>•</span>
-                            <button onClick={() => { setShowFollowingModal(true); fetchFollowing(); }} className="hover:text-[#4729ff]">
+                            <button onClick={() => { setShowFollowingModal(true); fetchFollowing(); }} className="hover:text-[#ff6600]">
                                 <strong className="text-foreground">{dynamicStats.followingCount}</strong> takip
                             </button>
                         </div>
@@ -652,7 +652,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`py-2 text-sm font-medium relative whitespace-nowrap ${activeTab === tab.id
-                                ? "text-foreground after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#4729ff]"
+                                ? "text-foreground after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#ff6600]"
                                 : "text-muted-foreground hover:text-foreground"}`}
                         >
                             {tab.label}
@@ -664,7 +664,7 @@ export function UserProfile({ userData }: UserProfileProps) {
             <div className="px-6 pb-12">
                 {loadingEntries ? (
                     <div className="flex justify-center py-12">
-                        <div className="w-8 h-8 border-4 border-[#4729ff] border-t-transparent rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-4 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : activeTab === "takip edilen başlıklar" ? (
                     <div className="space-y-8">
@@ -674,7 +674,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                                     <div className="mb-4">
                                         <Link
                                             href={`/${topic.slug}`}
-                                            className="text-xl font-bold text-[#1a1a1a] hover:text-[#4729ff] transition-colors leading-tight"
+                                            className="text-xl font-bold text-[#1a1a1a] hover:text-[#ff6600] transition-colors leading-tight"
                                         >
                                             {topic.title}
                                         </Link>
@@ -723,7 +723,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                                         <div className="mb-4">
                                             <Link
                                                 href={`/${entry.topic?.slug || ''}`}
-                                                className="text-lg font-bold text-foreground hover:text-[#4729ff] transition-colors"
+                                                className="text-lg font-bold text-foreground hover:text-[#ff6600] transition-colors"
                                             >
                                                 {entry.topic?.title}
                                             </Link>
@@ -751,7 +751,7 @@ export function UserProfile({ userData }: UserProfileProps) {
                                     <div className="flex justify-center pt-4">
                                         <button
                                             onClick={() => setDisplayedEntryCount(prev => prev + 10)}
-                                            className="px-6 py-2 text-sm font-medium text-[#4729ff] border border-[#4729ff] rounded-md hover:bg-[#4729ff] hover:text-white transition-colors"
+                                            className="px-6 py-2 text-sm font-medium text-[#ff6600] border border-[#ff6600] rounded-md hover:bg-[#ff6600] hover:text-white transition-colors"
                                         >
                                             daha fazla göster ({entries.length - displayedEntryCount} entry daha)
                                         </button>
