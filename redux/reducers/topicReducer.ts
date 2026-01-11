@@ -5,6 +5,7 @@ import {
     getTopicBySlug,
     getTrendingTopics,
     getTopicsWithFirstEntry,
+    getDebeEntries,
     createTopic,
     updateTopic,
     deleteTopic,
@@ -20,6 +21,7 @@ interface TopicState {
     topics: Topic[];
     currentTopic: Topic | null;
     followedTopics: Topic[];
+    debeTopics: Topic[];
     loading: boolean;
     error: string | null;
     message: string | null;
@@ -29,6 +31,7 @@ const initialState: TopicState = {
     topics: [],
     currentTopic: null,
     followedTopics: [],
+    debeTopics: [],
     loading: false,
     error: null,
     message: null,
@@ -242,6 +245,21 @@ export const topicReducer = createReducer(initialState, (builder) => {
             state.followedTopics = action.payload;
         })
         .addCase(getFollowedTopics.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Get debe entries
+        .addCase(getDebeEntries.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getDebeEntries.fulfilled, (state, action) => {
+            state.loading = false;
+            state.debeTopics = action.payload;
+            state.error = null;
+        })
+        .addCase(getDebeEntries.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload as string;
         })

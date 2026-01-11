@@ -2,47 +2,21 @@
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { EntryCard } from "@/components/entry-card"
-import { EntryForm } from "@/components/entry-form"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useAppDispatch, useAppSelector } from "@/redux/hook"
+import { getDebeEntries } from "@/redux/actions/topicActions"
+import Link from "next/link"
 
 export default function DebePage() {
-    const [user, setUser] = useState<any>(null)
+    const dispatch = useAppDispatch()
+    const { debeTopics, loading } = useAppSelector((state) => state.topic)
 
     useEffect(() => {
-        const mockUser = localStorage.getItem("mockUser")
-        if (mockUser) {
-            setUser(JSON.parse(mockUser))
-        }
-    }, [])
-
-    const debeEntries = [
-        {
-            id: "1",
-            content: "dün gece en çok beğenilen entry. herkesin okuması gereken bir yazı olmuş. tebrikler yazara.",
-            author: "biliminsani",
-            date: "17.12.2025",
-            time: "08:30",
-            isSpecial: false
-        },
-        {
-            id: "2",
-            content: "bugünün en iyi entry'si. çok güzel anlatmış, eline sağlık.",
-            author: "yemeksever",
-            date: "17.12.2025",
-            time: "09:15",
-            isSpecial: false
-        },
-        {
-            id: "3",
-            content: "debe'ye girmeyi hak eden bir entry. tebrikler.",
-            author: "sober",
-            date: "17.12.2025",
-            time: "10:00",
-            isSpecial: false
-        }
-    ]
+        // Fetch yesterday's most liked entries
+        dispatch(getDebeEntries({ limit: 30 }))
+    }, [dispatch])
 
     return (
         <div className="w-full bg-white">
@@ -69,32 +43,44 @@ export default function DebePage() {
                                         dün en beğenilen entry'ler
                                     </h1>
                                     <p className="text-xs text-muted-foreground">
-                                        {debeEntries.length} entry
+                                        {loading ? "yükleniyor..." : `${debeTopics?.length || 0} entry`}
                                     </p>
                                 </div>
 
-                                <div className="space-y-12">
-                                    {debeEntries.map((entry) => (
-                                        <div key={entry.id} className="pb-4">
-                                            <EntryCard
-                                                id={entry.id}
-                                                content={entry.content}
-                                                author={entry.author}
-                                                date={entry.date}
-                                                time={entry.time}
-                                                isSpecial={entry.isSpecial}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
+                                {loading ? (
+                                    <div className="flex items-center justify-center py-12">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff6600]"></div>
+                                    </div>
+                                ) : debeTopics && debeTopics.length > 0 ? (
+                                    <div className="space-y-8">
+                                        {debeTopics.map((topic: any) => (
+                                            <div key={topic._id} className="pb-4 border-b border-border last:border-0">
+                                                {/* Topic Title */}
+                                                <Link
+                                                    href={`/${topic.slug}`}
+                                                    className="block mb-3 text-lg font-semibold text-foreground hover:text-[#ff6600] transition-colors"
+                                                >
+                                                    {topic.title}
+                                                </Link>
 
-                                {/* Entry Form - Only for logged-in users */}
-                                {user && (
-                                    <div className="mt-8 border-t border-border bg-gray-50/50 p-4 lg:p-6">
-                                        <EntryForm
-                                            topicTitle="dün en beğenilen entry'ler"
-                                            remainingEntries={debeEntries.length}
-                                        />
+                                                {/* Entry */}
+                                                {topic.firstEntry && (
+                                                    <EntryCard
+                                                        id={topic.firstEntry._id}
+                                                        content={topic.firstEntry.content}
+                                                        author={topic.firstEntry.author?.nick || "anonim"}
+                                                        date={new Date(topic.firstEntry.createdAt).toLocaleDateString('tr-TR')}
+                                                        time={new Date(topic.firstEntry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                        isSpecial={false}
+                                                        topicSlug={topic.slug}
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 text-muted-foreground">
+                                        <p>Dün hiç entry girilmemiş veya beğenilmemiş.</p>
                                     </div>
                                 )}
                             </main>
