@@ -195,21 +195,31 @@ export function DictionaryHeader() {
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
                     <div className="flex h-16 items-center relative">
                         {/* Logo */}
-                        <Link href="/" className="mr-4 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
+                        <Link href="/" className="mr-2 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
                             <div className="flex items-center">
+                                {/* Desktop Logo */}
                                 <Image
                                     src="/fitsözlük.png"
                                     alt="fitsözlük"
                                     width={140}
                                     height={35}
-                                    className="h-6 lg:h-8 w-auto"
+                                    className="hidden lg:block h-8 w-auto"
+                                    priority
+                                />
+                                {/* Mobile Logo */}
+                                <Image
+                                    src="/fiticon.png"
+                                    alt="fitsözlük"
+                                    width={32}
+                                    height={32}
+                                    className="lg:hidden h-8 w-auto"
                                     priority
                                 />
                             </div>
                         </Link>
 
-                        {/* Search Bar - Centered */}
-                        <div ref={searchRef} className="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
+                        {/* Search Bar - Centered on desktop, flex-1 on mobile */}
+                        <div ref={searchRef} className="flex-1 lg:absolute lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-md px-2 lg:px-4">
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
                                 if (searchQuery.trim().length >= 2) {
@@ -272,7 +282,7 @@ export function DictionaryHeader() {
                                                 setShowFilters(false)
                                             }
                                         }}
-                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-20 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-[#ff6600]"
+                                        className="w-full rounded-md border-2 border-input bg-background pl-9 lg:pl-10 pr-16 lg:pr-20 py-1.5 lg:py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-[#ff6600]"
                                     />
                                     {/* Clear button */}
                                     {searchQuery && (
@@ -502,65 +512,91 @@ export function DictionaryHeader() {
                             )}
                         </div>
 
-                        {/* Mobile Menu Button */}
-                        <button
-                            className="md:hidden ml-auto p-2 flex-shrink-0"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        >
-                            <Menu className="h-5 w-5" />
-                        </button>
+
                     </div>
                 </div>
             </div>
 
             {/* Bottom Row: Topic Navigation */}
-            <div className="hidden md:block bg-white">
-                <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                    <nav className="flex items-center justify-between h-10">
-                        {/* Main Topics - Spread evenly across full width */}
+            <div className="bg-white border-t border-border/50">
+                <div className="max-w-[1300px] mx-auto px-4 lg:px-8">
+                    <nav className="flex items-center h-10">
+                        {/* Scrollable Container for Topics and Auth */}
+                        <div className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center">
+                            <div className="flex items-center space-x-4 lg:space-x-0 lg:justify-between lg:w-full">
+                                {/* Main Topics */}
+                                {featuredMenus.map((menu) => {
+                                    const category = menu.label.replace('#', '').trim().toLocaleLowerCase('tr-TR');
+                                    const normalizedHref = menu.href.startsWith('/') ? menu.href : `/${menu.href}`;
+                                    const isSpecialRoute = normalizedHref === '/debe' ||
+                                        normalizedHref === '/giris' ||
+                                        normalizedHref === '/kayitol' ||
+                                        normalizedHref === '/ayarlar' ||
+                                        normalizedHref === '/arama' ||
+                                        normalizedHref === '/istatistikler' ||
+                                        menu.href.startsWith('http') ||
+                                        menu.href.startsWith('/biri/') ||
+                                        menu.href.startsWith('/basliklar/');
 
-                        {featuredMenus.map((menu) => {
-                            // Normalize category from label for consistency with backend
-                            const category = menu.label.replace('#', '').trim().toLocaleLowerCase('tr-TR');
+                                    const href = isSpecialRoute
+                                        ? getMenuHref(menu.href)
+                                        : `/?kategori=${category}`;
 
-                            // Normalize href to always have leading slash for comparison
-                            const normalizedHref = menu.href.startsWith('/') ? menu.href : `/${menu.href}`;
+                                    return (
+                                        <Link
+                                            key={menu._id}
+                                            href={href}
+                                            className="text-sm font-medium text-foreground hover:text-[#ff6600] hover:underline transition-colors whitespace-nowrap"
+                                        >
+                                            {menu.label}
+                                        </Link>
+                                    );
+                                })}
 
-                            // Check if this menu's href is a special route or page
-                            const isSpecialRoute = normalizedHref === '/debe' ||
-                                normalizedHref === '/giris' ||
-                                normalizedHref === '/kayitol' ||
-                                normalizedHref === '/ayarlar' ||
-                                normalizedHref === '/arama' ||
-                                normalizedHref === '/istatistikler' ||
-                                menu.href.startsWith('http') ||
-                                menu.href.startsWith('/biri/') ||
-                                menu.href.startsWith('/basliklar/');
+                                {/* Mobile User Actions - Visible only on mobile */}
+                                <div className="flex lg:hidden items-center space-x-4">
+                                    {isAuthenticated && user ? (
+                                        <>
+                                            <Link
+                                                href={`/yazar/${user.nick}`}
+                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] whitespace-nowrap"
+                                            >
+                                                profil
+                                            </Link>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="text-sm font-medium text-red-600 whitespace-nowrap"
+                                            >
+                                                çıkış
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link
+                                                href="/giris"
+                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] whitespace-nowrap"
+                                            >
+                                                giriş
+                                            </Link>
+                                            <Link
+                                                href="/kayitol"
+                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] whitespace-nowrap"
+                                            >
+                                                kayıt ol
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
 
-                            // If it's a special route/page, use getMenuHref
-                            // Otherwise, treat it as a category filter for the homepage
-                            const href = isSpecialRoute
-                                ? getMenuHref(menu.href)
-                                : `/?kategori=${category}`;
-
-                            return (
-                                <Link
-                                    key={menu._id}
-                                    href={href}
-                                    className="text-sm font-medium text-foreground hover:text-[#ff6600] hover:underline transition-colors whitespace-nowrap"
-                                >
-                                    {menu.label}
-                                </Link>
-                            );
-                        })}
-
-                        {/* More Topics Dropdown */}
+                        {/* More Topics Dropdown - Outside scrollable to prevent clipping */}
                         {additionalMenus.length > 0 && (
-                            <div ref={moreTopicsRef} className="relative flex-shrink-0">
+                            <div ref={moreTopicsRef} className="relative flex-shrink-0 ml-4 pl-3 border-l border-border/50">
                                 <button
                                     onClick={() => {
                                         setShowMoreTopics(!showMoreTopics)
-                                        setShowSettingsMenu(false) // Close settings when opening more topics
+                                        setShowSettingsMenu(false)
                                     }}
                                     className="text-sm text-foreground hover:text-[#ff6600] transition-colors flex items-center"
                                 >
@@ -569,13 +605,10 @@ export function DictionaryHeader() {
 
                                 {/* Dropdown Menu */}
                                 {showMoreTopics && (
-                                    <div className="absolute top-full right-0 mt-1 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
+                                    <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-md shadow-xl py-2 min-w-[200px] z-[60]">
                                         {additionalMenus.map((menu) => {
                                             const category = menu.label.replace('#', '').trim().toLocaleLowerCase('tr-TR');
-
-                                            // Normalize href to always have leading slash for comparison
                                             const normalizedHref = menu.href.startsWith('/') ? menu.href : `/${menu.href}`;
-
                                             const isSpecialRoute = normalizedHref === '/debe' ||
                                                 normalizedHref === '/giris' ||
                                                 normalizedHref === '/kayitol' ||
@@ -594,7 +627,7 @@ export function DictionaryHeader() {
                                                 <Link
                                                     key={menu._id}
                                                     href={href}
-                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
+                                                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
                                                     onClick={() => setShowMoreTopics(false)}
                                                 >
                                                     {menu.label}
@@ -608,7 +641,6 @@ export function DictionaryHeader() {
                     </nav>
                 </div>
             </div>
-
         </header>
     )
 }
