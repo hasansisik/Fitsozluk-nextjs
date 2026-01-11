@@ -23,8 +23,8 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
                 if (event.data.user && event.data.user.token) {
                     const token = event.data.user.token;
                     localStorage.setItem("accessToken", token);
-                    // Also set cookie if needed (Fitsozluk might use cookies too)
-                    document.cookie = `token=${token}; path=/`;
+                    // Set cookie for middleware with max-age
+                    document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
                 }
 
                 authChannel.close();
@@ -42,7 +42,7 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
                 if (event.data.user && event.data.user.token) {
                     const token = event.data.user.token;
                     localStorage.setItem("accessToken", token);
-                    document.cookie = `token=${token}; path=/`;
+                    document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
                 }
                 window.location.href = "/";
             }
