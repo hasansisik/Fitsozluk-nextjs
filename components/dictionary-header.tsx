@@ -193,16 +193,16 @@ export function DictionaryHeader() {
             {/* Top Row: Logo, Search, User Actions */}
             <div className="w-full bg-white">
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                    <div className="flex h-12 items-center relative">
+                    <div className="flex h-16 items-center relative">
                         {/* Logo */}
                         <Link href="/" className="mr-4 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
                             <div className="flex items-center">
                                 <Image
                                     src="/fitsözlük.png"
                                     alt="fitsözlük"
-                                    width={160}
-                                    height={40}
-                                    className="h-8 lg:h-10 w-auto"
+                                    width={140}
+                                    height={35}
+                                    className="h-6 lg:h-8 w-auto"
                                     priority
                                 />
                             </div>
@@ -516,7 +516,7 @@ export function DictionaryHeader() {
             {/* Bottom Row: Topic Navigation */}
             <div className="hidden md:block bg-white">
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                    <nav className="flex items-center justify-between h-9">
+                    <nav className="flex items-center justify-between h-10">
                         {/* Main Topics - Spread evenly across full width */}
 
                         {featuredMenus.map((menu) => {
