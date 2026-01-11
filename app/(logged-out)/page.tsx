@@ -4,7 +4,7 @@ import { TopicsSidebar } from "@/components/topics-sidebar"
 import { EntryCard } from "@/components/entry-card"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getDebeEntries } from "@/redux/actions/topicActions"
 import { getEntriesFeed, deleteEntry } from "@/redux/actions/entryActions"
@@ -12,20 +12,13 @@ import Link from "next/link"
 import { Loader2, MessageSquare } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 
-export default function Home() {
+function HomeContent() {
   const dispatch = useAppDispatch()
-  // topic state yerine entry state kullanıyoruz
   const { entries, loading } = useAppSelector((state) => state.entry)
-  // debeEntries topic state'inde tutuluyor olabilir, kontrol etmeliyiz. 
-  // getDebeEntries topicActions'ta ve topic state'ini güncelliyor mu?
   const topicState = useAppSelector((state) => state.topic)
   const { user } = useAppSelector((state) => state.user)
   const searchParams = useSearchParams()
   const category = searchParams.get('kategori') || 'gündem'
-
-  // Debe entry'leri topic state'inde tutuluyorsa oradan almalıyız
-  // getDebeEntries -> topic slice
-  // getEntriesFeed -> entry slice
 
   const displayEntries = category === 'debe' ? topicState.topics.map(t => t.firstEntry).filter(Boolean) : entries
   const isLoading = category === 'debe' ? topicState.loading : loading
@@ -82,9 +75,7 @@ export default function Home() {
                     {/* Entry List */}
                     {displayEntries.map((entry: any) => (
                       <div key={entry._id} className="pb-4">
-                        {/* Topic Title Link - Entry'nin başlığına gitmek için */}
                         <div className="mb-2">
-                          {/* Eğer entry içinde topic populate edilmişse (getEntriesFeed case) */}
                           {entry.topic && (
                             <Link href={`/${entry.topic.slug}`} className="block group">
                               <h2 className="text-xl font-bold text-[#1a1a1a] group-hover:text-[#ff6600] transition-colors cursor-pointer leading-tight">
@@ -92,13 +83,8 @@ export default function Home() {
                               </h2>
                             </Link>
                           )}
-                          {/* Debe case'inde topic title olmayabilir çünkü getDebeEntries yapısı farklı olabilir */}
-                          {/* getDebeEntries return yapısı: topics array, herbiri firstEntry içeriyor. */}
-                          {/* Üstteki displayEntries map'inde entry olarak firstEntry aldım. */}
-                          {/* Fakat firstEntry içinde topic bilgisi yoksa başlığı gösteremem. */}
                         </div>
 
-                        {/* Entry Card */}
                         <EntryCard
                           id={entry._id}
                           content={entry.content}
@@ -113,7 +99,7 @@ export default function Home() {
                           isDisliked={entry.dislikes?.some((id: any) => String(id) === String(user?._id))}
                           isFavorited={entry.favorites?.some((id: any) => String(id) === String(user?._id))}
                           onDelete={handleDeleteEntry}
-                          topicTitle={entry.topic?.title} // Debe için problem olabilir
+                          topicTitle={entry.topic?.title}
                           topicSlug={entry.topic?.slug}
                         />
                       </div>
@@ -138,3 +124,16 @@ export default function Home() {
     </div>
   )
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
+  )
+}
+

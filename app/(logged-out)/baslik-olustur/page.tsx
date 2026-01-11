@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { createTopic } from "@/redux/actions/topicActions"
@@ -10,7 +10,7 @@ import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
 import { Loader2 } from "lucide-react"
 
-export default function CreateTopicPage() {
+function CreateTopicContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const dispatch = useAppDispatch()
@@ -23,8 +23,6 @@ export default function CreateTopicPage() {
     const [category, setCategory] = useState("diğer")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState("")
-
-
 
     useEffect(() => {
         // Check if user is logged in
@@ -293,3 +291,16 @@ export default function CreateTopicPage() {
         </div>
     )
 }
+
+export default function CreateTopicPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
+            </div>
+        }>
+            <CreateTopicContent />
+        </Suspense>
+    )
+}
+

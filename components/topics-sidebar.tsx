@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useAppDispatch } from "@/redux/hook"
 import { getTrendingTopics, getDebeTopics } from "@/redux/actions/topicActions"
 import { Loader2, Calendar, Settings } from "lucide-react"
@@ -12,7 +12,7 @@ interface TopicsSidebarProps {
     onClose?: () => void
 }
 
-export function TopicsSidebar({ isMobile, onClose }: TopicsSidebarProps) {
+function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
     const dispatch = useAppDispatch()
     const [selectedDate, setSelectedDate] = useState("")
     const [sidebarTopics, setSidebarTopics] = useState<any[]>([])
@@ -122,3 +122,18 @@ export function TopicsSidebar({ isMobile, onClose }: TopicsSidebarProps) {
         </aside>
     )
 }
+
+export function TopicsSidebar(props: TopicsSidebarProps) {
+    return (
+        <Suspense fallback={
+            <aside className={`${props.isMobile ? 'w-full h-full' : 'w-64 h-[calc(100vh-6.5rem)] sticky top-[6.5rem]'} bg-white p-4`}>
+                <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-[#ff6600]" />
+                </div>
+            </aside>
+        }>
+            <TopicsSidebarContent {...props} />
+        </Suspense>
+    )
+}
+
