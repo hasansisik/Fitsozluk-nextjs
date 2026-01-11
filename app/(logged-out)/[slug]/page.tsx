@@ -193,10 +193,10 @@ export default function TopicPage() {
                             <main className="flex-1 min-w-0">
                                 {/* Topic Header */}
                                 <div className="pb-2 sticky top-[5.25rem] bg-white z-20 border-b border-border/40 mb-4 pt-2 -mt-2">
-                                    <h1 className="text-lg lg:text-xl font-bold text-[#1a1a1a] leading-tight">
+                                    <h1 className="text-2xl lg:text-3xl font-bold text-[#1a1a1a] leading-tight tracking-tight">
                                         {currentTopic?.title}
                                     </h1>
-                                    <div className="flex items-center justify-between mt-2">
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between mt-3 gap-3">
                                         <TopicFilters
                                             topicTitle={currentTopic?.title || ""}
                                             topicId={currentTopic?._id}
@@ -207,11 +207,16 @@ export default function TopicPage() {
                                             isFollowing={isFollowing}
                                             onFollowToggle={handleFollowToggle}
                                         />
-                                        <Pagination
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            onPageChange={setCurrentPage}
-                                        />
+                                        <div className="flex justify-end">
+                                            <Pagination
+                                                currentPage={currentPage}
+                                                totalPages={totalPages}
+                                                onPageChange={(page) => {
+                                                    setCurrentPage(page)
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

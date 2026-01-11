@@ -122,14 +122,14 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
     }
 
     return (
-        <div ref={containerRef} className="flex items-center gap-3">
+        <div ref={containerRef} className="flex items-center flex-wrap gap-x-3 gap-y-2">
             {/* Time Range Filter */}
             <div className="relative">
                 <button
                     onClick={() => toggleDropdown('time')}
                     className="flex items-center gap-0.5 text-xs text-foreground hover:text-[#ff6600] transition-colors"
                 >
-                    zaman aralığı
+                    şükela
                     <ChevronDown className="h-3 w-3 opacity-40" />
                 </button>
                 {openDropdown === 'time' && (
@@ -204,12 +204,14 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
             </div>
 
             {/* Takip Et (Topic Follow - kept as receives prop) */}
-            <button
-                onClick={onFollowToggle}
-                className="text-xs text-foreground hover:text-[#ff6600] transition-colors"
-            >
-                {isFollowing ? "takibi bırak" : "takip et"}
-            </button>
+            {isAuthenticated && (
+                <button
+                    onClick={onFollowToggle}
+                    className="text-xs text-foreground hover:text-[#ff6600] transition-colors"
+                >
+                    {isFollowing ? "takibi bırak" : "takip et"}
+                </button>
+            )}
 
             {/* Başlığı Açan dropdown */}
             <div className="relative">
@@ -229,24 +231,28 @@ export function TopicFilters({ topicTitle, topicId, topicCreator = "anonim", top
                         >
                             @{topicCreator}
                         </Link>
-                        <button
-                            onClick={() => {
-                                handleFollowUser()
-                                setOpenDropdown(null)
-                            }}
-                            className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors text-foreground"
-                        >
-                            {isUserFollowing ? "takibi bırak" : "takip et"}
-                        </button>
-                        <button
-                            onClick={() => {
-                                handleBlockUser()
-                                setOpenDropdown(null)
-                            }}
-                            className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors text-foreground"
-                        >
-                            başlıklarını engelle
-                        </button>
+                        {isAuthenticated && (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        handleFollowUser()
+                                        setOpenDropdown(null)
+                                    }}
+                                    className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors text-foreground"
+                                >
+                                    {isUserFollowing ? "takibi bırak" : "takip et"}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        handleBlockUser()
+                                        setOpenDropdown(null)
+                                    }}
+                                    className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors text-foreground"
+                                >
+                                    başlıklarını engelle
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
