@@ -50,9 +50,13 @@ interface UserProfileData {
 
 interface UserProfileProps {
     userData: UserProfileData
+    noteText?: string
+    setNoteText?: (text: string) => void
+    handleSaveNote?: (e?: any) => void
+    showSavedMessage?: boolean
 }
 
-export function UserProfile({ userData }: UserProfileProps) {
+export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, showSavedMessage }: UserProfileProps) {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { user, isAuthenticated } = useAppSelector((state) => state.user)
@@ -448,7 +452,7 @@ export function UserProfile({ userData }: UserProfileProps) {
             )
             }
 
-            <div className="p-6">
+            <div className="p-4 px-0 lg:p-6">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
@@ -465,11 +469,11 @@ export function UserProfile({ userData }: UserProfileProps) {
                         </div>
 
                         <div className="flex gap-2 mb-6">
-                            <div className={`text-white text-xs px-3 py-1.5 rounded-sm font-medium ${userData.title === 'çaylak' ? 'bg-[#f2a154]' :
-                                userData.title === 'yazar' ? 'bg-[#ff6600]' :
-                                    userData.title === 'usta' ? 'bg-[#2ecc71]' :
-                                        userData.title === 'moderatör' ? 'bg-[#e74c3c]' :
-                                            userData.title === 'admin' ? 'bg-[#9b59b6]' : 'bg-[#f2a154]'
+                            <div className={`text-white text-[11px] px-2.5 py-1 rounded-sm font-semibold uppercase tracking-wider ${userData.title?.toLowerCase() === 'admin' ? 'bg-[#9b59b6]' : // Purple
+                                userData.title?.toLowerCase() === 'moderatör' ? 'bg-[#e74c3c]' : // Red
+                                    userData.title?.toLowerCase() === 'usta' ? 'bg-[#2ecc71]' : // Green
+                                        userData.title?.toLowerCase() === 'yazar' ? 'bg-[#ff6600]' : // Theme Orange
+                                            'bg-[#f39c12]' // Çaylak or default - Amber
                                 }`}>
                                 {userData.title || 'çaylak'}
                             </div>
@@ -646,7 +650,7 @@ export function UserProfile({ userData }: UserProfileProps) {
             </div>
 
             <div className="border-b mb-6">
-                <div className="flex gap-4 px-6 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-4 px-2 overflow-x-auto no-scrollbar">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
@@ -830,6 +834,33 @@ export function UserProfile({ userData }: UserProfileProps) {
                     </div>
                 )
             }
-        </div >
+            {/* Mobile Notes Section */}
+            <div className="block xl:hidden p-6 px-4 border-t mt-12 bg-gray-50/50">
+                <div className="max-w-2xl mx-auto">
+                    <div className="flex flex-col items-center mb-6">
+                        <h3 className="text-[11px] font-semibold text-muted-foreground/50 mb-4 uppercase tracking-[0.2em]">notlar</h3>
+                        <textarea
+                            value={noteText}
+                            onChange={(e) => setNoteText && setNoteText(e.target.value)}
+                            placeholder="yazar hakkındaki notlarım"
+                            className="w-full h-32 p-4 text-sm border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#ff6600] bg-white transition-all shadow-sm"
+                        />
+                        <div className="w-full flex justify-end mt-3">
+                            <button
+                                onClick={handleSaveNote}
+                                className="bg-[#ff6600] text-white px-8 py-2.5 rounded-md text-sm font-medium hover:bg-[#e65c00] transition-colors shadow-sm active:scale-95"
+                            >
+                                kaydet
+                            </button>
+                        </div>
+                        {showSavedMessage && (
+                            <div className="mt-2 text-sm text-[#ff6600] font-medium animate-pulse">
+                                ✓ kaydedildi
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }

@@ -3,6 +3,7 @@
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { UserProfile } from "@/components/user-profile"
 import { notFound } from "next/navigation"
+import { ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState, useMemo } from "react"
 import { useAppSelector, useAppDispatch } from "@/redux/hook"
@@ -208,7 +209,7 @@ export default function UserProfilePage({ params }: PageProps) {
 
     return (
         <div className="w-full bg-white">
-            <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
+            <div className="max-w-[1300px] mx-auto px-4 lg:px-8">
                 <div className="flex min-h-[calc(100vh-6.5rem)]">
                     {/* Left Sidebar - Topics (Hidden on mobile) */}
                     <div className="hidden lg:block">
@@ -216,13 +217,19 @@ export default function UserProfilePage({ params }: PageProps) {
                     </div>
 
                     {/* Main Content Area - User Profile */}
-                    <main className="flex-1 w-full lg:max-w-4xl mx-auto bg-white">
-                        <UserProfile userData={userData} />
+                    <main className="flex-1 w-full lg:max-w-4xl lg:mx-auto bg-white">
+                        <UserProfile
+                            userData={userData}
+                            noteText={noteText}
+                            setNoteText={setNoteText}
+                            handleSaveNote={handleSaveNote}
+                            showSavedMessage={showSavedMessage}
+                        />
                     </main>
 
-                    {/* Right Sidebar - Notes */}
+                    {/* Right Sidebar - Notes (Desktop only) */}
                     <div className="hidden xl:block w-80">
-                        <div className="p-4">
+                        <div className="p-4 px-1 lg:p-6 sticky top-24">
                             <h3 className="text-sm font-medium text-foreground mb-3">notlar</h3>
                             <textarea
                                 value={noteText}

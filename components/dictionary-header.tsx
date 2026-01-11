@@ -440,6 +440,19 @@ export function DictionaryHeader() {
                             </form>
                         </div>
 
+                        {/* Mobile User Profile Icon */}
+                        {isAuthenticated && user && (
+                            <div className="flex md:hidden items-center ml-1">
+                                <Link
+                                    href={`/yazar/${user.nick}`}
+                                    className="p-1.5 text-foreground hover:text-[#ff6600] transition-colors"
+                                    title="Profilim"
+                                >
+                                    <User className="h-6 w-6" />
+                                </Link>
+                            </div>
+                        )}
+
                         {/* User Actions */}
                         <div className="hidden md:flex items-center space-x-3 ml-auto flex-shrink-0">
                             {isAuthenticated && user ? (
