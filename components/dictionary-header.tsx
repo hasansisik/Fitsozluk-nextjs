@@ -272,7 +272,7 @@ export function DictionaryHeader() {
                                                 setShowFilters(false)
                                             }
                                         }}
-                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-20 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:border-orange-500 focus-visible:ring-offset-0"
+                                        className="w-full rounded-md border-2 border-input bg-background pl-10 pr-20 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-[#ff6600]"
                                     />
                                     {/* Clear button */}
                                     {searchQuery && (
@@ -317,13 +317,13 @@ export function DictionaryHeader() {
                                                             type="date"
                                                             value={startDate}
                                                             onChange={(e) => setStartDate(e.target.value)}
-                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
+                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-[#ff6600]"
                                                         />
                                                         <input
                                                             type="date"
                                                             value={endDate}
                                                             onChange={(e) => setEndDate(e.target.value)}
-                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600]"
+                                                            className="w-full px-2 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-[#ff6600]"
                                                         />
                                                     </div>
                                                 </div>
