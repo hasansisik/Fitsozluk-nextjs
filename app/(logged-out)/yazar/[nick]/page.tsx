@@ -150,6 +150,13 @@ export default function UserProfilePage({ params }: PageProps) {
         return fetchedUser
     }, [fetchedUser])
 
+    // Update document title when user data changes
+    useEffect(() => {
+        if (userData && userData.nick) {
+            document.title = `@${userData.nick} - fitsözlük`
+        }
+    }, [userData])
+
     // 5. Detect if we are waiting for authentication (refreshing the page)
     const [isInitialAuthLoading, setIsInitialAuthLoading] = useState(true)
 

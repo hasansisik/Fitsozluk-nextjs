@@ -24,6 +24,14 @@ function SearchContent() {
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
+        if (query) {
+            document.title = `${query} - arama - fitsözlük`
+        } else {
+            document.title = `arama - fitsözlük`
+        }
+    }, [query])
+
+    useEffect(() => {
         const fetchResults = async () => {
             if (query.trim().length < 2) {
                 setResults([])

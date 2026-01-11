@@ -75,13 +75,6 @@ export default function TopicPage() {
         }
     }, [searchQuery, timeRange, filterType])
 
-    // Update document title when topic changes
-    useEffect(() => {
-        if (currentTopic && currentTopic.title) {
-            document.title = `${currentTopic.title} - fitsözlük`
-        }
-    }, [currentTopic])
-
     // Update follow status when user or topic changes
     useEffect(() => {
         if (currentTopic && user && user.followedTopics) {

@@ -31,6 +31,12 @@ export default function Home() {
   const isLoading = category === 'debe' ? topicState.loading : loading
 
   useEffect(() => {
+    if (category) {
+      document.title = `${category} - fitsözlük`
+    }
+  }, [category])
+
+  useEffect(() => {
     if (category === 'debe') {
       dispatch(getDebeEntries({ limit: 30 }))
     } else {
