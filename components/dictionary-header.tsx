@@ -194,6 +194,8 @@ export function DictionaryHeader() {
             <div className="w-full bg-white">
                 <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
                     <div className="flex h-16 items-center relative">
+
+
                         {/* Logo */}
                         <Link href="/" className="mr-2 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
                             <div className="flex items-center">
@@ -440,21 +442,27 @@ export function DictionaryHeader() {
                             </form>
                         </div>
 
-                        {/* Mobile User Profile Icon */}
-                        {isAuthenticated && user && (
-                            <div className="flex md:hidden items-center ml-1">
+                        {/* Mobile Profile Icon */}
+                        <div className="lg:hidden ml-2 flex-shrink-0">
+                            {isAuthenticated && user ? (
                                 <Link
                                     href={`/yazar/${user.nick}`}
-                                    className="p-1.5 text-foreground hover:text-[#ff6600] transition-colors"
-                                    title="Profilim"
+                                    className="p-1.5 text-foreground hover:bg-secondary rounded-md inline-flex items-center justify-center transition-colors"
                                 >
                                     <User className="h-6 w-6" />
                                 </Link>
-                            </div>
-                        )}
+                            ) : (
+                                <Link
+                                    href="/giris"
+                                    className="p-1.5 text-foreground hover:bg-secondary rounded-md inline-flex items-center justify-center transition-colors"
+                                >
+                                    <User className="h-6 w-6" />
+                                </Link>
+                            )}
+                        </div>
 
-                        {/* User Actions */}
-                        <div className="hidden md:flex items-center space-x-3 ml-auto flex-shrink-0">
+                        {/* User Actions - Desktop Only */}
+                        <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0">
                             {isAuthenticated && user ? (
                                 // Logged in: Show profile and settings icons
                                 <>
@@ -470,7 +478,7 @@ export function DictionaryHeader() {
                                         <button
                                             onClick={() => {
                                                 setShowSettingsMenu(!showSettingsMenu)
-                                                setShowMoreTopics(false) // Close more topics when opening settings
+                                                setShowMoreTopics(false)
                                             }}
                                             className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
                                             title="Ayarlar"
@@ -524,8 +532,6 @@ export function DictionaryHeader() {
                                 </>
                             )}
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -551,18 +557,31 @@ export function DictionaryHeader() {
                                         menu.href.startsWith('/biri/') ||
                                         menu.href.startsWith('/basliklar/');
 
-                                    const href = isSpecialRoute
+                                    const isGundemOrDebe = normalizedHref === '/debe' || normalizedHref === '/';
+
+                                    const mobileHref = (isSpecialRoute && !isGundemOrDebe)
+                                        ? getMenuHref(menu.href)
+                                        : `/gundem?category=${category}`;
+
+                                    const desktopHref = isSpecialRoute
                                         ? getMenuHref(menu.href)
                                         : `/?kategori=${category}`;
 
                                     return (
-                                        <Link
-                                            key={menu._id}
-                                            href={href}
-                                            className="text-sm font-medium text-foreground hover:text-[#ff6600] hover:underline transition-colors whitespace-nowrap"
-                                        >
-                                            {menu.label}
-                                        </Link>
+                                        <div key={menu._id}>
+                                            <Link
+                                                href={desktopHref}
+                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] hover:underline transition-colors whitespace-nowrap hidden lg:block"
+                                            >
+                                                {menu.label}
+                                            </Link>
+                                            <Link
+                                                href={mobileHref}
+                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] hover:underline transition-colors whitespace-nowrap block lg:hidden"
+                                            >
+                                                {menu.label}
+                                            </Link>
+                                        </div>
                                     );
                                 })}
 
@@ -632,19 +651,33 @@ export function DictionaryHeader() {
                                                 menu.href.startsWith('/biri/') ||
                                                 menu.href.startsWith('/basliklar/');
 
-                                            const href = isSpecialRoute
+                                            const isGundemOrDebe = normalizedHref === '/debe' || normalizedHref === '/';
+
+                                            const mobileHref = (isSpecialRoute && !isGundemOrDebe)
+                                                ? getMenuHref(menu.href)
+                                                : `/gundem?category=${category}`;
+
+                                            const desktopHref = isSpecialRoute
                                                 ? getMenuHref(menu.href)
                                                 : `/?kategori=${category}`;
 
                                             return (
-                                                <Link
-                                                    key={menu._id}
-                                                    href={href}
-                                                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
-                                                    onClick={() => setShowMoreTopics(false)}
-                                                >
-                                                    {menu.label}
-                                                </Link>
+                                                <div key={menu._id}>
+                                                    <Link
+                                                        href={desktopHref}
+                                                        className="px-4 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors hidden lg:block"
+                                                        onClick={() => setShowMoreTopics(false)}
+                                                    >
+                                                        {menu.label}
+                                                    </Link>
+                                                    <Link
+                                                        href={mobileHref}
+                                                        className="px-4 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors block lg:hidden"
+                                                        onClick={() => setShowMoreTopics(false)}
+                                                    >
+                                                        {menu.label}
+                                                    </Link>
+                                                </div>
                                             );
                                         })}
                                     </div>

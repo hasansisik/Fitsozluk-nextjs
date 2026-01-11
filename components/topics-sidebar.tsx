@@ -4,10 +4,15 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useAppDispatch } from "@/redux/hook"
 import { getTrendingTopics, getDebeTopics } from "@/redux/actions/topicActions"
-import { Loader2, Calendar } from "lucide-react"
+import { Loader2, Calendar, Settings } from "lucide-react"
 import { useSearchParams, usePathname } from "next/navigation"
 
-export function TopicsSidebar() {
+interface TopicsSidebarProps {
+    isMobile?: boolean
+    onClose?: () => void
+}
+
+export function TopicsSidebar({ isMobile, onClose }: TopicsSidebarProps) {
     const dispatch = useAppDispatch()
     const [selectedDate, setSelectedDate] = useState("")
     const [sidebarTopics, setSidebarTopics] = useState<any[]>([])
@@ -18,7 +23,8 @@ export function TopicsSidebar() {
 
     // On search page, always show "gündem" category, otherwise use category from URL
     const isSearchPage = pathname === '/arama'
-    const category = isSearchPage ? 'gündem' : (searchParams.get('category') || 'gündem')
+    const categoryFromUrl = searchParams.get('category') || searchParams.get('kategori')
+    const category = isSearchPage ? 'gündem' : (categoryFromUrl || 'gündem')
 
     useEffect(() => {
         const fetchSidebarTopics = async () => {
@@ -42,7 +48,7 @@ export function TopicsSidebar() {
     }, [dispatch, category, selectedDate])
 
     return (
-        <aside className="w-64 bg-white h-[calc(100vh-6.5rem)] overflow-y-auto sticky top-[6.5rem]">
+        <aside className={`${isMobile ? 'w-full h-full' : 'w-64 h-[calc(100vh-6.5rem)] sticky top-[6.5rem]'} bg-white overflow-y-auto`}>
             <div className="p-4">
                 {/* Date Picker for Debe */}
                 {category === "debe" && (
@@ -66,13 +72,15 @@ export function TopicsSidebar() {
                     </div>
                 )}
 
-                <h2 className="text-sm font-medium text-muted-foreground mb-4">
-                    {category === "debe"
-                        ? (selectedDate
-                            ? `${new Date(selectedDate).toLocaleDateString('tr-TR')} en beğenilen entry'leri`
-                            : "dünün en beğenilen entry'leri")
-                        : category}
-                </h2>
+                <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-sm font-medium text-muted-foreground">
+                        {category === "debe"
+                            ? (selectedDate
+                                ? `${new Date(selectedDate).toLocaleDateString('tr-TR')} en beğenilen entry'leri`
+                                : "dünün en beğenilen entry'leri")
+                            : category}
+                    </h2>
+                </div>
 
                 {sidebarLoading ? (
                     <div className="flex items-center justify-center py-8">
@@ -84,6 +92,7 @@ export function TopicsSidebar() {
                             <li key={topic._id}>
                                 <Link
                                     href={`/${topic.slug}`}
+                                    onClick={() => onClose && onClose()}
                                     className="flex items-start justify-between group hover:bg-secondary p-2 rounded-md transition-colors"
                                 >
                                     <span className="text-sm text-foreground group-hover:text-[#ff6600] transition-colors flex-1 leading-snug">
@@ -96,6 +105,18 @@ export function TopicsSidebar() {
                             </li>
                         ))}
                     </ul>
+                )}
+
+                {!sidebarLoading && sidebarTopics.length > 0 && (
+                    <div className="mt-6 text-right">
+                        <Link
+                            href={`/?kategori=${category === 'debe' ? 'debe' : category}`}
+                            onClick={() => onClose && onClose()}
+                            className="text-xs text-muted-foreground hover:text-[#ff6600] transition-colors"
+                        >
+                            daha da ...
+                        </Link>
+                    </div>
                 )}
             </div>
         </aside>
