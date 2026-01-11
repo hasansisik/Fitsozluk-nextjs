@@ -222,19 +222,19 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
                                 if (e.key === 'Enter') handleModalSubmit()
                                 if (e.key === 'Escape') setModalConfig(prev => ({ ...prev, isOpen: false }))
                             }}
-                            className="w-full px-3 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-sm focus:outline-none focus:border-[#a855f7] transition-all mb-5"
+                            className="w-full px-3 py-2 border-2 border-[#e5e7eb] rounded-[10px] text-sm focus:outline-none focus:border-[#4729ff] transition-all mb-5"
                         />
 
                         <div className="flex gap-3 w-full">
                             <button
                                 onClick={handleModalSubmit}
-                                className="flex-1 py-2.5 bg-[#8b4513] text-white rounded-full text-sm font-bold hover:bg-[#723a10] transition-colors"
+                                className="flex-1 py-2.5 bg-[#4729ff] text-white rounded-full text-sm font-bold hover:bg-[#3820cc] transition-colors"
                             >
                                 Tamam
                             </button>
                             <button
                                 onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
-                                className="flex-1 py-2.5 bg-[#ffdab9] text-[#1a1a1a] rounded-full text-sm font-bold hover:bg-[#fcd5b0] transition-colors"
+                                className="flex-1 py-2.5 bg-[#eef2ff] text-[#4729ff] rounded-full text-sm font-bold hover:bg-[#e0e7ff] transition-colors"
                             >
                                 İptal
                             </button>

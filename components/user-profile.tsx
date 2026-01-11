@@ -667,27 +667,48 @@ export function UserProfile({ userData }: UserProfileProps) {
                         <div className="w-8 h-8 border-4 border-[#4729ff] border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : activeTab === "takip edilen başlıklar" ? (
-                    <div className="space-y-4">
+                    <div className="space-y-8">
                         {followedTopics.length > 0 ? (
                             followedTopics.map((topic) => (
-                                <Link
-                                    key={topic._id}
-                                    href={`/${topic.slug}`}
-                                    className="block p-4 border border-border rounded-lg hover:bg-secondary transition-colors"
-                                >
-                                    <h3 className="text-lg font-bold text-foreground hover:text-[#4729ff] transition-colors mb-2">
-                                        {topic.title}
-                                    </h3>
-                                    <div className="flex gap-2 text-xs text-muted-foreground">
-                                        <span>{topic.entryCount || 0} entry</span>
-                                        {topic.createdAt && (
-                                            <>
-                                                <span>•</span>
-                                                <span>{new Date(topic.createdAt).toLocaleDateString('tr-TR')}</span>
-                                            </>
-                                        )}
+                                <div key={topic._id} className="border-b border-border/40 pb-8 last:border-0">
+                                    <div className="mb-4">
+                                        <Link
+                                            href={`/${topic.slug}`}
+                                            className="text-xl font-bold text-[#1a1a1a] hover:text-[#4729ff] transition-colors leading-tight"
+                                        >
+                                            {topic.title}
+                                        </Link>
                                     </div>
-                                </Link>
+                                    {topic.firstEntry ? (
+                                        <EntryCard
+                                            id={topic.firstEntry._id}
+                                            content={topic.firstEntry.content}
+                                            author={topic.firstEntry.author?.nick}
+                                            authorPicture={topic.firstEntry.author?.picture}
+                                            date={new Date(topic.firstEntry.createdAt).toLocaleDateString('tr-TR')}
+                                            time={new Date(topic.firstEntry.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                            favoriteCount={topic.firstEntry.favoriteCount}
+                                            likeCount={topic.firstEntry.likeCount}
+                                            dislikeCount={topic.firstEntry.dislikeCount}
+                                            isLiked={topic.firstEntry.likes?.includes(user?._id)}
+                                            isDisliked={topic.firstEntry.dislikes?.includes(user?._id)}
+                                            isFavorited={topic.firstEntry.favorites?.includes(user?._id)}
+                                            onDelete={handleDeleteEntry}
+                                            topicTitle={topic.title}
+                                            topicSlug={topic.slug}
+                                        />
+                                    ) : (
+                                        <div className="flex gap-2 text-xs text-muted-foreground">
+                                            <span>{topic.entryCount || 0} entry</span>
+                                            {topic.createdAt && (
+                                                <>
+                                                    <span>•</span>
+                                                    <span>{new Date(topic.createdAt).toLocaleDateString('tr-TR')}</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             ))
                         ) : (
                             <p className="text-center text-muted-foreground py-12">Henüz takip edilen başlık yok</p>

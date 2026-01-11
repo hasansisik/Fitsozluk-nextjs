@@ -79,7 +79,7 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
     return (
         <Button
             type="button"
-            className={className || "w-full py-7 text-white border-none hover:opacity-90 transition-opacity flex items-center justify-center gap-3"}
+            className={className || "w-full py-5 text-white border-none hover:opacity-90 transition-opacity flex items-center justify-center gap-3"}
             style={{ backgroundColor: "#4a0e70" }}
             onClick={handleFitmailAuth}
         >
@@ -88,7 +88,7 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
                 alt="Fitmail Logo"
                 style={{ width: "24px", height: "24px", objectFit: "contain", filter: "brightness(0) invert(1)" }}
             />
-            <span className="font-semibold text-lg">Fitmail ile Devam Et</span>
+            <span className="font-semibold ">Fitmail ile Devam Et</span>
         </Button>
     );
 }
