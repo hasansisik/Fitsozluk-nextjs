@@ -233,7 +233,7 @@ export default function TopicPage() {
                                 id="title"
                                 value={formData.title}
                                 onChange={(e) => handleTitleChange(e.target.value)}
-                                placeholder="Örn: Atatürk'ün Hiç Seçime Girmeden Ülkeyi Yönetmesi"
+                                placeholder="Örn: Protein tozu sağlıklı mı?"
                                 className="focus-visible:ring-[#ff6600]"
                             />
                         </div>
@@ -243,7 +243,7 @@ export default function TopicPage() {
                                 id="slug"
                                 value={formData.slug}
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                placeholder="Örn: ataturkun-hic-secime-girmeden-ulkeyi-yonetmesi"
+                                placeholder="Örn: protein-tozu-saglikli-mi"
                                 className="focus-visible:ring-[#ff6600] font-mono text-sm"
                             />
                         </div>
