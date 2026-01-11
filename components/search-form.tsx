@@ -3,7 +3,7 @@
 import { Search, ChevronDown, X } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { useAppDispatch } from "@/redux/hook"
+import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getAllTopics } from "@/redux/actions/topicActions"
 import { getAllEntries } from "@/redux/actions/entryActions"
 import { searchUsers } from "@/redux/actions/userActions"
@@ -15,6 +15,7 @@ import Link from "next/link"
 export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   const router = useRouter()
   const dispatch = useAppDispatch()
+  const { isAuthenticated } = useAppSelector((state) => state.user)
   const [showFilters, setShowFilters] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any>({
@@ -235,15 +236,17 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
                       <p className="text-sm text-muted-foreground mb-3 text-center">
                         "{searchQuery}" için sonuç bulunamadı
                       </p>
-                      <Link
-                        href={`/baslik-olustur?title=${encodeURIComponent(searchQuery)}`}
-                        className="block w-full px-4 py-2 bg-[#ff6600] text-white rounded hover:bg-[#e65c00] transition-colors text-center text-sm"
-                        onClick={() => {
-                          setShowResults(false)
-                        }}
-                      >
-                        Bu başlığı oluştur
-                      </Link>
+                      {isAuthenticated && (
+                        <Link
+                          href={`/baslik-olustur?title=${encodeURIComponent(searchQuery)}`}
+                          className="block w-full px-4 py-2 bg-[#ff6600] text-white rounded hover:bg-[#e65c00] transition-colors text-center text-sm"
+                          onClick={() => {
+                            setShowResults(false)
+                          }}
+                        >
+                          Bu başlığı oluştur
+                        </Link>
+                      )}
                     </div>
                   )}
               </>

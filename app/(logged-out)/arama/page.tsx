@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
-import { useAppDispatch } from "@/redux/hook"
+import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getAllTopics } from "@/redux/actions/topicActions"
 import { getAllEntries } from "@/redux/actions/entryActions"
 import { searchUsers } from "@/redux/actions/userActions"
@@ -14,6 +14,7 @@ import { SidebarAd } from "@/components/ads/sidebar-ad"
 function SearchContent() {
     const searchParams = useSearchParams()
     const dispatch = useAppDispatch()
+    const { isAuthenticated } = useAppSelector((state) => state.user)
     const query = searchParams.get("q") || ""
     const startDate = searchParams.get("startDate") || ""
     const endDate = searchParams.get("endDate") || ""
@@ -166,16 +167,18 @@ function SearchContent() {
                                     <>
                                         {/* Create Topic Button - Show IF NO EXACT MATCH IN ENTIRE DB */}
                                         {query.trim().length >= 2 && !exactMatchExists && (
-                                            <div className="bg-gradient-to-r from-[#ff6600]/10 to-[#ff6600]/5 border-2 border-[#ff6600]/20 rounded-lg p-6 mb-6">
-                                                <p className="text-sm text-muted-foreground text-center mb-3">
+                                            <div className="bg-white py-6 mb-6 text-center">
+                                                <p className="text-sm text-muted-foreground">
                                                     <span className="font-semibold text-foreground">"{query}"</span> başlığı henüz oluşturulmamış
                                                 </p>
-                                                <Link
-                                                    href={`/baslik-olustur?title=${encodeURIComponent(query)}`}
-                                                    className="block w-full max-w-md mx-auto px-6 py-3 bg-[#ff6600] text-white rounded-lg hover:bg-[#e65c00] transition-colors text-center font-medium"
-                                                >
-                                                    Bu başlığı oluştur
-                                                </Link>
+                                                {isAuthenticated && (
+                                                    <Link
+                                                        href={`/baslik-olustur?title=${encodeURIComponent(query)}`}
+                                                        className="mt-4 inline-block px-6 py-3 bg-[#ff6600] text-white rounded-lg hover:bg-[#e65c00] transition-colors font-medium"
+                                                    >
+                                                        Bu başlığı oluştur
+                                                    </Link>
+                                                )}
                                             </div>
                                         )}
 
@@ -237,7 +240,7 @@ function SearchContent() {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className="bg-white border border-border rounded-lg p-8 text-center">
+                                            <div className="bg-white py-8 text-center">
                                                 <p className="text-muted-foreground">
                                                     {query.trim().length < 2
                                                         ? "Arama yapmak için en az 2 karakter girin"
