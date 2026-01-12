@@ -73,7 +73,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
                 )}
 
                 <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-sm font-medium text-muted-foreground">
+                    <h2 className="text-sm font-medium text-muted-foreground capitalize">
                         {category === "debe"
                             ? (selectedDate
                                 ? `${new Date(selectedDate).toLocaleDateString('tr-TR')} en beğenilen entry'leri`
@@ -93,7 +93,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
                                 <Link
                                     href={`/${topic.slug}`}
                                     onClick={() => onClose && onClose()}
-                                    className="flex items-start justify-between group hover:bg-secondary p-2 rounded-md transition-colors"
+                                    className="flex items-start justify-between group p-2 rounded-md"
                                 >
                                     <span className="text-sm text-foreground group-hover:text-[#ff6600] transition-colors flex-1 leading-snug">
                                         {topic.title}
