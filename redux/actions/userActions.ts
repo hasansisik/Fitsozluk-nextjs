@@ -242,39 +242,169 @@ export const loadUser = createAsyncThunk(
   }
 );
 
+// OAuth SSO Actions
+export const exchangeOAuthCode = createAsyncThunk(
+  "user/exchangeOAuthCode",
+  async (payload: { code: string }, thunkAPI) => {
+    try {
+      const { endpoints, oauthConfig } = await import('@/config');
+
+      const { data } = await axios.post(endpoints.oauth.token, {
+        grant_type: 'authorization_code',
+        code: payload.code,
+        redirect_uri: oauthConfig.redirectUri,
+        client_id: oauthConfig.clientId,
+        client_secret: oauthConfig.clientSecret
+      });
+
+      localStorage.setItem("accessToken", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      document.cookie = `token=${data.access_token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+
+      return { token: data.access_token, user: data.user };
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const verifyOAuthToken = createAsyncThunk(
+  "user/verifyOAuthToken",
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const { endpoints } = await import('@/config');
+      const { data } = await axios.get(endpoints.oauth.verify, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      let picture = data.picture;
+
+      // Fallback: if picture is missing, try sessions endpoint
+      if (!picture) {
+        try {
+          const sessionsResponse = await axios.get(endpoints.oauth.sessions, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (sessionsResponse.data?.sessions?.length > 0) {
+            const currentSession = sessionsResponse.data.sessions.find(
+              (s: any) => s.email === data.email || s.userId === data.sub
+            );
+            if (currentSession?.picture) {
+              picture = currentSession.picture;
+            }
+          }
+        } catch (e) {
+          // Ignore fallback errors
+        }
+      }
+
+      const user = {
+        _id: data.sub,
+        email: data.email,
+        name: data.name,
+        nick: data.name,
+        picture: picture,
+        role: data.role
+      };
+
+      localStorage.setItem("user", JSON.stringify(user));
+      document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+
+      return user;
+    } catch (error: any) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Token doğrulanamadı');
+    }
+  }
+);
+
 export const logout = createAsyncThunk("user/logout", async (_, thunkAPI) => {
   try {
     const token = localStorage.getItem("accessToken");
-    if (token) {
-      try {
-        const { data } = await axios.get(`${server}/auth/logout`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    const userStr = localStorage.getItem("user");
+    const currentUser = userStr ? JSON.parse(userStr) : {};
+    const { endpoints } = await import('@/config');
+
+    // 1. Try to find another active session to switch to
+    let nextSessionToken = null;
+    try {
+      if (token) {
+        const { data } = await axios.get(endpoints.oauth.sessions, {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("userEmail");
-        // Clear cookie
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        return data.message;
-      } catch (apiError: any) {
-        // Even if API call fails, clear local storage
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("userEmail");
-        // Return success message to allow logout to proceed
-        return "Çıkış yapıldı";
+
+        if (data && data.sessions && Array.isArray(data.sessions)) {
+          const otherSessions = data.sessions.filter((s: any) =>
+            s.email !== currentUser.email && s.email !== currentUser.userEmail
+            && (!currentUser._id || s.userId !== currentUser._id)
+          );
+
+          if (otherSessions.length > 0) {
+            nextSessionToken = otherSessions[0].accessToken;
+          }
+        }
       }
-    } else {
-      // No token, just clear local storage
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("userEmail");
-      return "Çıkış yapıldı";
+    } catch (e) {
+      // Ignore session fetch errors
     }
-  } catch (error: any) {
-    // Clear local storage even on error
+
+    // 2. Call Fitmail logout endpoint to invalidate CURRENT token
+    try {
+      if (token && endpoints.oauth.logout) {
+        await axios.post(endpoints.oauth.logout, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+    } catch (e) {
+      // Ignore network errors
+    }
+
+    // 3. Clear current session data
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
     localStorage.removeItem("userEmail");
-    return thunkAPI.rejectWithValue(error.response?.data?.message || "Çıkış yapılırken bir hata oluştu");
+    document.cookie = 'token=; Max-Age=0; path=/;';
+
+    // 4. Switch to next session if available
+    if (nextSessionToken) {
+      localStorage.setItem("accessToken", nextSessionToken);
+      window.location.reload();
+      return "Switched account";
+    }
+
+    return "Logged out";
+  } catch (error: any) {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userEmail");
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
+export const logoutAllSessions = createAsyncThunk("user/logoutAll", async (_, thunkAPI) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const { endpoints } = await import('@/config');
+
+    await axios.post(endpoints.oauth.logoutAll, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userEmail");
+    document.cookie = 'token=; Max-Age=0; path=/;';
+
+    return "All sessions logged out";
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
   }
 });
 

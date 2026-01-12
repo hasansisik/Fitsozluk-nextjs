@@ -3,7 +3,7 @@
 import * as React from "react"
 import { List, BookOpen, MessageSquare, Megaphone, FileText, Users, Flag } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import AccountSwitcher from "@/components/AccountSwitcher"
 import { useAppSelector } from "@/redux/hook"
 import Image from "next/image"
 import {
@@ -18,7 +18,6 @@ import {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAppSelector((state) => state.user)
-  console.log("user", user)
 
   const navMain = [
     {
@@ -71,10 +70,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   ]
 
-  const userData = {
-    name: user?.name || "Kullanıcı",
+  const currentUser = {
+    name: user?.name || user?.nick || "Kullanıcı",
     email: user?.email || "",
-    avatar: user?.profile?.picture || "/avatars/default.jpg",
+    picture: user?.picture || user?.profile?.picture || "",
   }
 
   return (
@@ -103,7 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        {user && <AccountSwitcher currentUser={currentUser} />}
       </SidebarFooter>
     </Sidebar>
   )
