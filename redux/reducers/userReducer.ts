@@ -43,7 +43,7 @@ interface UserState {
 
 const initialState: UserState = {
   users: [],
-  user: {},
+  user: null, // Changed from {} to null
   loading: false,
   error: null,
   allUsers: [],
@@ -170,15 +170,9 @@ export const userReducer = createReducer(initialState, (builder) => {
     })
     .addCase(loadUser.rejected, (state, action) => {
       state.loading = false;
-      // Handle inactive user case - user gets kicked out
-      if (action.payload && typeof action.payload === 'object' && 'requiresLogout' in action.payload) {
-        state.isAuthenticated = false;
-        state.isVerified = false;
-        state.user = null;
-        state.error = (action.payload as any).message;
-      } else {
-        state.error = action.payload as string;
-      }
+      state.isAuthenticated = false;
+      state.user = null;
+      state.error = action.payload as string;
     })
     // Logout
     .addCase(logout.pending, (state) => {

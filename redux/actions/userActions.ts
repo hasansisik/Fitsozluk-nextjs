@@ -273,17 +273,20 @@ export const verifyOAuthToken = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem("accessToken");
+      console.log('[verifyOAuthToken] Checking token:', token ? 'Exists' : 'Missing');
       if (!token) {
         throw new Error("No token found");
       }
 
-      // Instead of just verifying with Fitmail, we call Fitsözlük's /auth/me
-      // The Fitsözlük backend will verify the Fitmail token and return the Fitsözlük user object
+      console.log('[verifyOAuthToken] Calling /auth/me with token at:', `${server}/auth/me`);
+
       const { data } = await axios.get(`${server}/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      console.log('[verifyOAuthToken] /auth/me response received. User:', data.user?.nick);
 
       if (!data.user) {
         throw new Error("User not found in Fitsözlük");
@@ -296,6 +299,7 @@ export const verifyOAuthToken = createAsyncThunk(
 
       return user;
     } catch (error: any) {
+      console.error('[verifyOAuthToken] Error:', error.message, error.response?.status);
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       return thunkAPI.rejectWithValue(error.response?.data?.message || 'Kimlik doğrulaması başarısız');

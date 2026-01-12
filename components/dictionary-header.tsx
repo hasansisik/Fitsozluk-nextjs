@@ -17,7 +17,7 @@ export function DictionaryHeader() {
     const router = useRouter()
     const pathname = usePathname()
     const dispatch = useAppDispatch()
-    const { user, isAuthenticated } = useAppSelector((state) => state.user)
+    const { user, isAuthenticated, loading } = useAppSelector((state) => state.user)
     const { featuredMenus, additionalMenus } = useAppSelector((state) => state.menu)
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -445,8 +445,10 @@ export function DictionaryHeader() {
 
 
                         {/* User Actions - Desktop Only */}
-                        <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0">
-                            {isAuthenticated && user ? (
+                        <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0 min-w-[150px] justify-end">
+                            {loading ? (
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#ff6600]"></div>
+                            ) : isAuthenticated && user && (user.nick || user.name) ? (
                                 <>
                                     <AccountSwitcher currentUser={{
                                         name: user.name || user.nick || "Kullanıcı",
@@ -454,14 +456,36 @@ export function DictionaryHeader() {
                                         picture: user.picture || user.profile?.picture || ""
                                     }} />
                                     <Link
-                                        href={`/yazar/${user.nick}`}
+                                        href={`/yazar/${user.nick || user._id}`}
                                         className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
                                         title="Profilim"
+                                    >
+                                        <User className="h-5 w-5" />
+                                    </Link>
+                                    <Link
+                                        href="/ayarlar"
+                                        className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
+                                        title="Ayarlar"
                                     >
                                         <Settings className="h-5 w-5" />
                                     </Link>
                                 </>
-                            ) : null}
+                            ) : (
+                                <div className="flex items-center gap-4">
+                                    <Link
+                                        href="/giris"
+                                        className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors"
+                                    >
+                                        giriş yap
+                                    </Link>
+                                    <Link
+                                        href="/kayitol"
+                                        className="text-sm font-medium px-4 py-2 bg-[#ff6600] text-white rounded-md hover:bg-[#e65c00] transition-colors"
+                                    >
+                                        kayıt ol
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -518,7 +542,7 @@ export function DictionaryHeader() {
 
                                 {/* Mobile User Actions - Visible only on mobile */}
                                 <div className="flex lg:hidden items-center space-x-4">
-                                    {isAuthenticated && user && (
+                                    {isAuthenticated && user ? (
                                         <>
                                             <AccountSwitcher currentUser={{
                                                 name: user.name || user.nick || "Kullanıcı",
@@ -530,9 +554,23 @@ export function DictionaryHeader() {
                                                 className="text-foreground hover:text-[#ff6600] transition-colors"
                                                 title="Profilim"
                                             >
+                                                <User className="h-5 w-5" />
+                                            </Link>
+                                            <Link
+                                                href="/ayarlar"
+                                                className="text-foreground hover:text-[#ff6600] transition-colors"
+                                                title="Ayarlar"
+                                            >
                                                 <Settings className="h-5 w-5" />
                                             </Link>
                                         </>
+                                    ) : (
+                                        <Link
+                                            href="/giris"
+                                            className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors whitespace-nowrap"
+                                        >
+                                            giriş yap
+                                        </Link>
                                     )}
                                 </div>
                             </div>
