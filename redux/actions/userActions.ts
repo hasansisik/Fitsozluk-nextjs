@@ -206,9 +206,6 @@ export const loadUser = createAsyncThunk(
         },
       });
 
-      console.log('loadUser - Full response:', data);
-      console.log('loadUser - User object:', data.user);
-
       // Store user email for potential verification redirects
       if (data.user && data.user.email) {
         localStorage.setItem("userEmail", data.user.email);
@@ -273,20 +270,15 @@ export const verifyOAuthToken = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem("accessToken");
-      console.log('[verifyOAuthToken] Checking token:', token ? 'Exists' : 'Missing');
       if (!token) {
         throw new Error("No token found");
       }
-
-      console.log('[verifyOAuthToken] Calling /auth/me with token at:', `${server}/auth/me`);
 
       const { data } = await axios.get(`${server}/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      console.log('[verifyOAuthToken] /auth/me response received. User:', data.user?.nick);
 
       if (!data.user) {
         throw new Error("User not found in Fitsözlük");

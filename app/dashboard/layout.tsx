@@ -30,7 +30,6 @@ export default function DashboardLayout({
 
     // Load user only once - check if user has _id (not just empty object)
     if (!user?._id && !loading && !isInitialized) {
-      console.log('Dashboard Layout - Calling loadUser...')
       dispatch(loadUser())
       setIsInitialized(true)
     }

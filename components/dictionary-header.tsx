@@ -112,8 +112,6 @@ export function DictionaryHeader() {
                     },
                 } : {};
 
-                // Search topics and users directly without updating Redux store
-                // This prevents sidebar from being affected by header search
                 const [topicsResponse, usersResponse] = await Promise.all([
                     axios.get(`${server}/topics?search=${encodeURIComponent(query)}`, config).catch(() => ({ data: { topics: [], exactMatchExists: false } })),
                     axios.get(`${server}/auth/search-users?search=${encodeURIComponent(query)}&limit=5`, config).catch((err) => {
@@ -121,14 +119,8 @@ export function DictionaryHeader() {
                         return { data: { success: false, users: [] } }
                     })
                 ])
-
-                console.log("Topics response:", topicsResponse.data)
-                console.log("Users response:", usersResponse.data)
-
-                // Set global existence flag
                 setExactMatchExists(topicsResponse.data.exactMatchExists || false)
 
-                // Add topics to results
                 const topics = topicsResponse.data.topics || []
                 topics.slice(0, 5).forEach((topic: any) => {
                     results.push({
@@ -139,7 +131,6 @@ export function DictionaryHeader() {
                     })
                 })
 
-                // Add users to results - handle different response formats
                 let users = []
                 if (usersResponse.data.users) {
                     users = usersResponse.data.users
@@ -147,7 +138,6 @@ export function DictionaryHeader() {
                     users = usersResponse.data
                 }
 
-                console.log("Users array:", users)
                 users.forEach((user: any) => {
                     results.push({
                         type: 'user',
@@ -156,7 +146,6 @@ export function DictionaryHeader() {
                     })
                 })
 
-                console.log("Final results:", results)
                 setSearchResults(results)
                 setShowSearchResults(results.length > 0)
             } catch (error) {
