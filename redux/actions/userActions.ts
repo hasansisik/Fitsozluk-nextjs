@@ -277,41 +277,19 @@ export const verifyOAuthToken = createAsyncThunk(
         throw new Error("No token found");
       }
 
-      const { endpoints } = await import('@/config');
-      const { data } = await axios.get(endpoints.oauth.verify, {
-        headers: { Authorization: `Bearer ${token}` }
+      // Instead of just verifying with Fitmail, we call Fitsözlük's /auth/me
+      // The Fitsözlük backend will verify the Fitmail token and return the Fitsözlük user object
+      const { data } = await axios.get(`${server}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      let picture = data.picture;
-
-      // Fallback: if picture is missing, try sessions endpoint
-      if (!picture) {
-        try {
-          const sessionsResponse = await axios.get(endpoints.oauth.sessions, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-
-          if (sessionsResponse.data?.sessions?.length > 0) {
-            const currentSession = sessionsResponse.data.sessions.find(
-              (s: any) => s.email === data.email || s.userId === data.sub
-            );
-            if (currentSession?.picture) {
-              picture = currentSession.picture;
-            }
-          }
-        } catch (e) {
-          // Ignore fallback errors
-        }
+      if (!data.user) {
+        throw new Error("User not found in Fitsözlük");
       }
 
-      const user = {
-        _id: data.sub,
-        email: data.email,
-        name: data.name,
-        nick: data.name,
-        picture: picture,
-        role: data.role
-      };
+      const user = data.user;
 
       localStorage.setItem("user", JSON.stringify(user));
       document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
@@ -320,7 +298,7 @@ export const verifyOAuthToken = createAsyncThunk(
     } catch (error: any) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
-      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Token doğrulanamadı');
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Kimlik doğrulaması başarısız');
     }
   }
 );
