@@ -447,11 +447,20 @@ export function DictionaryHeader() {
                         {/* User Actions - Desktop Only */}
                         <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0">
                             {isAuthenticated && user ? (
-                                <AccountSwitcher currentUser={{
-                                    name: user.name || user.nick || "Kullanıcı",
-                                    email: user.email || "",
-                                    picture: user.picture || user.profile?.picture || ""
-                                }} />
+                                <>
+                                    <AccountSwitcher currentUser={{
+                                        name: user.name || user.nick || "Kullanıcı",
+                                        email: user.email || "",
+                                        picture: user.picture || user.profile?.picture || ""
+                                    }} />
+                                    <Link
+                                        href={`/yazar/${user.nick}`}
+                                        className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
+                                        title="Profilim"
+                                    >
+                                        <Settings className="h-5 w-5" />
+                                    </Link>
+                                </>
                             ) : null}
                         </div>
                     </div>
@@ -510,11 +519,20 @@ export function DictionaryHeader() {
                                 {/* Mobile User Actions - Visible only on mobile */}
                                 <div className="flex lg:hidden items-center space-x-4">
                                     {isAuthenticated && user && (
-                                        <AccountSwitcher currentUser={{
-                                            name: user.name || user.nick || "Kullanıcı",
-                                            email: user.email || "",
-                                            picture: user.picture || user.profile?.picture || ""
-                                        }} />
+                                        <>
+                                            <AccountSwitcher currentUser={{
+                                                name: user.name || user.nick || "Kullanıcı",
+                                                email: user.email || "",
+                                                picture: user.picture || user.profile?.picture || ""
+                                            }} />
+                                            <Link
+                                                href={`/yazar/${user.nick}`}
+                                                className="text-foreground hover:text-[#ff6600] transition-colors"
+                                                title="Profilim"
+                                            >
+                                                <Settings className="h-5 w-5" />
+                                            </Link>
+                                        </>
                                     )}
                                 </div>
                             </div>
