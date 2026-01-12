@@ -21,7 +21,10 @@ import {
   followUser,
   unfollowUser,
   blockUser,
-  unblockUser
+  unblockUser,
+  verifyOAuthToken,
+  exchangeOAuthCode,
+  logoutAllSessions
 } from "../actions/userActions";
 
 interface UserState {
@@ -369,6 +372,40 @@ export const userReducer = createReducer(initialState, (builder) => {
           (typeof u === 'string' ? u : u._id) !== action.payload.id
         );
       }
+    })
+    // OAuth SSO Actions
+    .addCase(verifyOAuthToken.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(verifyOAuthToken.fulfilled, (state, action) => {
+      state.loading = false;
+      state.isAuthenticated = true;
+      state.isVerified = true;
+      state.user = action.payload;
+    })
+    .addCase(verifyOAuthToken.rejected, (state) => {
+      state.loading = false;
+      state.isAuthenticated = false;
+      state.user = null;
+    })
+    .addCase(exchangeOAuthCode.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(exchangeOAuthCode.fulfilled, (state, action) => {
+      state.loading = false;
+      state.isAuthenticated = true;
+      state.isVerified = true;
+      state.user = action.payload.user;
+    })
+    .addCase(exchangeOAuthCode.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    })
+    .addCase(logoutAllSessions.fulfilled, (state) => {
+      state.loading = false;
+      state.isAuthenticated = false;
+      state.isVerified = false;
+      state.user = null;
     })
     // Clear Error
     .addCase(clearError.fulfilled, (state) => {

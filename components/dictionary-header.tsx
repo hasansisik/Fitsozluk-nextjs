@@ -11,6 +11,7 @@ import { getAllTopics } from "@/redux/actions/topicActions"
 import { searchUsers, loadUser, logout } from "@/redux/actions/userActions"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getFeaturedMenus } from "@/redux/actions/menuActions"
+import AccountSwitcher from "@/components/AccountSwitcher"
 
 export function DictionaryHeader() {
     const router = useRouter()
@@ -442,95 +443,16 @@ export function DictionaryHeader() {
                             </form>
                         </div>
 
-                        {/* Mobile Profile Icon */}
-                        <div className="lg:hidden ml-2 flex-shrink-0">
-                            {isAuthenticated && user ? (
-                                <Link
-                                    href={`/yazar/${user.nick}`}
-                                    className="p-1.5 text-foreground hover:bg-secondary rounded-md inline-flex items-center justify-center transition-colors"
-                                >
-                                    <User className="h-6 w-6" />
-                                </Link>
-                            ) : (
-                                <Link
-                                    href="/giris"
-                                    className="p-1.5 text-foreground hover:bg-secondary rounded-md inline-flex items-center justify-center transition-colors"
-                                >
-                                    <User className="h-6 w-6" />
-                                </Link>
-                            )}
-                        </div>
 
                         {/* User Actions - Desktop Only */}
                         <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0">
                             {isAuthenticated && user ? (
-                                // Logged in: Show profile and settings icons
-                                <>
-                                    <Link
-                                        href={`/yazar/${user.nick}`}
-                                        className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
-                                        title="Profilim"
-                                    >
-                                        <User className="h-5 w-5" />
-                                    </Link>
-
-                                    <div ref={settingsMenuRef} className="relative">
-                                        <button
-                                            onClick={() => {
-                                                setShowSettingsMenu(!showSettingsMenu)
-                                                setShowMoreTopics(false)
-                                            }}
-                                            className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
-                                            title="Ayarlar"
-                                        >
-                                            <Settings className="h-5 w-5" />
-                                        </button>
-
-                                        {/* Settings Dropdown Menu */}
-                                        {showSettingsMenu && (
-                                            <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[200px] z-50">
-                                                <Link
-                                                    href={`/yazar/${user.nick}`}
-                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
-                                                    onClick={() => setShowSettingsMenu(false)}
-                                                >
-                                                    Profil Ayarları
-                                                </Link>
-                                                <Link
-                                                    href="/ayarlar"
-                                                    className="block px-4 py-2 text-sm text-foreground hover:bg-secondary hover:text-[#ff6600] transition-colors"
-                                                    onClick={() => setShowSettingsMenu(false)}
-                                                >
-                                                    Hesap Ayarları
-                                                </Link>
-                                                <div className="border-t border-border my-1"></div>
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-secondary transition-colors"
-                                                >
-                                                    Çıkış Yap
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            ) : (
-                                // Logged out: Show login and register buttons
-                                <>
-                                    <Link
-                                        href="/giris"
-                                        className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors"
-                                    >
-                                        giriş
-                                    </Link>
-                                    <Link
-                                        href="/kayitol"
-                                        className="rounded-md bg-[#ff6600] px-4 py-2 text-sm font-medium text-white hover:bg-[#e65c00] transition-colors"
-                                    >
-                                        kayıt ol
-                                    </Link>
-                                </>
-                            )}
+                                <AccountSwitcher currentUser={{
+                                    name: user.name || user.nick || "Kullanıcı",
+                                    email: user.email || "",
+                                    picture: user.picture || user.profile?.picture || ""
+                                }} />
+                            ) : null}
                         </div>
                     </div>
                 </div>
@@ -587,36 +509,12 @@ export function DictionaryHeader() {
 
                                 {/* Mobile User Actions - Visible only on mobile */}
                                 <div className="flex lg:hidden items-center space-x-4">
-                                    {isAuthenticated && user ? (
-                                        <>
-                                            <Link
-                                                href={`/yazar/${user.nick}`}
-                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] whitespace-nowrap"
-                                            >
-                                                profil
-                                            </Link>
-                                            <button
-                                                onClick={handleLogout}
-                                                className="text-sm font-medium text-red-600 whitespace-nowrap"
-                                            >
-                                                çıkış
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Link
-                                                href="/giris"
-                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] whitespace-nowrap"
-                                            >
-                                                giriş
-                                            </Link>
-                                            <Link
-                                                href="/kayitol"
-                                                className="text-sm font-medium text-foreground hover:text-[#ff6600] whitespace-nowrap"
-                                            >
-                                                kayıt ol
-                                            </Link>
-                                        </>
+                                    {isAuthenticated && user && (
+                                        <AccountSwitcher currentUser={{
+                                            name: user.name || user.nick || "Kullanıcı",
+                                            email: user.email || "",
+                                            picture: user.picture || user.profile?.picture || ""
+                                        }} />
                                     )}
                                 </div>
                             </div>
