@@ -7,7 +7,7 @@ export const oauthConfig = {
     clientSecret: 'ffec047691e8e61f22f2b46b295ae108549adf59b2160ad908a3fb8c5d809bf5',
     redirectUri: typeof window !== 'undefined'
         ? `${window.location.origin}/auth/callback`
-        : 'https://fitsozluk.com/auth/callback',
+        : 'https://fitsozluk.vercel.app/auth/callback',
     scope: 'profile email'
 };
 
