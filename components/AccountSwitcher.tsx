@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch } from '@/redux/hook';
 import { logoutAllSessions } from '@/redux/actions/userActions';
+import { oauthConfig, endpoints } from "@/config";
 
 interface UserSession {
     userId: string;
@@ -94,8 +95,21 @@ export default function AccountSwitcher({ currentUser }: AccountSwitcherProps) {
     };
 
     const handleAddAccount = () => {
-        // Redirect to Fitmail login
-        window.location.href = 'https://account.fitmail.com/giris';
+        const state = Math.random().toString(36).substring(7);
+        localStorage.setItem('oauth_state', state);
+        const authUrl = `${endpoints.oauth.authorize}?client_id=${oauthConfig.clientId}&redirect_uri=${encodeURIComponent(oauthConfig.redirectUri)}&response_type=code&scope=${encodeURIComponent(oauthConfig.scope)}&state=${state}`;
+
+        // Calculate popup position (centered)
+        const width = 500;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        window.open(
+            authUrl,
+            "FitmailAuth",
+            `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+        );
     };
 
     const handleLogoutAll = async () => {

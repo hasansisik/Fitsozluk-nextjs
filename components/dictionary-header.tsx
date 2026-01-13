@@ -12,6 +12,7 @@ import { searchUsers, loadUser, logout } from "@/redux/actions/userActions"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getFeaturedMenus } from "@/redux/actions/menuActions"
 import AccountSwitcher from "@/components/AccountSwitcher"
+import { oauthConfig, endpoints } from "@/config"
 
 export function DictionaryHeader() {
     const router = useRouter()
@@ -83,8 +84,45 @@ export function DictionaryHeader() {
         }
 
         document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
+
+        // Fitmail Auth Success Listener
+        const authChannel = new BroadcastChannel("fitmail_auth_channel");
+        const handleAuthMessage = (event: MessageEvent) => {
+            if (event.data.type === "FITMAIL_AUTH_SUCCESS") {
+                if (event.data.user && event.data.user.token) {
+                    const token = event.data.user.token;
+                    localStorage.setItem("accessToken", token);
+                    document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+                }
+                authChannel.close();
+                window.location.reload();
+            }
+        };
+        authChannel.onmessage = handleAuthMessage;
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+            authChannel.close();
+        }
     }, [dispatch, isAuthenticated])
+
+    const handleFitmailAuth = (mode: "login" | "register" = "login") => {
+        const state = Math.random().toString(36).substring(7);
+        localStorage.setItem('oauth_state', state);
+        const authUrl = `${endpoints.oauth.authorize}?client_id=${oauthConfig.clientId}&redirect_uri=${encodeURIComponent(oauthConfig.redirectUri)}&response_type=code&scope=${encodeURIComponent(oauthConfig.scope)}&state=${state}${mode === 'register' ? '&prompt=register' : ''}`;
+
+        // Calculate popup position (centered)
+        const width = 500;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        window.open(
+            authUrl,
+            "FitmailAuth",
+            `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+        );
+    };
 
     const handleSearch = async (query: string) => {
         setSearchQuery(query)
@@ -461,18 +499,18 @@ export function DictionaryHeader() {
                                 </>
                             ) : (
                                 <div className="flex items-center gap-4">
-                                    <Link
-                                        href="/giris"
+                                    <button
+                                        onClick={() => handleFitmailAuth("login")}
                                         className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors"
                                     >
                                         giriş yap
-                                    </Link>
-                                    <Link
-                                        href="/kayitol"
+                                    </button>
+                                    <button
+                                        onClick={() => handleFitmailAuth("register")}
                                         className="text-sm font-medium px-4 py-2 bg-[#ff6600] text-white rounded-md hover:bg-[#e65c00] transition-colors"
                                     >
                                         kayıt ol
-                                    </Link>
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -554,12 +592,12 @@ export function DictionaryHeader() {
                                             </Link>
                                         </>
                                     ) : (
-                                        <Link
-                                            href="/giris"
+                                        <button
+                                            onClick={() => handleFitmailAuth("login")}
                                             className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors whitespace-nowrap"
                                         >
                                             giriş yap
-                                        </Link>
+                                        </button>
                                     )}
                                 </div>
                             </div>

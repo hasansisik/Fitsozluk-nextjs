@@ -38,17 +38,55 @@ function CallbackContent() {
                 localStorage.removeItem('oauth_state');
 
                 // Exchange code for token using Redux action
-                await dispatch(exchangeOAuthCode({ code })).unwrap();
+                const result = await dispatch(exchangeOAuthCode({ code })).unwrap();
 
                 setStatus('success');
 
-                // Redirect to saved return URL or home
+                // If in a popup, notify the opener and close
+                const authChannel = new BroadcastChannel("fitmail_auth_channel");
+                authChannel.postMessage({
+                    type: "FITMAIL_AUTH_SUCCESS",
+                    user: result.user
+                });
+
+                if (window.opener) {
+                    window.opener.postMessage(
+                        {
+                            type: "FITMAIL_AUTH_SUCCESS",
+                            user: result.user
+                        },
+                        window.location.origin
+                    );
+
+                    setTimeout(() => {
+                        authChannel.close();
+                        window.close();
+                    }, 500);
+                    return;
+                }
+
+                // Redirect to saved return URL or home (for same-windowauth)
                 const returnUrl = localStorage.getItem('oauth_return_url') || '/';
                 localStorage.removeItem('oauth_return_url');
                 setTimeout(() => router.push(returnUrl), 0);
 
             } catch (error: any) {
                 console.error('Callback error:', error);
+
+                const authChannel = new BroadcastChannel("fitmail_auth_channel");
+                authChannel.postMessage({
+                    type: "FITMAIL_AUTH_ERROR",
+                    error: error.message || "Giriş başarısız"
+                });
+
+                if (window.opener) {
+                    setTimeout(() => {
+                        authChannel.close();
+                        window.close();
+                    }, 1000);
+                    return;
+                }
+
                 setStatus('error');
                 setTimeout(() => router.push('/'), 500);
             }
