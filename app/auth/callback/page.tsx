@@ -21,6 +21,13 @@ function CallbackContent() {
 
                 // Check for OAuth errors
                 if (error) {
+                    const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+
+                    if (isIframe) {
+                        // Just stop here if in iframe
+                        return;
+                    }
+
                     setStatus('error');
                     setTimeout(() => router.push('/'), 500);
                     return;
@@ -65,6 +72,17 @@ function CallbackContent() {
                     return;
                 }
 
+                // If in iframe, just notify and stop
+                if (typeof window !== 'undefined' && window.self !== window.top) {
+                    // postMessage to parent
+                    window.parent.postMessage({
+                        type: "FITMAIL_AUTH_SUCCESS",
+                        user: result.user
+                    }, window.location.origin);
+
+                    return;
+                }
+
                 // Redirect to saved return URL or home (for same-windowauth)
                 const returnUrl = localStorage.getItem('oauth_return_url') || '/';
                 localStorage.removeItem('oauth_return_url');
@@ -84,6 +102,10 @@ function CallbackContent() {
                         authChannel.close();
                         window.close();
                     }, 1000);
+                    return;
+                }
+
+                if (typeof window !== 'undefined' && window.self !== window.top) {
                     return;
                 }
 

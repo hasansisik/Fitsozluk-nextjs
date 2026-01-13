@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAppDispatch } from '@/redux/hook';
-import { verifyOAuthToken } from '@/redux/actions/userActions';
+import { verifyOAuthToken, setAuthLoading } from '@/redux/actions/userActions';
 import { usePathname, useRouter } from 'next/navigation';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -15,6 +15,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem('accessToken');
             const silentSSOChecked = sessionStorage.getItem('silentSSOChecked');
 
+            // Explicitly set loading state for background check
+            dispatch(setAuthLoading(true));
+
             if (token) {
                 // Verify token silently in background
                 try {
@@ -23,12 +26,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     // Token invalid, try silent SSO
                     if (!silentSSOChecked && !pathname?.includes('/auth/callback')) {
                         await trySilentSSO();
+                    } else {
+                        dispatch(setAuthLoading(false));
                     }
                 }
             } else {
                 // No token - try silent SSO
                 if (!silentSSOChecked && !pathname?.includes('/auth/callback')) {
                     await trySilentSSO();
+                } else {
+                    dispatch(setAuthLoading(false));
                 }
             }
         };
@@ -41,7 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Generate state for CSRF protection
                 const state = Math.random().toString(36).substring(7);
                 localStorage.setItem('oauth_state', state);
-                localStorage.setItem('oauth_return_url', pathname || '/');
 
                 // Import config
                 const { endpoints, oauthConfig } = await import('@/config');
@@ -58,16 +64,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 const authUrl = `${endpoints.oauth.authorize}?${params}`;
 
-                // Silent redirect to Fitmail OAuth
-                window.location.href = authUrl;
+                // Create hidden iframe for background check
+                const iframe = document.createElement('iframe');
+                iframe.id = 'silent-sso-iframe';
+                iframe.style.display = 'none';
+                iframe.src = authUrl;
+                document.body.appendChild(iframe);
+
+                // Cleanup iframe and stop loading after some time
+                setTimeout(() => {
+                    const el = document.getElementById('silent-sso-iframe');
+                    if (el) el.remove();
+                    dispatch(setAuthLoading(false));
+                }, 10000); // 10 seconds timeout for silent SSO check
 
             } catch (error) {
                 console.error('[Silent SSO] Error:', error);
+                dispatch(setAuthLoading(false));
+            }
+        };
+
+        // Listen for successful auth from iframe or popup
+        const authChannel = new BroadcastChannel("fitmail_auth_channel");
+        authChannel.onmessage = (event) => {
+            if (event.data.type === "FITMAIL_AUTH_SUCCESS") {
+                // Token is already stored by the callback page
+                // We just need to reload the user data
+                dispatch(verifyOAuthToken());
             }
         };
 
         checkAuth();
-    }, [dispatch, pathname, router]);
+
+        return () => {
+            authChannel.close();
+        };
+    }, [dispatch]);
 
     // Render children immediately - no loading screen
     // Auth happens silently in background

@@ -729,6 +729,14 @@ export const clearError = createAsyncThunk(
   }
 );
 
+// Set Auth Loading Action
+export const setAuthLoading = createAsyncThunk(
+  "user/setAuthLoading",
+  async (isLoading: boolean) => {
+    return isLoading;
+  }
+);
+
 
 export const blockUser = createAsyncThunk(
   "user/blockUser",

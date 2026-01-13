@@ -94,8 +94,8 @@ export function DictionaryHeader() {
                     localStorage.setItem("accessToken", token);
                     document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
                 }
+                // No reload needed, AuthProvider will handle state update
                 authChannel.close();
-                window.location.reload();
             }
         };
         authChannel.onmessage = handleAuthMessage;
@@ -474,7 +474,10 @@ export function DictionaryHeader() {
                         {/* User Actions - Desktop Only */}
                         <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0 min-w-[150px] justify-end">
                             {loading ? (
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#ff6600]"></div>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-4 bg-gray-200 animate-pulse rounded"></div>
+                                    <div className="w-20 h-9 bg-gray-200 animate-pulse rounded-md"></div>
+                                </div>
                             ) : isAuthenticated && user && (user.nick || user.name) ? (
                                 <>
                                     <AccountSwitcher currentUser={{
@@ -569,7 +572,9 @@ export function DictionaryHeader() {
 
                                 {/* Mobile User Actions - Visible only on mobile */}
                                 <div className="flex lg:hidden items-center space-x-4">
-                                    {isAuthenticated && user ? (
+                                    {loading ? (
+                                        <div className="w-14 h-4 bg-gray-200 animate-pulse rounded"></div>
+                                    ) : isAuthenticated && user ? (
                                         <>
                                             <AccountSwitcher currentUser={{
                                                 name: user.name || user.nick || "Kullanıcı",

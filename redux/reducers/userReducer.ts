@@ -24,7 +24,8 @@ import {
   unblockUser,
   verifyOAuthToken,
   exchangeOAuthCode,
-  logoutAllSessions
+  logoutAllSessions,
+  setAuthLoading
 } from "../actions/userActions";
 
 interface UserState {
@@ -406,6 +407,10 @@ export const userReducer = createReducer(initialState, (builder) => {
       state.error = null;
       state.message = null;
       state.usersError = null;
+    })
+    // Set Auth Loading
+    .addCase(setAuthLoading.fulfilled, (state, action) => {
+      state.loading = action.payload;
     });
 });
 
