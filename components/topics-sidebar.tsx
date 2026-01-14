@@ -21,10 +21,22 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
     const searchParams = useSearchParams()
     const pathname = usePathname()
 
-    // On search page, always show "gündem" category, otherwise use category from URL
+    // Determine category based on pathname and URL params
     const isSearchPage = pathname === '/arama'
+    const isDebePage = pathname === '/debe'
     const categoryFromUrl = searchParams.get('category') || searchParams.get('kategori')
-    const category = isSearchPage ? 'gündem' : (categoryFromUrl || 'gündem')
+
+    // Priority: debe page > search page > URL param > default
+    const category = isDebePage ? 'debe' : (isSearchPage ? 'gündem' : (categoryFromUrl || 'gündem'))
+
+    // Format category title for display (decode URL encoding and capitalize)
+    const formatCategoryTitle = (cat: string) => {
+        if (cat === 'debe') return cat
+        if (cat === 'gündem') return cat
+        // Decode URL encoding (e.g., "protein%20tozu" -> "protein tozu")
+        const decoded = decodeURIComponent(cat)
+        return decoded
+    }
 
     useEffect(() => {
         const fetchSidebarTopics = async () => {
@@ -49,7 +61,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
 
     return (
         <aside className={`${isMobile ? 'w-full h-full' : 'w-64 h-[calc(100vh-6.5rem)] sticky top-[6.5rem]'} bg-white overflow-y-auto`}>
-            <div className="p-4">
+            <div className={`${isMobile ? 'p-4' : 'py-4 pr-4'}`}>
                 {/* Date Picker for Debe */}
                 {category === "debe" && (
                     <div className="mb-4">
@@ -78,7 +90,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
                             ? (selectedDate
                                 ? `${new Date(selectedDate).toLocaleDateString('tr-TR')} en beğenilen entry'leri`
                                 : "dünün en beğenilen entry'leri")
-                            : category}
+                            : formatCategoryTitle(category)}
                     </h2>
                 </div>
 
@@ -93,7 +105,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
                                 <Link
                                     href={`/${topic.slug}`}
                                     onClick={() => onClose && onClose()}
-                                    className="flex items-start justify-between group p-2 rounded-md"
+                                    className="flex items-start justify-between group py-2 pr-2 rounded-md"
                                 >
                                     <span className="text-sm text-foreground group-hover:text-[#ff6600] transition-colors flex-1 leading-snug">
                                         {topic.title}
@@ -126,7 +138,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
 export function TopicsSidebar(props: TopicsSidebarProps) {
     return (
         <Suspense fallback={
-            <aside className={`${props.isMobile ? 'w-full h-full' : 'w-64 h-[calc(100vh-6.5rem)] sticky top-[6.5rem]'} bg-white p-4`}>
+            <aside className={`${props.isMobile ? 'w-full h-full' : 'w-64 h-[calc(100vh-6.5rem)] sticky top-[6.5rem]'} bg-white ${props.isMobile ? 'p-4' : 'py-4 pr-4'}`}>
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-5 w-5 animate-spin text-[#ff6600]" />
                 </div>
