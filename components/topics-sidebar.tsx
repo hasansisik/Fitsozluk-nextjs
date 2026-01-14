@@ -69,7 +69,7 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
                             Tarih Seçin
                         </label>
                         <div className="relative">
-                            <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[#ff6600]" />
                             <input
                                 type="date"
                                 value={selectedDate}

@@ -233,7 +233,7 @@ export function DictionaryHeader() {
                                     alt="fitsözlük"
                                     width={140}
                                     height={35}
-                                    className="hidden lg:block h-8 w-auto"
+                                    className="hidden lg:block h-6 w-auto"
                                     priority
                                 />
                                 {/* Mobile Logo */}
@@ -336,10 +336,10 @@ export function DictionaryHeader() {
                                                 setShowFilters(!showFilters)
                                                 setShowSearchResults(false)
                                             }}
-                                            className="h-8 w-8 flex items-center justify-center hover:bg-secondary rounded-md transition-colors"
+                                            className="h-8 w-8 flex items-center justify-center bg-[#ffa500] hover:bg-[#ff8c00] rounded-md transition-colors"
                                             title="Filtreler"
                                         >
-                                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                            <ChevronDown className="h-4 w-4 text-white" />
                                         </button>
 
                                         {/* Filter Dropdown */}
@@ -510,7 +510,7 @@ export function DictionaryHeader() {
                                     </button>
                                     <button
                                         onClick={() => handleFitmailAuth("register")}
-                                        className="text-sm font-medium px-4 py-2 bg-[#ff6600] text-white rounded-md hover:bg-[#e65c00] transition-colors"
+                                        className="text-sm font-medium px-4 py-2 bg-[#ffa500] text-white rounded-md hover:bg-[#ff8c00] transition-colors"
                                     >
                                         kayıt ol
                                     </button>
