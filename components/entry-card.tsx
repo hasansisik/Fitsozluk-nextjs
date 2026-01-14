@@ -49,6 +49,18 @@ export function EntryCard({
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { user: authUser } = useAppSelector((state) => state.user)
+    const { entries } = useAppSelector((state) => state.entry)
+
+    // Get current entry from Redux state for real-time updates
+    const currentEntry = entries.find(e => e._id === id)
+
+    // Use Redux state if available, otherwise fall back to props
+    const actualLikeCount = currentEntry?.likeCount ?? likeCount
+    const actualDislikeCount = currentEntry?.dislikeCount ?? dislikeCount
+    const actualFavoriteCount = currentEntry?.favoriteCount ?? favoriteCount
+    const actualIsLiked = currentEntry?.likes?.some((userId: any) => String(userId) === String(authUser?._id)) ?? isLikedProp
+    const actualIsDisliked = currentEntry?.dislikes?.some((userId: any) => String(userId) === String(authUser?._id)) ?? isDislikedProp
+    const actualIsFavorited = currentEntry?.favorites?.some((userId: any) => String(userId) === String(authUser?._id)) ?? isFavoritedProp
 
     // Check if the current user has reacted to this entry
     // If props are passed (from backend), we use them. Otherwise we check Redux state arrays if available.
@@ -381,45 +393,45 @@ export function EntryCard({
                         {/* Thumbs Up */}
                         <button
                             onClick={handleLikeAction}
-                            className={`flex items-center gap-1 transition-colors ${isLikedProp ? 'text-[#ff6600]' : 'text-muted-foreground hover:text-[#ff6600]'}`}
+                            className={`flex items-center gap-1 transition-colors ${actualIsLiked ? 'text-[#ff6600]' : 'text-muted-foreground hover:text-[#ff6600]'}`}
                             title="Beğen"
                         >
                             <ThumbsUp
                                 className="h-3.5 w-3.5"
-                                fill={isLikedProp ? "currentColor" : "none"}
+                                fill={actualIsLiked ? "currentColor" : "none"}
                             />
-                            {likeCount > 0 && (
-                                <span className="text-xs font-medium">{likeCount}</span>
+                            {actualLikeCount > 0 && (
+                                <span className="text-xs font-medium">{actualLikeCount}</span>
                             )}
                         </button>
 
                         {/* Thumbs Down */}
                         <button
                             onClick={handleDislikeAction}
-                            className={`flex items-center gap-1 transition-colors ${isDislikedProp ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
+                            className={`flex items-center gap-1 transition-colors ${actualIsDisliked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
                             title="Beğenme"
                         >
                             <ThumbsDown
                                 className="h-3.5 w-3.5"
-                                fill={isDislikedProp ? "currentColor" : "none"}
+                                fill={actualIsDisliked ? "currentColor" : "none"}
                             />
-                            {dislikeCount > 0 && (
-                                <span className="text-xs font-medium">{dislikeCount}</span>
+                            {actualDislikeCount > 0 && (
+                                <span className="text-xs font-medium">{actualDislikeCount}</span>
                             )}
                         </button>
 
                         {/* Favorites */}
                         <button
                             onClick={handleFavoriteAction}
-                            className={`flex items-center gap-1 transition-colors ${isFavoritedProp ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
+                            className={`flex items-center gap-1 transition-colors ${actualIsFavorited ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
                             title="Favorilere ekle"
                         >
                             <Heart
                                 className="h-3.5 w-3.5"
-                                fill={isFavoritedProp ? "currentColor" : "none"}
+                                fill={actualIsFavorited ? "currentColor" : "none"}
                             />
-                            {favoriteCount > 0 && (
-                                <span className="text-xs font-medium">{favoriteCount}</span>
+                            {actualFavoriteCount > 0 && (
+                                <span className="text-xs font-medium">{actualFavoriteCount}</span>
                             )}
                         </button>
                     </div>
@@ -437,26 +449,26 @@ export function EntryCard({
                             </button>
 
                             {showShareMenu && (
-                                <div className="absolute right-0 top-8 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
-                                    <button onClick={() => handleShare('twitter')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
-                                        <Twitter className="h-4 w-4" />
-                                        Twitter'da Paylaş
+                                <div className="absolute right-0 top-8 bg-white border border-border rounded-md shadow-lg py-1 min-w-[160px] z-50">
+                                    <button onClick={() => handleShare('twitter')} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Twitter className="h-3.5 w-3.5" />
+                                        X'te paylaş
                                     </button>
-                                    <button onClick={() => handleShare('facebook')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
-                                        <Facebook className="h-4 w-4" />
-                                        Facebook'ta Paylaş
+                                    <button onClick={() => handleShare('facebook')} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Facebook className="h-3.5 w-3.5" />
+                                        Facebook'ta paylaş
                                     </button>
-                                    <button onClick={() => handleShare('whatsapp')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
-                                        <MessageCircle className="h-4 w-4" />
-                                        WhatsApp'ta Paylaş
+                                    <button onClick={() => handleShare('whatsapp')} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <MessageCircle className="h-3.5 w-3.5" />
+                                        Whatsapp'ta paylaş
                                     </button>
-                                    <button onClick={() => handleShare('telegram')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
-                                        <Send className="h-4 w-4" />
-                                        Telegram'da Paylaş
+                                    <button onClick={() => handleShare('telegram')} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Send className="h-3.5 w-3.5" />
+                                        Telegram'da paylaş
                                     </button>
-                                    <button onClick={() => handleShare('copy')} className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2">
-                                        <Copy className="h-4 w-4" />
-                                        Linki Kopyala
+                                    <button onClick={() => handleShare('copy')} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2">
+                                        <Copy className="h-3.5 w-3.5" />
+                                        Linki kopyala
                                     </button>
                                 </div>
                             )}
@@ -475,31 +487,7 @@ export function EntryCard({
 
                 {/* Entry Footer */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        {/* User Picture */}
-                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden border border-border">
-                            {syncedProfilePicture ? (
-                                <Image src={syncedProfilePicture} alt={author} width={40} height={40} className="w-full h-full object-cover" />
-                            ) : (
-                                <User className="h-5 w-5 text-muted-foreground" />
-                            )}
-                        </div>
-
-                        {/* Author Info */}
-                        <div className="flex flex-col">
-                            <Link
-                                href={`/yazar/${encodeURIComponent(author)}`}
-                                className="text-sm text-muted-foreground hover:text-[#ff6600] transition-colors"
-                            >
-                                {author}
-                            </Link>
-                            <span className="text-[11px] text-muted-foreground">
-                                {date} {time}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Action Buttons - Right Side */}
+                    {/* Left Side: Delete Button */}
                     <div className="flex items-center gap-2">
                         {authUser?.nick === author && onDelete && id && (
                             <button
@@ -510,6 +498,31 @@ export function EntryCard({
                                 <Trash2 className="h-3.5 w-3.5" />
                             </button>
                         )}
+                    </div>
+
+                    {/* Right Side: User Info */}
+                    <div className="flex items-center gap-3">
+                        {/* Author Info */}
+                        <div className="flex flex-col items-end">
+                            <Link
+                                href={`/yazar/${encodeURIComponent(author)}`}
+                                className="text-sm text-muted-foreground hover:text-[#ff6600] transition-colors"
+                            >
+                                {author}
+                            </Link>
+                            <span className="text-[11px] text-muted-foreground">
+                                {date} {time}
+                            </span>
+                        </div>
+
+                        {/* User Picture */}
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden border border-border">
+                            {syncedProfilePicture ? (
+                                <Image src={syncedProfilePicture} alt={author} width={40} height={40} className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="h-5 w-5 text-muted-foreground" />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
