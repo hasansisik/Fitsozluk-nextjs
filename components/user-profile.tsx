@@ -455,181 +455,201 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
             <div className="p-4 px-0 lg:p-6">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                            <h1 className="text-2xl font-bold">{userData.nick}</h1>
+                        {/* 1. Nick */}
+                        <div className="flex items-center gap-3 mb-1">
+                            <h1 className="text-2xl font-bold tracking-tight text-foreground">{userData.nick}</h1>
+                        </div>
+
+                        {/* 2. Title */}
+                        <div className="mb-4">
+                            <span className="text-sm font-medium text-muted-foreground/80 lowercase">
+                                {userData.title || 'çaylak'}
+                                {dynamicStats.entryCount > 0 && <span className="ml-1">({dynamicStats.entryCount})</span>}
+                            </span>
+                        </div>
+
+                        {/* 3. Badges */}
+                        {userData.badges && userData.badges.length > 0 && (
+                            <div className="flex items-center gap-2 mb-5 group/badges">
+                                <div className="flex gap-1.5">
+                                    {userData.badges.slice(0, 4).map((badge: any) => (
+                                        <div key={badge._id} className="relative group/badge">
+                                            <img
+                                                src={badge.icon}
+                                                alt={badge.name}
+                                                className="w-10 h-10 rounded-full border border-border hover:border-[#ff6600] transition-colors cursor-pointer object-cover p-0.5 bg-white"
+                                                title={badge.name}
+                                            />
+                                            {badge.description && (
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/80 text-white text-[10px] rounded opacity-0 group-hover/badge:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                                                    {badge.description}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <Link
+                                    href={`/rozetler/${userData.nick}`}
+                                    className="text-xs text-muted-foreground hover:text-[#ff6600] italic ml-1 transition-colors"
+                                >
+                                    tümü
+                                </Link>
+                            </div>
+                        )}
+
+                        {/* 4. Stats */}
+                        <div className="flex gap-2 text-xs text-muted-foreground mb-3">
+                            <span><strong className="text-foreground font-bold">{dynamicStats.entryCount}</strong> entry</span>
+                            <span className="opacity-40">·</span>
+                            <button onClick={() => { setShowFollowersModal(true); fetchFollowers(); }} className="hover:text-[#ff6600]">
+                                <strong className="text-foreground font-bold">{dynamicStats.followerCount}</strong> takipçi
+                            </button>
+                            <span className="opacity-40">·</span>
+                            <button onClick={() => { setShowFollowingModal(true); fetchFollowing(); }} className="hover:text-[#ff6600]">
+                                <strong className="text-foreground font-bold">{dynamicStats.followingCount}</strong> takip
+                            </button>
+                        </div>
+
+                        {/* Bio (Optional, keeping it where it fits best) */}
+                        {userData.bio && (
+                            <p className="text-sm text-foreground mb-5 whitespace-pre-wrap">{userData.bio}</p>
+                        )}
+
+                        {/* 5. Join Date */}
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>{userData.joinDate}</span>
+                        </div>
+
+                        {/* 6. Actions */}
+                        <div className="flex flex-wrap items-center gap-3 mb-8">
                             {!isOwnProfile && (
                                 <button
                                     onClick={handleFollow}
-                                    className={`px-4 py-1 rounded-full text-xs font-semibold transition-all ${isFollowing ? "bg-secondary text-foreground" : "bg-[#ff6600] text-white"
+                                    className={`h-11 px-10 rounded-full text-sm font-bold transition-all shadow-sm ${isFollowing
+                                        ? "bg-secondary text-foreground hover:bg-secondary/80"
+                                        : "bg-[#81c744] text-white hover:bg-[#72b33a]"
                                         }`}
                                 >
                                     {isFollowing ? "takipten vazgeç" : "takip et"}
                                 </button>
                             )}
-                        </div>
 
-                        <div className="flex gap-2 mb-3">
-                            <div className={`text-white text-[11px] px-2.5 py-1 rounded-sm font-semibold uppercase tracking-wider ${userData.title?.toLowerCase() === 'admin' ? 'bg-[#9b59b6]' : // Purple
-                                userData.title?.toLowerCase() === 'moderatör' ? 'bg-[#e74c3c]' : // Red
-                                    userData.title?.toLowerCase() === 'usta' ? 'bg-[#2ecc71]' : // Green
-                                        userData.title?.toLowerCase() === 'yazar' ? 'bg-[#ff6600]' : // Theme Orange
-                                            'bg-[#f39c12]' // Çaylak or default - Amber
-                                }`}>
-                                {userData.title || 'çaylak'}
-                            </div>
-                        </div>
-
-                        {/* Badges */}
-                        {userData.badges && userData.badges.length > 0 && (
-                            <div className="flex gap-2 mb-6">
-                                {userData.badges.map((badge: any) => (
-                                    <div key={badge._id} className="relative group">
-                                        <img
-                                            src={badge.icon}
-                                            alt={badge.name}
-                                            className="w-8 h-8 rounded-full border-2 border-border hover:border-[#ff6600] transition-colors cursor-pointer"
-                                            title={badge.name}
-                                        />
-                                        {badge.description && (
-                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                                {badge.description}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="flex gap-1.5 text-xs text-muted-foreground mb-2">
-                            <span><strong className="text-foreground">{dynamicStats.entryCount}</strong> entry</span>
-                            <span>•</span>
-                            <button onClick={() => { setShowFollowersModal(true); fetchFollowers(); }} className="hover:text-[#ff6600]">
-                                <strong className="text-foreground">{dynamicStats.followerCount}</strong> takipçi
-                            </button>
-                            <span>•</span>
-                            <button onClick={() => { setShowFollowingModal(true); fetchFollowing(); }} className="hover:text-[#ff6600]">
-                                <strong className="text-foreground">{dynamicStats.followingCount}</strong> takip
-                            </button>
-                        </div>
-
-                        {userData.bio ? (
-                            <p className="text-sm text-foreground mb-6 whitespace-pre-wrap">{userData.bio}</p>
-                        ) : (
-                            <p className="text-xs text-muted-foreground mb-6">
-                                {isOwnProfile ? "Henüz bir biyografi eklemediniz." : "henüz 10 entry'yi tamamlamadığınızdan onay sırasında değilsiniz."}
-                            </p>
-                        )}
-
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
-                            <Calendar className="w-4 h-4" />
-                            <span>{userData.joinDate}</span>
-                        </div>
-
-                        <div className="flex gap-3 mb-6">
-                            <div className="relative share-menu-container">
-                                <button
-                                    onClick={() => setShowShareMenu(!showShareMenu)}
-                                    className="p-2 border rounded-full hover:bg-secondary transition-colors"
-                                >
-                                    <Share2 className="w-5 h-5" />
-                                </button>
-                                {showShareMenu && (
-                                    <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
-                                        <button
-                                            onClick={() => {
-                                                const url = window.location.href;
-                                                const text = `${userData.nick} - Fitsözlük`;
-                                                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-                                                setShowShareMenu(false);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
-                                        >
-                                            <Twitter className="h-4 w-4" />
-                                            Twitter'da Paylaş
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                const url = window.location.href;
-                                                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-                                                setShowShareMenu(false);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
-                                        >
-                                            <Facebook className="h-4 w-4" />
-                                            Facebook'ta Paylaş
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                const url = window.location.href;
-                                                const text = `${userData.nick} - Fitsözlük`;
-                                                window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
-                                                setShowShareMenu(false);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
-                                        >
-                                            <MessageCircle className="h-4 w-4" />
-                                            WhatsApp'ta Paylaş
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                const url = window.location.href;
-                                                const text = `${userData.nick} - Fitsözlük`;
-                                                window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-                                                setShowShareMenu(false);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
-                                        >
-                                            <Send className="h-4 w-4" />
-                                            Telegram'da Paylaş
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                const url = window.location.href;
-                                                navigator.clipboard.writeText(url);
-                                                alert('Link kopyalandı!');
-                                                setShowShareMenu(false);
-                                            }}
-                                            className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
-                                        >
-                                            <Copy className="h-4 w-4" />
-                                            Linki Kopyala
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            {isOwnProfile && (
-                                <button
-                                    onClick={() => setShowBioEdit(true)}
-                                    className="p-2 border rounded-full hover:bg-secondary transition-colors"
-                                    title="Biyografiyi Düzenle"
-                                >
-                                    <Pencil className="w-5 h-5" />
-                                </button>
-                            )}
-                            {!isOwnProfile && (
-                                <div className="relative more-menu-container">
+                            <div className="flex items-center gap-2">
+                                {!isOwnProfile && (
                                     <button
-                                        onClick={() => setShowMoreMenu(!showMoreMenu)}
-                                        className="p-2 border rounded-full hover:bg-secondary transition-colors"
+                                        className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                        title="Mesaj Gönder"
                                     >
-                                        <MoreHorizontal className="w-5 h-5" />
+                                        <MessageSquare className="w-5 h-5" />
                                     </button>
-                                    {showMoreMenu && (
-                                        <div className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg py-2 z-50 w-48">
+                                )}
+
+                                <div className="relative share-menu-container">
+                                    <button
+                                        onClick={() => setShowShareMenu(!showShareMenu)}
+                                        className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                    >
+                                        <Share2 className="w-5 h-5" />
+                                    </button>
+                                    {showShareMenu && (
+                                        <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
                                             <button
                                                 onClick={() => {
-                                                    setShowReportModal(true);
-                                                    setShowMoreMenu(false);
+                                                    const url = window.location.href;
+                                                    const text = `${userData.nick} - Fitsözlük`;
+                                                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                                                    setShowShareMenu(false);
                                                 }}
-                                                className="w-full text-left px-4 py-2 text-sm hover:bg-secondary flex items-center gap-2"
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
                                             >
-                                                <Flag className="w-4 h-4" />
-                                                Şikayet Et
+                                                <Twitter className="h-4 w-4" />
+                                                Twitter'da Paylaş
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const url = window.location.href;
+                                                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                                                    setShowShareMenu(false);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                            >
+                                                <Facebook className="h-4 w-4" />
+                                                Facebook'ta Paylaş
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const url = window.location.href;
+                                                    const text = `${userData.nick} - Fitsözlük`;
+                                                    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+                                                    setShowShareMenu(false);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                            >
+                                                <MessageCircle className="h-4 w-4" />
+                                                WhatsApp'ta Paylaş
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const url = window.location.href;
+                                                    const text = `${userData.nick} - Fitsözlük`;
+                                                    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                                                    setShowShareMenu(false);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                            >
+                                                <Send className="h-4 w-4" />
+                                                Telegram'da Paylaş
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const url = window.location.href;
+                                                    navigator.clipboard.writeText(url);
+                                                    alert('Link kopyalandı!');
+                                                    setShowShareMenu(false);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                            >
+                                                <Copy className="h-4 w-4" />
+                                                Linki Kopyala
                                             </button>
                                         </div>
                                     )}
                                 </div>
-                            )}
+
+                                {isOwnProfile ? (
+                                    <button
+                                        onClick={() => setShowBioEdit(true)}
+                                        className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                        title="Biyografiyi Düzenle"
+                                    >
+                                        <Pencil className="w-5 h-5" />
+                                    </button>
+                                ) : (
+                                    <div className="relative more-menu-container">
+                                        <button
+                                            onClick={() => setShowMoreMenu(!showMoreMenu)}
+                                            className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                        >
+                                            <MoreHorizontal className="w-5 h-5" />
+                                        </button>
+                                        {showMoreMenu && (
+                                            <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-lg shadow-lg py-2 z-50 w-48">
+                                                <button
+                                                    onClick={() => {
+                                                        setShowReportModal(true);
+                                                        setShowMoreMenu(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-sm hover:bg-secondary flex items-center gap-2"
+                                                >
+                                                    <Flag className="w-4 h-4" />
+                                                    Şikayet Et
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -882,6 +902,6 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
