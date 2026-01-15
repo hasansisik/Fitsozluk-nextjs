@@ -524,8 +524,8 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 </div>
             )}
 
-            <div className="w-full flex flex-col p-6 lg:p-10 pt-8">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-6">
+            <div className="w-full flex flex-col p-4 lg:p-6 pt-4 lg:pt-6">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                     <div className="flex-1">
                         {/* Mobile: Nick + Picture in same row */}
                         <div className="flex items-center justify-between md:block mb-4 md:mb-0">
@@ -583,7 +583,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
 
                         {/* 3. Badges */}
                         {userData.badges && userData.badges.length > 0 && (
-                            <div className="flex items-center gap-2 mb-5 group/badges">
+                            <div className="flex items-center gap-2 mb-3 group/badges">
                                 <div className="flex gap-1.5">
                                     {userData.badges.slice(0, 4).map((badge: any) => (
                                         <div key={badge._id} className="relative group/badge">
@@ -625,17 +625,17 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
 
                         {/* Bio (Optional, keeping it where it fits best) */}
                         {userData.bio && (
-                            <p className="text-sm text-foreground mb-5 whitespace-pre-wrap">{userData.bio}</p>
+                            <p className="text-sm text-foreground mb-3 whitespace-pre-wrap">{userData.bio}</p>
                         )}
 
                         {/* 5. Join Date */}
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
                             <Calendar className="w-3.5 h-3.5" />
                             <span>{userData.joinDate}</span>
                         </div>
 
                         {/* 6. Actions */}
-                        <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
                             {!isOwnProfile && (
                                 <button
                                     onClick={handleFollow}
@@ -798,7 +798,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 </div>
             </div>
 
-            <div className="border-b mb-6">
+            <div className="border-b mb-3">
                 <div className="flex gap-4 px-2 overflow-x-auto no-scrollbar">
                     {tabs.map((tab) => (
                         <button
@@ -814,7 +814,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 </div>
             </div>
 
-            <div className="px-6 pb-12">
+            <div className="px-4 pb-6">
                 {loadingEntries ? (
                     <div className="space-y-8">
                         {[1, 2, 3].map((i) => (
