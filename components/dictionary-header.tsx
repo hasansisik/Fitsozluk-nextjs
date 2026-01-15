@@ -538,9 +538,9 @@ export function DictionaryHeader() {
 
 
                         {/* User Actions - Desktop Only */}
-                        <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0 min-w-[150px] justify-end">
+                        <div className="hidden lg:flex items-center space-x-1 ml-auto flex-shrink-0 min-w-[150px] justify-end">
                             {(loading || isInitialLoading) ? (
-                                <Skeleton className="w-8 h-8 rounded-full" />
+                                <Skeleton className="w-24 h-9 rounded-md" />
                             ) : isAuthenticated && user && (user.nick || user.name) ? (
                                 <>
                                     <Link
