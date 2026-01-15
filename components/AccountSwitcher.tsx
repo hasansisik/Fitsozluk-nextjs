@@ -147,7 +147,7 @@ export default function AccountSwitcher({ currentUser }: AccountSwitcherProps) {
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                <div className="absolute left-0 lg:left-auto lg:right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                     {/* Current User */}
                     <div className="p-4 text-center">
                         <div className="flex justify-center mb-3">
