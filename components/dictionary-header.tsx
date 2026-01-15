@@ -635,11 +635,7 @@ export function DictionaryHeader() {
                                         <Skeleton className="w-14 h-4 rounded" />
                                     ) : isAuthenticated && user ? (
                                         <>
-                                            <AccountSwitcher currentUser={{
-                                                name: user.name || user.nick || "Kullanıcı",
-                                                email: user.email || "",
-                                                picture: user.picture || user.profile?.picture || ""
-                                            }} />
+            
                                             <Link
                                                 href={`/yazar/${user.nick}`}
                                                 className="text-foreground hover:text-[#ff6600] transition-colors"
@@ -654,11 +650,16 @@ export function DictionaryHeader() {
                                             >
                                                 <Settings className="h-5 w-5" />
                                             </Link>
+                                            <AccountSwitcher currentUser={{
+                                                name: user.name || user.nick || "Kullanıcı",
+                                                email: user.email || "",
+                                                picture: user.picture || user.profile?.picture || ""
+                                            }} />
                                         </>
                                     ) : (
                                         <button
                                             onClick={() => handleFitmailAuth("login")}
-                                            className="flex items-center gap-1.5 px-3 py-1 text-sm font-medium text-[#ff6600] border border-[#ff6600]/20 rounded-full whitespace-nowrap"
+                                            className="flex items-center gap-1.5 px-3 py-1 text-sm font-medium text-[#ff6600] whitespace-nowrap"
                                         >
                                             <User className="h-3.5 w-3.5" />
                                             giriş yap
