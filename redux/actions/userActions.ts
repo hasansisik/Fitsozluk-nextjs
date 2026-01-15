@@ -306,9 +306,10 @@ export const verifyOAuthToken = createAsyncThunk(
         hasPicture: !!data.picture
       });
 
-      // Now fetch user data from Fitsözlük backend after Fitmail verification to get updated picture
+      // Now fetch user data from Fitsözlük backend to get updated picture
       console.log('[verifyOAuthToken] Fetching user data from Fitsözlük backend...');
       const server = process.env.NEXT_PUBLIC_API_URL;
+      console.log('[verifyOAuthToken] Backend URL:', server);
       try {
         const backendResponse = await axios.get(`${server}/auth/me`, {
           headers: {
@@ -316,11 +317,24 @@ export const verifyOAuthToken = createAsyncThunk(
           }
         });
 
+        console.log('[verifyOAuthToken] Backend response status:', backendResponse.status);
+        console.log('[verifyOAuthToken] Backend response data:', {
+          hasUser: !!backendResponse.data?.user,
+          user: backendResponse.data?.user ? {
+            _id: backendResponse.data.user._id,
+            email: backendResponse.data.user.email,
+            nick: backendResponse.data.user.nick,
+            picture: backendResponse.data.user.picture,
+            hasPicture: !!backendResponse.data.user.picture
+          } : null
+        });
+
         if (backendResponse.data && backendResponse.data.user) {
           const backendUser = backendResponse.data.user;
           console.log('[verifyOAuthToken] Backend user data:', {
             email: backendUser.email,
-            hasPicture: !!backendUser.picture
+            hasPicture: !!backendUser.picture,
+            pictureUrl: backendUser.picture
           });
 
           // Use backend user data (which has the updated picture from fitmailAuth)
@@ -344,11 +358,17 @@ export const verifyOAuthToken = createAsyncThunk(
           localStorage.setItem("user", JSON.stringify(user));
           document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
 
-          console.log('[verifyOAuthToken] Success! Returning backend user with updated picture.');
+          console.log('[verifyOAuthToken] Success! Returning backend user with picture:', user.picture);
           return user;
+        } else {
+          console.warn('[verifyOAuthToken] Backend response missing user data');
         }
       } catch (backendError: any) {
-        console.warn('[verifyOAuthToken] Backend fetch failed, falling back to Fitmail data:', backendError.message);
+        console.error('[verifyOAuthToken] Backend fetch failed:', {
+          message: backendError.message,
+          status: backendError.response?.status,
+          data: backendError.response?.data
+        });
       }
 
       // Fallback to Fitmail data if backend fails or doesn't return user
