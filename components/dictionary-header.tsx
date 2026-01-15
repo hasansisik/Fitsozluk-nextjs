@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getFeaturedMenus } from "@/redux/actions/menuActions"
 import AccountSwitcher from "@/components/AccountSwitcher"
 import { oauthConfig, endpoints } from "@/config"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function DictionaryHeader() {
     const router = useRouter()
@@ -37,6 +38,7 @@ export function DictionaryHeader() {
     const settingsMenuRef = useRef<HTMLDivElement>(null)
     const moreTopicsRef = useRef<HTMLDivElement>(null)
     const searchTimeout = useRef<any>(null)
+    const [isInitialLoading, setIsInitialLoading] = useState(true)
 
     // Get current category from URL to preserve it during search
     const [currentCategory, setCurrentCategory] = useState<string>("gündem")
@@ -61,7 +63,11 @@ export function DictionaryHeader() {
         // Load user from token if exists
         const token = localStorage.getItem("accessToken")
         if (token && !isAuthenticated) {
-            dispatch(loadUser())
+            dispatch(loadUser()).finally(() => {
+                setIsInitialLoading(false)
+            })
+        } else {
+            setIsInitialLoading(false)
         }
 
         // Load menus and topics from backend
@@ -533,10 +539,10 @@ export function DictionaryHeader() {
 
                         {/* User Actions - Desktop Only */}
                         <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0 min-w-[150px] justify-end">
-                            {loading ? (
+                            {(loading || isInitialLoading) ? (
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-4 bg-gray-200 animate-pulse rounded"></div>
-                                    <div className="w-20 h-9 bg-gray-200 animate-pulse rounded-md"></div>
+                                    <Skeleton className="w-14 h-4 rounded" />
+                                    <Skeleton className="w-20 h-9 rounded-md" />
                                 </div>
                             ) : isAuthenticated && user && (user.nick || user.name) ? (
                                 <>
@@ -561,20 +567,13 @@ export function DictionaryHeader() {
                                     </Link>
                                 </>
                             ) : (
-                                <div className="flex items-center gap-4">
-                                    <button
-                                        onClick={() => handleFitmailAuth("login")}
-                                        className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors"
-                                    >
-                                        giriş yap
-                                    </button>
-                                    <button
-                                        onClick={() => handleFitmailAuth("register")}
-                                        className="text-sm font-medium px-4 py-2 bg-[#ffa500] text-white rounded-md hover:bg-[#ff8c00] transition-colors"
-                                    >
-                                        kayıt ol
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={() => handleFitmailAuth("login")}
+                                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#ff6600] border border-[#ff6600]/20 rounded-full hover:bg-[#ff6600]/5 hover:border-[#ff6600] transition-all"
+                                >
+                                    <User className="h-4 w-4" />
+                                    giriş yap
+                                </button>
                             )}
                         </div>
                     </div>
@@ -632,8 +631,8 @@ export function DictionaryHeader() {
 
                                 {/* Mobile User Actions - Visible only on mobile */}
                                 <div className="flex lg:hidden items-center space-x-4">
-                                    {loading ? (
-                                        <div className="w-14 h-4 bg-gray-200 animate-pulse rounded"></div>
+                                    {(loading || isInitialLoading) ? (
+                                        <Skeleton className="w-14 h-4 rounded" />
                                     ) : isAuthenticated && user ? (
                                         <>
                                             <AccountSwitcher currentUser={{
@@ -659,8 +658,9 @@ export function DictionaryHeader() {
                                     ) : (
                                         <button
                                             onClick={() => handleFitmailAuth("login")}
-                                            className="text-sm font-medium text-foreground hover:text-[#ff6600] transition-colors whitespace-nowrap"
+                                            className="flex items-center gap-1.5 px-3 py-1 text-sm font-medium text-[#ff6600] border border-[#ff6600]/20 rounded-full whitespace-nowrap"
                                         >
+                                            <User className="h-3.5 w-3.5" />
                                             giriş yap
                                         </button>
                                     )}

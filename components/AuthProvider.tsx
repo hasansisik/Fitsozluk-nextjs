@@ -23,63 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 try {
                     await dispatch(verifyOAuthToken()).unwrap();
                 } catch (error) {
-                    // Token invalid, try silent SSO
-                    if (!silentSSOChecked && !pathname?.includes('/auth/callback')) {
-                        await trySilentSSO();
-                    } else {
-                        dispatch(setAuthLoading(false));
-                    }
+                    dispatch(setAuthLoading(false));
                 }
             } else {
-                // No token - try silent SSO
-                if (!silentSSOChecked && !pathname?.includes('/auth/callback')) {
-                    await trySilentSSO();
-                } else {
-                    dispatch(setAuthLoading(false));
-                }
-            }
-        };
-
-        const trySilentSSO = async () => {
-            try {
-                // Mark that we've attempted silent SSO this session
-                sessionStorage.setItem('silentSSOChecked', 'true');
-
-                // Generate state for CSRF protection
-                const state = Math.random().toString(36).substring(7);
-                localStorage.setItem('oauth_state', state);
-
-                // Import config
-                const { endpoints, oauthConfig } = await import('@/config');
-
-                // Build OAuth URL with prompt=none for silent authentication
-                const params = new URLSearchParams({
-                    client_id: oauthConfig.clientId,
-                    redirect_uri: oauthConfig.redirectUri,
-                    response_type: 'code',
-                    scope: oauthConfig.scope,
-                    state: state,
-                    prompt: 'none' // Silent mode - don't show login UI
-                });
-
-                const authUrl = `${endpoints.oauth.authorize}?${params}`;
-
-                // Create hidden iframe for background check
-                const iframe = document.createElement('iframe');
-                iframe.id = 'silent-sso-iframe';
-                iframe.style.display = 'none';
-                iframe.src = authUrl;
-                document.body.appendChild(iframe);
-
-                // Cleanup iframe and stop loading after some time
-                setTimeout(() => {
-                    const el = document.getElementById('silent-sso-iframe');
-                    if (el) el.remove();
-                    dispatch(setAuthLoading(false));
-                }, 10000); // 10 seconds timeout for silent SSO check
-
-            } catch (error) {
-                console.error('[Silent SSO] Error:', error);
                 dispatch(setAuthLoading(false));
             }
         };
