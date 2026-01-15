@@ -566,7 +566,7 @@ export function DictionaryHeader() {
                             ) : (
                                 <button
                                     onClick={() => handleFitmailAuth("login")}
-                                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#ff6600] border border-[#ff6600]/20 rounded-full hover:bg-[#ff6600]/5 hover:border-[#ff6600] transition-all"
+                                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#ff6600] rounded-full hover:bg-[#ff6600]/5 transition-all"
                                 >
                                     <User className="h-4 w-4" />
                                     giriş yap
