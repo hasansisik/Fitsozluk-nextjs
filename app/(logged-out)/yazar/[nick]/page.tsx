@@ -24,58 +24,41 @@ export default function UserProfilePage({ params }: PageProps) {
     const [fetchedUser, setFetchedUser] = useState<any>(null)
     const [userLoading, setUserLoading] = useState(true)
     const [isBlockedProfile, setIsBlockedProfile] = useState(false)
+    const [isInitialAuthLoading, setIsInitialAuthLoading] = useState(true)
+
     const dispatch = useAppDispatch()
     const { user, isAuthenticated, loading } = useAppSelector((state) => state.user)
 
-    // Load user data on mount if authenticated
-    useEffect(() => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
-        if (token) {
-            // Always load fresh user data to get updated bio
-            dispatch(loadUser())
-        }
-    }, [])
-
+    // 1. Initial mounting and params resolution
     useEffect(() => {
         params.then(({ nick: nickParam }) => {
-            setNick(nickParam)
-
-            // Check if viewing own profile
-            if (isAuthenticated && user) {
-                const currentUserNick = user.nick?.toLowerCase()
-                setIsOwnProfile(currentUserNick === decodeURIComponent(nickParam).toLowerCase())
-            }
+            const decodedNick = decodeURIComponent(nickParam)
+            setNick(decodedNick)
         })
-    }, [params, isAuthenticated, user])
 
-    // Load note text from localStorage
+        const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
+        if (token && !isAuthenticated) {
+            dispatch(loadUser())
+        }
+    }, [params, dispatch, isAuthenticated])
+
+    // 2. Auth state stability check
     useEffect(() => {
-        if (!nick) return
+        const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
+        if (!token || isAuthenticated || (!loading && token)) {
+            setIsInitialAuthLoading(false)
+        }
+    }, [isAuthenticated, loading])
 
-        const normalizedNick = decodeURIComponent(nick).toLowerCase()
-        const savedNote = localStorage.getItem(`note_${normalizedNick}`)
-        setNoteText(savedNote || "")
-    }, [nick])
-
-    const handleSaveNote = async () => {
-        if (!nick) return
-
-        const normalizedNick = decodeURIComponent(nick).toLowerCase()
-        localStorage.setItem(`note_${normalizedNick}`, noteText)
-
-        setShowSavedMessage(true)
-        setTimeout(() => setShowSavedMessage(false), 2000)
-    }
-
-    // Fetch user data from backend
+    // 3. User Data Fetching - Run only when nick is stable
     useEffect(() => {
+        if (!nick || isInitialAuthLoading) return
+
         const fetchUserData = async () => {
-            if (!nick) return
-
             setUserLoading(true)
-            const normalizedNick = decodeURIComponent(nick).toLowerCase()
+            const normalizedNick = nick.toLowerCase()
 
-            // 1. Check if viewing own profile
+            // A. Check if viewing own profile (fast path)
             if (isAuthenticated && user && user.nick?.toLowerCase() === normalizedNick) {
                 setFetchedUser({
                     id: user._id || "1",
@@ -91,16 +74,16 @@ export default function UserProfilePage({ params }: PageProps) {
                     joinDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }) : "yeni",
                     bio: user.bio || "",
                     title: user.title,
-                    entries: []
                 })
                 setUserLoading(false)
+                setIsOwnProfile(true)
                 return
             }
 
-            // 2. Try to fetch from backend
+            // B. Fetch from backend
             try {
                 const { getUserByNick } = await import('@/redux/actions/userActions')
-                const result = await dispatch(getUserByNick(decodeURIComponent(nick))).unwrap()
+                const result = await dispatch(getUserByNick(nick)).unwrap()
 
                 setFetchedUser({
                     id: result._id,
@@ -116,66 +99,57 @@ export default function UserProfilePage({ params }: PageProps) {
                     joinDate: result.createdAt ? new Date(result.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }) : "yeni",
                     bio: result.bio || "",
                     title: result.title,
-                    entries: []
                 })
+                setIsOwnProfile(isAuthenticated && user && user.nick?.toLowerCase() === result.nick?.toLowerCase() || false)
             } catch (error: any) {
                 console.error("Error fetching user:", error)
-
                 const errorStr = String(error).toUpperCase();
                 if (errorStr.includes("ENGELLEDI") || errorStr.includes("BLOCK") || errorStr.includes("FORBIDDEN") || errorStr.includes("403")) {
                     setIsBlockedProfile(true)
-                    setUserLoading(false)
-                    return
-                }
-
-                // 3. Fallback to mock data
-                const mockUser = usersData.find(u => u.nick.toLowerCase() === normalizedNick)
-                if (mockUser) {
-                    setFetchedUser({
-                        ...mockUser,
-                        picture: mockUser.avatar
-                    })
                 } else {
-                    setFetchedUser(null)
+                    // Fallback to mock/null
+                    const mockUser = usersData.find(u => u.nick.toLowerCase() === normalizedNick)
+                    if (mockUser) setFetchedUser({ ...mockUser, picture: mockUser.avatar })
                 }
+            } finally {
+                setUserLoading(false)
             }
-            setUserLoading(false)
         }
 
         fetchUserData()
-    }, [nick, isAuthenticated, user, dispatch])
+    }, [nick, isInitialAuthLoading, dispatch, isAuthenticated, !!user])
 
-    // 4. Create user data - Memoized to prevent re-calculations
-    const userData = useMemo(() => {
-        return fetchedUser
-    }, [fetchedUser])
-
-    // Update document title when user data changes
+    // 4. Persistence and Metadata
     useEffect(() => {
-        if (userData && userData.nick) {
-            document.title = `@${userData.nick} - fitsözlük`
+        if (!nick) return
+        const normalizedNick = nick.toLowerCase()
+        setNoteText(localStorage.getItem(`note_${normalizedNick}`) || "")
+        if (fetchedUser?.nick) {
+            document.title = `@${fetchedUser.nick} - fitsözlük`
         }
-    }, [userData])
+    }, [nick, fetchedUser])
 
-    // 5. Detect if we are waiting for authentication (refreshing the page)
-    const [isInitialAuthLoading, setIsInitialAuthLoading] = useState(true)
+    const handleSaveNote = async () => {
+        if (!nick) return
+        localStorage.setItem(`note_${nick.toLowerCase()}`, noteText)
+        setShowSavedMessage(true)
+        setTimeout(() => setShowSavedMessage(false), 2000)
+    }
 
-    useEffect(() => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null
-        if (!token || isAuthenticated || (!loading && token)) {
-            setIsInitialAuthLoading(false)
-        }
-    }, [isAuthenticated, loading])
+    const userData = fetchedUser
 
-    // FINAL RENDER LOGIC - Early returns only AFTER all hooks
-    // If user is blocked, show warning
+
+    // FINAL RENDER LOGIC
     const renderContent = () => {
-        if (loading || !nick || isInitialAuthLoading || userLoading) {
+        // If still initial loading or fetching basic page info
+        if (!nick || isInitialAuthLoading || (userLoading && !userData)) {
             return (
-                <UserProfile
-                    userData={userData}
-                    isLoading={true}
-                />
+                <main className="flex-1 w-full lg:max-w-4xl lg:mx-auto bg-white">
+                    <UserProfile
+                        userData={null}
+                        isLoading={true}
+                    />
+                </main>
             )
         }
 
@@ -199,7 +173,7 @@ export default function UserProfilePage({ params }: PageProps) {
             )
         }
 
-        if (!userData) {
+        if (!userData && !userLoading) {
             notFound()
         }
 
@@ -211,7 +185,7 @@ export default function UserProfilePage({ params }: PageProps) {
                     setNoteText={setNoteText}
                     handleSaveNote={handleSaveNote}
                     showSavedMessage={showSavedMessage}
-                    isLoading={false}
+                    isLoading={userLoading}
                 />
             </main>
         )

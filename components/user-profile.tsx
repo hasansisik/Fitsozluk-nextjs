@@ -301,9 +301,9 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                             <Skeleton className="h-10 w-10 rounded-full" />
                         </div>
                         <div className="flex gap-4 mb-8">
-                            <Skeleton className="h-4 w-16" />
-                            <Skeleton className="h-4 w-16" />
-                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-4 w-20" />
                         </div>
                         <div className="space-y-2 mb-8">
                             <Skeleton className="h-4 w-3/4" />
@@ -328,12 +328,21 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                     </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-8">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="space-y-3">
-                            <Skeleton className="h-4 w-1/2" />
-                            <Skeleton className="h-20 w-full" />
-                            <Skeleton className="h-4 w-1/4" />
+                        <div key={i} className="border-b border-border/40 pb-8 last:border-0">
+                            <div className="mb-4">
+                                <Skeleton className="h-6 w-1/3 mb-4" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-5/6" />
+                                    <Skeleton className="h-4 w-2/3" />
+                                </div>
+                                <div className="flex items-center gap-3 mt-4">
+                                    <Skeleton className="h-8 w-8 rounded-full" />
+                                    <Skeleton className="h-3 w-24" />
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -767,8 +776,23 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
 
             <div className="px-6 pb-12">
                 {loadingEntries ? (
-                    <div className="flex justify-center py-12">
-                        <div className="w-8 h-8 border-4 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
+                    <div className="space-y-8">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="border-b border-border/40 pb-8 last:border-0">
+                                <div className="mb-4">
+                                    <Skeleton className="h-6 w-1/3 mb-4" />
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 w-full" />
+                                        <Skeleton className="h-4 w-5/6" />
+                                        <Skeleton className="h-4 w-2/3" />
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-4">
+                                        <Skeleton className="h-8 w-8 rounded-full" />
+                                        <Skeleton className="h-3 w-24" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : activeTab === "takip edilen başlıklar" ? (
                     <div className="space-y-8">

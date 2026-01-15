@@ -6,6 +6,7 @@ import { useAppDispatch } from "@/redux/hook"
 import { getTrendingTopics, getDebeTopics } from "@/redux/actions/topicActions"
 import { Loader2, Calendar, Settings } from "lucide-react"
 import { useSearchParams, usePathname } from "next/navigation"
+import { Skeleton } from "./ui/skeleton"
 
 interface TopicsSidebarProps {
     isMobile?: boolean
@@ -95,8 +96,13 @@ function TopicsSidebarContent({ isMobile, onClose }: TopicsSidebarProps) {
                 </div>
 
                 {sidebarLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-5 w-5 animate-spin text-[#ff6600]" />
+                    <div className="space-y-3">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                            <div key={i} className="flex items-center justify-between py-2 pr-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-3 w-6" />
+                            </div>
+                        ))}
                     </div>
                 ) : (
                     <ul className="space-y-3">
