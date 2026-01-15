@@ -655,7 +655,7 @@ export function DictionaryHeader() {
                                     );
                                 })}
 
-                                {/* Mobile User Actions - Visible only on mobile */}
+                                {/* Mobile User Actions - Visible only on mobile (Profile and Settings icons only) */}
                                 <div className="flex lg:hidden items-center space-x-2 flex-shrink-0">
                                     {(loading || isInitialLoading) ? (
                                         <Skeleton className="w-14 h-4 rounded" />
@@ -676,13 +676,6 @@ export function DictionaryHeader() {
                                             >
                                                 <Settings className="h-5 w-5" />
                                             </Link>
-                                            <div className="flex-shrink-0">
-                                                <AccountSwitcher currentUser={{
-                                                    name: user.name || user.nick || "Kullanıcı",
-                                                    email: user.email || "",
-                                                    picture: user.picture || user.profile?.picture || ""
-                                                }} />
-                                            </div>
                                         </>
                                     ) : (
                                         <button
@@ -696,6 +689,17 @@ export function DictionaryHeader() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* AccountSwitcher - Outside scrollable to prevent clipping (Mobile only) */}
+                        {isAuthenticated && user && (
+                            <div className="flex lg:hidden items-center ml-2 flex-shrink-0">
+                                <AccountSwitcher currentUser={{
+                                    name: user.name || user.nick || "Kullanıcı",
+                                    email: user.email || "",
+                                    picture: user.picture || user.profile?.picture || ""
+                                }} />
+                            </div>
+                        )}
 
                         {/* More Topics Dropdown - Outside scrollable to prevent clipping */}
                         {additionalMenus.length > 0 && (
