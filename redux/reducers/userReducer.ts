@@ -27,6 +27,7 @@ import {
   logoutAllSessions,
   setAuthLoading
 } from "../actions/userActions";
+import { assignBadgeToUser, removeBadgeFromUser } from "../actions/badgeActions";
 
 interface UserState {
   users: any[];
@@ -345,16 +346,7 @@ export const userReducer = createReducer(initialState, (builder) => {
         // Initialize if not exists
         if (!state.user.blockedUsers) state.user.blockedUsers = [];
 
-        // Add to blockedUsers if not already there (though backend handles duplicates, frontend state should too)
-        // Check if we have objects or IDs. If objects, we might just push the ID for now or reload.
-        // Since we don't have the full user object in payload, just pushing ID might be risky if we expect objects.
         // Safest is to rely on loadUser which we trigger, BUT for immediate feedback:
-        // Actually, let's just push the ID. The interface expects objects but `any` allows anything.
-        // However, the Settings page will loop over blockedUsers. If some are IDs and some are objects, it breaks.
-        // BETTER STRATEGY: Do nothing here, rely on loadUser dispatch from the component, OR
-        // push a dummy object?
-        // Let's NOT update state here since we don't have the full user object to push to blockedUsers array.
-        // But we DO need to remove from following.
         if (state.user.following) {
           state.user.following = state.user.following.filter((id: string) => id !== action.payload.id);
         }
@@ -401,6 +393,23 @@ export const userReducer = createReducer(initialState, (builder) => {
       state.isAuthenticated = false;
       state.isVerified = false;
       state.user = null;
+    })
+    // Badge Assignment/Removal (Updates allUsers list for immediate feedback)
+    .addCase(assignBadgeToUser.fulfilled, (state, action) => {
+      if (action.payload.user && action.payload.user._id) {
+        const index = state.allUsers.findIndex(u => u._id === action.payload.user._id);
+        if (index !== -1) {
+          state.allUsers[index].badges = action.payload.user.badges;
+        }
+      }
+    })
+    .addCase(removeBadgeFromUser.fulfilled, (state, action) => {
+      if (action.payload.user && action.payload.user._id) {
+        const index = state.allUsers.findIndex(u => u._id === action.payload.user._id);
+        if (index !== -1) {
+          state.allUsers[index].badges = action.payload.user.badges;
+        }
+      }
     })
     // Clear Error
     .addCase(clearError.fulfilled, (state) => {

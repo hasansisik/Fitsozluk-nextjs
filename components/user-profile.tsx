@@ -522,13 +522,13 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                         </div>
 
                         {/* 6. Actions */}
-                        <div className="flex flex-wrap items-center gap-3 mb-8">
+                        <div className="flex flex-wrap items-center gap-2 mb-8">
                             {!isOwnProfile && (
                                 <button
                                     onClick={handleFollow}
-                                    className={`h-11 px-10 rounded-full text-sm font-bold transition-all shadow-sm ${isFollowing
+                                    className={`h-10 px-8 rounded-full text-sm font-bold transition-all shadow-sm ${isFollowing
                                         ? "bg-secondary text-foreground hover:bg-secondary/80"
-                                        : "bg-[#81c744] text-white hover:bg-[#72b33a]"
+                                        : "bg-[#ff6600] text-white hover:bg-[#e65c00]"
                                         }`}
                                 >
                                     {isFollowing ? "takipten vazgeç" : "takip et"}
@@ -536,24 +536,15 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                             )}
 
                             <div className="flex items-center gap-2">
-                                {!isOwnProfile && (
-                                    <button
-                                        className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
-                                        title="Mesaj Gönder"
-                                    >
-                                        <MessageSquare className="w-5 h-5" />
-                                    </button>
-                                )}
-
                                 <div className="relative share-menu-container">
                                     <button
                                         onClick={() => setShowShareMenu(!showShareMenu)}
-                                        className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                        className="w-10 h-10 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
                                     >
-                                        <Share2 className="w-5 h-5" />
+                                        <Share2 className="w-4.5 h-4.5" />
                                     </button>
                                     {showShareMenu && (
-                                        <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg py-2 min-w-[180px] z-50">
+                                        <div className="absolute left-0 top-full mt-2 bg-white border border-border rounded-md shadow-lg py-1 min-w-[160px] z-50">
                                             <button
                                                 onClick={() => {
                                                     const url = window.location.href;
@@ -561,10 +552,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                                     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
                                                     setShowShareMenu(false);
                                                 }}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2"
                                             >
-                                                <Twitter className="h-4 w-4" />
-                                                Twitter'da Paylaş
+                                                <Twitter className="h-3.5 w-3.5" />
+                                                X'te paylaş
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -572,10 +563,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
                                                     setShowShareMenu(false);
                                                 }}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2"
                                             >
-                                                <Facebook className="h-4 w-4" />
-                                                Facebook'ta Paylaş
+                                                <Facebook className="h-3.5 w-3.5" />
+                                                Facebook'ta paylaş
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -584,10 +575,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                                     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
                                                     setShowShareMenu(false);
                                                 }}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2"
                                             >
-                                                <MessageCircle className="h-4 w-4" />
-                                                WhatsApp'ta Paylaş
+                                                <MessageCircle className="h-3.5 w-3.5" />
+                                                Whatsapp'ta paylaş
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -596,10 +587,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                                     window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
                                                     setShowShareMenu(false);
                                                 }}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2"
                                             >
-                                                <Send className="h-4 w-4" />
-                                                Telegram'da Paylaş
+                                                <Send className="h-3.5 w-3.5" />
+                                                Telegram'da paylaş
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -608,10 +599,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                                     alert('Link kopyalandı!');
                                                     setShowShareMenu(false);
                                                 }}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary transition-colors flex items-center gap-2"
                                             >
-                                                <Copy className="h-4 w-4" />
-                                                Linki Kopyala
+                                                <Copy className="h-3.5 w-3.5" />
+                                                Linki kopyala
                                             </button>
                                         </div>
                                     )}
@@ -620,18 +611,18 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                 {isOwnProfile ? (
                                     <button
                                         onClick={() => setShowBioEdit(true)}
-                                        className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                        className="w-10 h-10 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
                                         title="Biyografiyi Düzenle"
                                     >
-                                        <Pencil className="w-5 h-5" />
+                                        <Pencil className="w-4.5 h-4.5" />
                                     </button>
                                 ) : (
                                     <div className="relative more-menu-container">
                                         <button
                                             onClick={() => setShowMoreMenu(!showMoreMenu)}
-                                            className="w-11 h-11 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                            className="w-10 h-10 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
                                         >
-                                            <MoreHorizontal className="w-5 h-5" />
+                                            <MoreHorizontal className="w-4.5 h-4.5" />
                                         </button>
                                         {showMoreMenu && (
                                             <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-lg shadow-lg py-2 z-50 w-48">

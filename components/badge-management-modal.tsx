@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import {
     Dialog,
     DialogContent,
@@ -8,6 +8,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
 // Badge Modal Component with Switch Design
 export function BadgeManagementModal({
@@ -24,6 +25,24 @@ export function BadgeManagementModal({
     itemsPerPage
 }: any) {
     const selectedUser = allUsers?.find((u: any) => u._id === selectedUserId)
+    const [loadingBadgeIds, setLoadingBadgeIds] = useState<Record<string, boolean>>({})
+
+    // Local state for optimistic updates
+    const [optimisticBadges, setOptimisticBadges] = useState<Record<string, boolean>>({})
+
+    // Sync optimistic state when user or badges change
+    useEffect(() => {
+        if (open && selectedUser) {
+            const initialMap: Record<string, boolean> = {}
+            const userBadges = selectedUser.badges || []
+            badges.forEach((badge: any) => {
+                initialMap[badge._id] = userBadges.some((b: any) =>
+                    (typeof b === 'string' ? b : b._id) === badge._id
+                )
+            })
+            setOptimisticBadges(initialMap)
+        }
+    }, [open, selectedUserId, selectedUser?.badges?.length])
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -42,10 +61,38 @@ export function BadgeManagementModal({
                         </p>
                     ) : (
                         badges.map((badge: any) => {
-                            const userBadges = selectedUser?.badges || []
-                            const isAssigned = userBadges.some((b: any) =>
-                                (typeof b === 'string' ? b : b._id) === badge._id
-                            )
+                            const isAssigned = optimisticBadges[badge._id]
+                            const isLoading = loadingBadgeIds[badge._id]
+
+                            const handleToggle = async () => {
+                                if (isLoading) return
+
+                                // Optimistic change
+                                setOptimisticBadges(prev => ({ ...prev, [badge._id]: !isAssigned }))
+                                setLoadingBadgeIds(prev => ({ ...prev, [badge._id]: true }))
+
+                                try {
+                                    if (isAssigned) {
+                                        await dispatch(removeBadgeFromUser({
+                                            userId: selectedUser._id,
+                                            badgeId: badge._id
+                                        })).unwrap()
+                                    } else {
+                                        await dispatch(assignBadgeToUser({
+                                            userId: selectedUser._id,
+                                            badgeId: badge._id
+                                        })).unwrap()
+                                    }
+                                    // Soft refresh the list in background
+                                    dispatch(getAllUsers({ page: currentPage.toString(), limit: itemsPerPage.toString() }))
+                                } catch (error: any) {
+                                    // Revert on error
+                                    setOptimisticBadges(prev => ({ ...prev, [badge._id]: isAssigned }))
+                                    alert(error || "İşlem başarısız")
+                                } finally {
+                                    setLoadingBadgeIds(prev => ({ ...prev, [badge._id]: false }))
+                                }
+                            }
 
                             return (
                                 <div
@@ -69,27 +116,16 @@ export function BadgeManagementModal({
                                     </div>
 
                                     <button
-                                        onClick={async () => {
-                                            try {
-                                                if (isAssigned) {
-                                                    await dispatch(removeBadgeFromUser({
-                                                        userId: selectedUser._id,
-                                                        badgeId: badge._id
-                                                    })).unwrap()
-                                                } else {
-                                                    await dispatch(assignBadgeToUser({
-                                                        userId: selectedUser._id,
-                                                        badgeId: badge._id
-                                                    })).unwrap()
-                                                }
-                                                dispatch(getAllUsers({ page: currentPage.toString(), limit: itemsPerPage.toString() }))
-                                            } catch (error: any) {
-                                                alert(error || "İşlem başarısız")
-                                            }
-                                        }}
+                                        onClick={handleToggle}
+                                        disabled={isLoading}
                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:ring-offset-2 flex-shrink-0 ${isAssigned ? "bg-[#ff6600]" : "bg-gray-200"
-                                            }`}
+                                            } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
                                     >
+                                        {isLoading && (
+                                            <span className={`absolute inset-0 flex items-center justify-center`}>
+                                                <Loader2 className="w-3 h-3 animate-spin text-white" />
+                                            </span>
+                                        )}
                                         <span
                                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAssigned ? "translate-x-6" : "translate-x-1"
                                                 }`}
