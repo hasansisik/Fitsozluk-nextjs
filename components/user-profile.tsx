@@ -87,6 +87,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [showPhotoMenu, setShowPhotoMenu] = useState(false)
     const [bioText, setBioText] = useState(userData?.bio || "")
+    const [displayBio, setDisplayBio] = useState(userData?.bio || "")
     const [entries, setEntries] = useState<any[]>([])
     const [followedTopics, setFollowedTopics] = useState<any[]>([])
     const [loadingEntries, setLoadingEntries] = useState(false)
@@ -161,6 +162,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 email: user.email,
                 bio: bioText
             })).unwrap()
+            setDisplayBio(bioText)
             setShowBioEdit(false)
         } catch (error) {
             console.error("Bio update error:", error)
@@ -245,7 +247,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 followingCount: userData.stats?.followingCount || 0
             })
 
-            if (userData.bio) setBioText(userData.bio)
+            if (userData.bio) {
+                setBioText(userData.bio)
+                setDisplayBio(userData.bio)
+            }
         }
 
         const handleClickOutside = (event: MouseEvent) => {
@@ -599,8 +604,8 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                         </div>
 
                         {/* Bio (Optional, keeping it where it fits best) */}
-                        {userData.bio && (
-                            <p className="text-sm text-foreground mb-2 whitespace-pre-wrap">{userData.bio}</p>
+                        {displayBio && (
+                            <p className="text-sm text-foreground mb-2 whitespace-pre-wrap">{displayBio}</p>
                         )}
 
                         {/* 5. Join Date */}

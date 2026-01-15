@@ -1,6 +1,7 @@
 import { useState, useRef } from "react"
 import { useAppDispatch } from "@/redux/hook"
 import { createEntry } from "@/redux/actions/entryActions"
+import { createTopic } from "@/redux/actions/topicActions"
 import { Loader2 } from "lucide-react"
 
 interface EntryFormProps {
@@ -8,9 +9,20 @@ interface EntryFormProps {
     topicId?: string
     remainingEntries?: number
     onEntrySubmit?: () => void
+    mode?: 'create-entry' | 'create-topic'
+    newTopicTitle?: string
+    onTopicCreate?: (slug: string) => void
 }
 
-export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0, onEntrySubmit }: EntryFormProps) {
+export function EntryForm({
+    topicTitle = "",
+    topicId = "",
+    remainingEntries = 0,
+    onEntrySubmit,
+    mode = 'create-entry',
+    newTopicTitle = "",
+    onTopicCreate
+}: EntryFormProps) {
     const [content, setContent] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -127,26 +139,60 @@ export function EntryForm({ topicTitle = "", topicId = "", remainingEntries = 0,
             return
         }
 
-        if (!topicId) {
+        if (mode === 'create-entry' && !topicId) {
             alert("Başlık bilgisi bulunamadı!")
+            return
+        }
+
+        if (mode === 'create-topic' && !newTopicTitle) {
+            alert("Başlık ismi bulunamadı!")
             return
         }
 
         setIsSubmitting(true)
         try {
-            const result = await dispatch(createEntry({
-                content: content.trim(),
-                topic: topicId
-            })).unwrap()
+            if (mode === 'create-topic') {
+                // Create Topic Logic
+                // We need slugify logic here or let backend handle it. Usually backend handles it or we send a generated one.
+                // Assuming createTopicPayload has { title, slug, firstEntry, ... }
+                // Let's generate a simple slug for frontend or rely on backend. 
+                // Fitsozluk backend likely needs slug. Let's create a basic one.
+                const slug = newTopicTitle
+                    .toLowerCase()
+                    .replace(/ /g, '-')
+                    .replace(/[^\w-]+/g, '')
 
-            if (result) {
-                setContent("")
-                if (onEntrySubmit) {
-                    onEntrySubmit()
+                const result = await dispatch(createTopic({
+                    title: newTopicTitle,
+                    slug: slug,
+                    firstEntry: content.trim()
+                })).unwrap()
+
+                if (result) {
+                    setContent("")
+                    // Result should contain the created topic/slug. 
+                    // createTopic action returns { message, topic: {...} } or similar.
+                    if (onTopicCreate && result.topic?.slug) {
+                        onTopicCreate(result.topic.slug);
+                    }
+                }
+
+            } else {
+                // Create Entry Logic
+                const result = await dispatch(createEntry({
+                    content: content.trim(),
+                    topic: topicId
+                })).unwrap()
+
+                if (result) {
+                    setContent("")
+                    if (onEntrySubmit) {
+                        onEntrySubmit()
+                    }
                 }
             }
         } catch (error: any) {
-            alert(error || "Entry gönderilirken bir hata oluştu.")
+            alert(error || "İşlem sırasında bir hata oluştu.")
         } finally {
             setIsSubmitting(false)
         }

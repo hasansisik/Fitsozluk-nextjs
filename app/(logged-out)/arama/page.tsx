@@ -1,6 +1,6 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
@@ -10,9 +10,11 @@ import { searchUsers } from "@/redux/actions/userActions"
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
+import { EntryForm } from "@/components/entry-form"
 
 function SearchContent() {
     const searchParams = useSearchParams()
+    const router = useRouter()
     const dispatch = useAppDispatch()
     const { isAuthenticated } = useAppSelector((state) => state.user)
     const query = searchParams.get("q") || ""
@@ -176,15 +178,27 @@ function SearchContent() {
                                         {/* Create Topic Button - Show IF NO EXACT MATCH IN ENTIRE DB */}
                                         {query.trim().length >= 2 && !exactMatchExists && (
                                             <div className="bg-white py-6 mb-6 text-center">
-                                                <p className="text-sm text-muted-foreground">
+                                                <p className="text-sm text-muted-foreground mb-4">
                                                     <span className="font-semibold text-foreground">"{query}"</span> başlığı henüz oluşturulmamış
                                                 </p>
-                                                {isAuthenticated && (
+                                                {isAuthenticated ? (
+                                                    <div className="text-left bg-gray-50 p-4 rounded-lg border border-border mt-4">
+                                                        <h3 className="text-sm font-semibold mb-3">"{query}" başlığını oluştur ve ilk entry'yi gir:</h3>
+                                                        <EntryForm
+                                                            topicTitle={query}
+                                                            mode="create-topic"
+                                                            newTopicTitle={query}
+                                                            onTopicCreate={(slug) => {
+                                                                router.push(`/${slug}`)
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ) : (
                                                     <Link
-                                                        href={`/baslik-olustur?title=${encodeURIComponent(query)}`}
+                                                        href={`/auth/login`}
                                                         className="mt-4 inline-block px-6 py-3 bg-[#ff6600] text-white rounded-lg hover:bg-[#e65c00] transition-colors font-medium"
                                                     >
-                                                        Bu başlığı oluştur
+                                                        Giriş yap ve başlığı oluştur
                                                     </Link>
                                                 )}
                                             </div>
