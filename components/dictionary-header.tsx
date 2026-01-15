@@ -320,7 +320,7 @@ export function DictionaryHeader() {
 
 
                         {/* Logo */}
-                        <Link href="/" className="mr-2 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
+                        <Link href="/" className="mr-4 lg:mr-6 flex items-center space-x-2 flex-shrink-0">
                             <div className="flex items-center">
                                 {/* Desktop Logo */}
                                 <Image
@@ -344,7 +344,7 @@ export function DictionaryHeader() {
                         </Link>
 
                         {/* Search Bar - Centered on desktop, flex-1 on mobile */}
-                        <div ref={searchRef} className="flex-1 lg:absolute lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-md px-2 lg:px-4">
+                        <div ref={searchRef} className="flex-1 lg:absolute lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-md lg:px-4">
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
                                 if (searchQuery.trim().length >= 2) {
@@ -424,7 +424,7 @@ export function DictionaryHeader() {
                                             <X className="h-3.5 w-3.5 text-muted-foreground" />
                                         </button>
                                     )}
-                                    <div ref={filterRef} className="absolute right-2 top-1/2 -translate-y-1/2">
+                                    <div ref={filterRef} className="absolute right-1 top-1/2 -translate-y-1/2">
                                         <button
                                             type="button"
                                             onClick={() => {
