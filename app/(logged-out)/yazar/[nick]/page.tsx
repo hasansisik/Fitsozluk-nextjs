@@ -82,7 +82,7 @@ export default function UserProfilePage({ params }: PageProps) {
                     nick: user.nick || nick,
                     displayName: user.nick || nick,
                     picture: user.picture || null,
-                    badges: [],
+                    badges: user.badges || [],
                     stats: {
                         entryCount: 0,
                         followerCount: user.followers?.length || 0,
@@ -107,7 +107,7 @@ export default function UserProfilePage({ params }: PageProps) {
                     nick: result.nick,
                     displayName: result.nick,
                     picture: result.picture || null,
-                    badges: [],
+                    badges: result.badges || [],
                     stats: {
                         entryCount: 0,
                         followerCount: result.followers?.length || 0,

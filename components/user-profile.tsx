@@ -468,7 +468,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                             )}
                         </div>
 
-                        <div className="flex gap-2 mb-6">
+                        <div className="flex gap-2 mb-3">
                             <div className={`text-white text-[11px] px-2.5 py-1 rounded-sm font-semibold uppercase tracking-wider ${userData.title?.toLowerCase() === 'admin' ? 'bg-[#9b59b6]' : // Purple
                                 userData.title?.toLowerCase() === 'moderatör' ? 'bg-[#e74c3c]' : // Red
                                     userData.title?.toLowerCase() === 'usta' ? 'bg-[#2ecc71]' : // Green
@@ -478,6 +478,27 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                                 {userData.title || 'çaylak'}
                             </div>
                         </div>
+
+                        {/* Badges */}
+                        {userData.badges && userData.badges.length > 0 && (
+                            <div className="flex gap-2 mb-6">
+                                {userData.badges.map((badge: any) => (
+                                    <div key={badge._id} className="relative group">
+                                        <img
+                                            src={badge.icon}
+                                            alt={badge.name}
+                                            className="w-8 h-8 rounded-full border-2 border-border hover:border-[#ff6600] transition-colors cursor-pointer"
+                                            title={badge.name}
+                                        />
+                                        {badge.description && (
+                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                                {badge.description}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <div className="flex gap-1.5 text-xs text-muted-foreground mb-2">
                             <span><strong className="text-foreground">{dynamicStats.entryCount}</strong> entry</span>

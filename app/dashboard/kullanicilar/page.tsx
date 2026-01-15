@@ -9,6 +9,7 @@ import {
     updateUserStatus,
     updateUserTitle,
 } from "@/redux/actions/userActions"
+import { getAllBadges, assignBadgeToUser, removeBadgeFromUser } from "@/redux/actions/badgeActions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -26,7 +27,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Trash2, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Trash2, Loader2, Search, ChevronLeft, ChevronRight, X, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface User {
@@ -37,11 +38,13 @@ interface User {
     status: string
     title: string
     createdAt: string
+    badges?: any[]
 }
 
 export default function KullanicilarPage() {
     const dispatch = useAppDispatch()
     const { allUsers, usersLoading, usersError, user: currentUser } = useAppSelector((state) => state.user)
+    const { badges } = useAppSelector((state) => state.badge)
     const [searchTerm, setSearchTerm] = useState("")
     const [roleFilter, setRoleFilter] = useState<string>("all")
     const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -51,6 +54,8 @@ export default function KullanicilarPage() {
     const [userToDelete, setUserToDelete] = useState<User | null>(null)
     const [pendingChanges, setPendingChanges] = useState<Record<string, { role?: string; status?: string; title?: string }>>({})
     const [isSaving, setIsSaving] = useState(false)
+    const [badgeModalOpen, setBadgeModalOpen] = useState(false)
+    const [selectedUserForBadge, setSelectedUserForBadge] = useState<User | null>(null)
 
     const itemsPerPage = 20
 
@@ -65,6 +70,16 @@ export default function KullanicilarPage() {
         if (statusFilter !== "all") params.status = statusFilter
 
         dispatch(getAllUsers(params))
+        dispatch(getAllBadges())
+
+        // Listen for badge modal events
+        const handleBadgeModal = (event: any) => {
+            setSelectedUserForBadge(event.detail)
+            setBadgeModalOpen(true)
+        }
+
+        window.addEventListener('openBadgeModal', handleBadgeModal)
+        return () => window.removeEventListener('openBadgeModal', handleBadgeModal)
     }, [dispatch, currentPage, searchTerm, roleFilter, statusFilter])
 
     const handleRoleChange = (userId: string, newRole: string) => {
@@ -375,7 +390,20 @@ export default function KullanicilarPage() {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="col-span-1 flex items-center justify-end">
+                                        <div className="col-span-1 flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-[#ff6600] hover:bg-[#ff6600]/10"
+                                                onClick={() => {
+                                                    // Open badge modal
+                                                    const event = new CustomEvent('openBadgeModal', { detail: user });
+                                                    window.dispatchEvent(event);
+                                                }}
+                                                title="Rozet Yönet"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>
+                                            </Button>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -442,6 +470,97 @@ export default function KullanicilarPage() {
                             className="bg-destructive hover:bg-destructive/90 text-white rounded-md"
                         >
                             Sil
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Badge Management Modal */}
+            <Dialog open={badgeModalOpen} onOpenChange={setBadgeModalOpen}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle>Rozet Yönetimi - {selectedUserForBadge?.nick}</DialogTitle>
+                        <DialogDescription>
+                            Kullanıcıya rozet ekleyin veya mevcut rozetleri kaldırın
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
+                        {/* User's Current Badges */}
+                        {selectedUserForBadge?.badges && selectedUserForBadge.badges.length > 0 && (
+                            <div>
+                                <h4 className="text-sm font-medium mb-2">Mevcut Rozetler</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedUserForBadge.badges.map((badge: any) => (
+                                        <div
+                                            key={badge._id}
+                                            className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-md"
+                                        >
+                                            <img
+                                                src={badge.icon}
+                                                alt={badge.name}
+                                                className="w-6 h-6 rounded-full"
+                                            />
+                                            <span className="text-sm">{badge.name}</span>
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        await dispatch(removeBadgeFromUser({
+                                                            userId: selectedUserForBadge._id,
+                                                            badgeId: badge._id
+                                                        })).unwrap()
+                                                        dispatch(getAllUsers({ page: currentPage.toString(), limit: itemsPerPage.toString() }))
+                                                    } catch (error: any) {
+                                                        alert(error || "Rozet kaldırılamadı")
+                                                    }
+                                                }}
+                                                className="ml-2 text-red-600 hover:text-red-700"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Available Badges */}
+                        <div>
+                            <h4 className="text-sm font-medium mb-2">Rozet Ekle</h4>
+                            <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto">
+                                {badges
+                                    .filter((badge: any) => !selectedUserForBadge?.badges?.some((b: any) => b._id === badge._id))
+                                    .map((badge: any) => (
+                                        <button
+                                            key={badge._id}
+                                            onClick={async () => {
+                                                try {
+                                                    await dispatch(assignBadgeToUser({
+                                                        userId: selectedUserForBadge!._id,
+                                                        badgeId: badge._id
+                                                    })).unwrap()
+                                                    dispatch(getAllUsers({ page: currentPage.toString(), limit: itemsPerPage.toString() }))
+                                                } catch (error: any) {
+                                                    alert(error || "Rozet eklenemedi")
+                                                }
+                                            }}
+                                            className="flex items-center gap-2 px-3 py-2 border border-border rounded-md hover:bg-secondary transition-colors"
+                                        >
+                                            <img
+                                                src={badge.icon}
+                                                alt={badge.name}
+                                                className="w-6 h-6 rounded-full"
+                                            />
+                                            <span className="text-sm">{badge.name}</span>
+                                        </button>
+                                    ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setBadgeModalOpen(false)}>
+                            Kapat
                         </Button>
                     </DialogFooter>
                 </DialogContent>
