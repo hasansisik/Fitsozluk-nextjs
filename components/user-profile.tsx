@@ -528,7 +528,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-2">
                     <div className="flex-1">
                         {/* Mobile: Nick + Picture in same row */}
-                        <div className="flex items-center justify-between md:block mb-4 md:mb-0">
+                        <div className="flex items-center justify-between md:block mb-2 md:mb-0">
                             <div className="flex-1">
                                 {/* 1. Nick */}
                                 <div className="flex items-center gap-3 mb-1">
