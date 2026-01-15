@@ -62,18 +62,31 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
         );
         const authUrl = `${fitmailApiUrl}?returnUrl=${callbackUrl}&source=fitsozluk`;
 
-        // Calculate popup position (centered)
+        // Calculate popup position (centered relative to current window)
         const width = 500;
-        const height = 600;
-        const left = window.screen.width / 2 - width / 2;
-        const top = window.screen.height / 2 - height / 2;
+        const height = 650;
 
-        // Open popup window
-        window.open(
-            authUrl,
+        // Fix for dual-screen monitors
+        const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+        const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+        const windowWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        const windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        const left = ((windowWidth / 2) - (width / 2)) + dualScreenLeft;
+        const top = ((windowHeight / 2) - (height / 2)) + dualScreenTop;
+
+        // Open empty window first to avoid 404 flash and focus issues
+        const popup = window.open(
+            "",
             "FitmailAuth",
             `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
         );
+
+        if (popup) {
+            popup.location.href = authUrl;
+            popup.focus();
+        }
     };
 
     return (
