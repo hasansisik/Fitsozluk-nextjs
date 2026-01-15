@@ -236,10 +236,8 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
             }
         }
 
-        // Initial fetch
+        // Initial sync of dynamic stats and bio
         if (userData?.id) {
-            fetchTabEntries()
-
             // Sync dynamic stats initial
             setDynamicStats({
                 entryCount: userData.stats?.entryCount || 0,
@@ -289,7 +287,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
 
     if (isLoading || !userData) {
         return (
-            <div className="w-full flex flex-col p-6 lg:p-10 pt-16">
+            <div className="w-full flex flex-col p-6 lg:p-10 pt-8">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -526,8 +524,8 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                 </div>
             )}
 
-            <div className="w-full flex flex-col p-6 lg:p-10 pt-16">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
+            <div className="w-full flex flex-col p-6 lg:p-10 pt-8">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-6">
                     <div className="flex-1">
                         {/* 1. Nick */}
                         <div className="flex items-center gap-3 mb-1">
@@ -596,7 +594,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                         </div>
 
                         {/* 6. Actions */}
-                        <div className="flex flex-wrap items-center gap-2 mb-8">
+                        <div className="flex flex-wrap items-center gap-2 mb-4">
                             {!isOwnProfile && (
                                 <button
                                     onClick={handleFollow}
