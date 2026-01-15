@@ -353,9 +353,17 @@ export const verifyOAuthToken = createAsyncThunk(
       return user;
     } catch (error: any) {
       console.error('[verifyOAuthToken] Error:', error.message, error.response?.status);
-      // Token invalid, clear it
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("user");
+
+      // Only clear token if it's actually invalid (401 Unauthorized)
+      // Don't clear on network errors or other temporary issues
+      if (error.response?.status === 401) {
+        console.log('[verifyOAuthToken] Token invalid (401), clearing...');
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+      } else {
+        console.log('[verifyOAuthToken] Non-401 error, keeping token for retry');
+      }
+
       return thunkAPI.rejectWithValue(
         error.response?.data?.error_description || 'Token verification failed'
       );

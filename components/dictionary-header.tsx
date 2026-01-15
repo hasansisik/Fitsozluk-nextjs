@@ -424,14 +424,14 @@ export function DictionaryHeader() {
                                             <X className="h-3.5 w-3.5 text-muted-foreground" />
                                         </button>
                                     )}
-                                    <div ref={filterRef} className="absolute right-1 top-1/2 -translate-y-1/2">
+                                    <div ref={filterRef} className="absolute right-1.5 top-1/2 -translate-y-1/2">
                                         <button
                                             type="button"
                                             onClick={() => {
                                                 setShowFilters(!showFilters)
                                                 setShowSearchResults(false)
                                             }}
-                                            className="h-8 w-8 flex items-center justify-center bg-[#ffa500] hover:bg-[#ff8c00] rounded-md transition-colors"
+                                            className="h-7 w-7 flex items-center justify-center bg-[#ffa500] hover:bg-[#ff8c00] rounded-md transition-colors"
                                             title="Filtreler"
                                         >
                                             <ChevronDown className="h-4 w-4 text-white" />
@@ -656,7 +656,7 @@ export function DictionaryHeader() {
                                 })}
 
                                 {/* Mobile User Actions - Visible only on mobile */}
-                                <div className="flex lg:hidden items-center space-x-2">
+                                <div className="flex lg:hidden items-center space-x-2 flex-shrink-0">
                                     {(loading || isInitialLoading) ? (
                                         <Skeleton className="w-14 h-4 rounded" />
                                     ) : isAuthenticated && user ? (
@@ -664,23 +664,25 @@ export function DictionaryHeader() {
 
                                             <Link
                                                 href={`/yazar/${user.nick}`}
-                                                className="text-foreground hover:text-[#ff6600] transition-colors"
+                                                className="text-foreground hover:text-[#ff6600] transition-colors flex-shrink-0"
                                                 title="Profilim"
                                             >
                                                 <User className="h-5 w-5" />
                                             </Link>
                                             <Link
                                                 href="/ayarlar"
-                                                className="text-foreground hover:text-[#ff6600] transition-colors"
+                                                className="text-foreground hover:text-[#ff6600] transition-colors flex-shrink-0"
                                                 title="Ayarlar"
                                             >
                                                 <Settings className="h-5 w-5" />
                                             </Link>
-                                            <AccountSwitcher currentUser={{
-                                                name: user.name || user.nick || "Kullanıcı",
-                                                email: user.email || "",
-                                                picture: user.picture || user.profile?.picture || ""
-                                            }} />
+                                            <div className="flex-shrink-0">
+                                                <AccountSwitcher currentUser={{
+                                                    name: user.name || user.nick || "Kullanıcı",
+                                                    email: user.email || "",
+                                                    picture: user.picture || user.profile?.picture || ""
+                                                }} />
+                                            </div>
                                         </>
                                     ) : (
                                         <button
