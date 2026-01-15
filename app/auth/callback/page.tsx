@@ -124,12 +124,13 @@ function CallbackContent() {
 
                     // Close popup after sending message
                     console.log('[Callback] Attempting to close window...');
+                    console.log('[Callback] Waiting 500ms to ensure message delivery...');
                     setTimeout(() => {
                         authChannel.close();
                         window.close();
                         console.log('[Callback] window.close() called');
 
-                        // If still open after 200ms, show success message
+                        // If still open after 500ms, show success message
                         setTimeout(() => {
                             if (!window.closed) {
                                 console.log('[Callback] Window still open, showing success message...');
@@ -143,8 +144,8 @@ function CallbackContent() {
                                     </div>
                                 `;
                             }
-                        }, 200);
-                    }, 100);
+                        }, 500);
+                    }, 500); // Increased from 100ms to 500ms to ensure message delivery
                     return;
                 }
 
