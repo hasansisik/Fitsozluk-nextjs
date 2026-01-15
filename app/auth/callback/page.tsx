@@ -49,11 +49,15 @@ function CallbackContent() {
 
                 setStatus('success');
 
-                // Check if we're in a popup or iframe FIRST
-                const isPopup = window.opener || window.name === 'FitmailAuth';
+                // Check if we're in a popup or iframe
+                // Use display=popup parameter as primary indicator since window.opener
+                // may be lost during cross-origin navigation to Fitmail
+                const displayParam = searchParams.get('display');
+                const isPopup = displayParam === 'popup' || window.opener || window.name === 'FitmailAuth';
                 const isIframe = typeof window !== 'undefined' && window.self !== window.top;
 
                 console.log('[Callback] Debug info:', {
+                    displayParam,
                     hasOpener: !!window.opener,
                     windowName: window.name,
                     isPopup,

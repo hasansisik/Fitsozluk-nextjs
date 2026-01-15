@@ -131,7 +131,10 @@ export function DictionaryHeader() {
     const handleFitmailAuth = (mode: "login" | "register" = "login") => {
         const state = Math.random().toString(36).substring(7);
         localStorage.setItem('oauth_state', state);
-        const authUrl = `${endpoints.oauth.authorize}?client_id=${oauthConfig.clientId}&redirect_uri=${encodeURIComponent(oauthConfig.redirectUri)}&response_type=code&scope=${encodeURIComponent(oauthConfig.scope)}&state=${state}${mode === 'register' ? '&prompt=register' : ''}`;
+
+        // Add display=popup to redirect_uri to help callback detect popup mode
+        const redirectUriWithPopup = `${oauthConfig.redirectUri}?display=popup`;
+        const authUrl = `${endpoints.oauth.authorize}?client_id=${oauthConfig.clientId}&redirect_uri=${encodeURIComponent(redirectUriWithPopup)}&response_type=code&scope=${encodeURIComponent(oauthConfig.scope)}&state=${state}${mode === 'register' ? '&prompt=register' : ''}`;
 
         // Calculate popup position (centered relative to current window)
         const width = 500;
