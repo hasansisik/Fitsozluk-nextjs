@@ -53,6 +53,14 @@ function CallbackContent() {
                 const isPopup = window.opener || window.name === 'FitmailAuth';
                 const isIframe = typeof window !== 'undefined' && window.self !== window.top;
 
+                console.log('[Callback] Debug info:', {
+                    hasOpener: !!window.opener,
+                    windowName: window.name,
+                    isPopup,
+                    isIframe,
+                    origin: window.location.origin
+                });
+
                 // Send success message via BroadcastChannel
                 const authChannel = new BroadcastChannel("fitmail_auth_channel");
                 authChannel.postMessage({
@@ -65,6 +73,8 @@ function CallbackContent() {
 
                 // If in a popup, notify the opener and close immediately
                 if (isPopup) {
+                    console.log('[Callback] Detected popup, sending message and closing...');
+
                     if (window.opener) {
                         window.opener.postMessage(
                             {
@@ -76,12 +86,15 @@ function CallbackContent() {
                             },
                             window.location.origin
                         );
+                        console.log('[Callback] Message sent to opener');
                     }
 
                     // Close immediately without redirecting
+                    console.log('[Callback] Attempting to close window...');
                     setTimeout(() => {
                         authChannel.close();
                         window.close();
+                        console.log('[Callback] window.close() called');
                     }, 100); // Reduced delay for faster close
                     return;
                 }
