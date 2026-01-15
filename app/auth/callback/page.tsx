@@ -49,7 +49,11 @@ function CallbackContent() {
 
                 setStatus('success');
 
-                // If in a popup, notify the opener and close
+                // Check if we're in a popup or iframe FIRST
+                const isPopup = window.opener || window.name === 'FitmailAuth';
+                const isIframe = typeof window !== 'undefined' && window.self !== window.top;
+
+                // Send success message via BroadcastChannel
                 const authChannel = new BroadcastChannel("fitmail_auth_channel");
                 authChannel.postMessage({
                     type: "FITMAIL_AUTH_SUCCESS",
@@ -59,28 +63,31 @@ function CallbackContent() {
                     }
                 });
 
-                if (window.opener) {
-                    window.opener.postMessage(
-                        {
-                            type: "FITMAIL_AUTH_SUCCESS",
-                            user: {
-                                ...result.user,
-                                token: result.token // Include the access token
-                            }
-                        },
-                        window.location.origin
-                    );
+                // If in a popup, notify the opener and close immediately
+                if (isPopup) {
+                    if (window.opener) {
+                        window.opener.postMessage(
+                            {
+                                type: "FITMAIL_AUTH_SUCCESS",
+                                user: {
+                                    ...result.user,
+                                    token: result.token // Include the access token
+                                }
+                            },
+                            window.location.origin
+                        );
+                    }
 
+                    // Close immediately without redirecting
                     setTimeout(() => {
                         authChannel.close();
                         window.close();
-                    }, 500);
+                    }, 100); // Reduced delay for faster close
                     return;
                 }
 
                 // If in iframe, just notify and stop
-                if (typeof window !== 'undefined' && window.self !== window.top) {
-                    // postMessage to parent
+                if (isIframe) {
                     window.parent.postMessage({
                         type: "FITMAIL_AUTH_SUCCESS",
                         user: {
@@ -92,7 +99,7 @@ function CallbackContent() {
                     return;
                 }
 
-                // Redirect to saved return URL or home (for same-windowauth)
+                // Only redirect if NOT in popup or iframe (same-window auth)
                 const returnUrl = localStorage.getItem('oauth_return_url') || '/';
                 localStorage.removeItem('oauth_return_url');
                 setTimeout(() => router.push(returnUrl), 0);
