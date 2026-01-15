@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
-import { Share2, Calendar, ChevronDown, User, X, Camera, MoreHorizontal, Settings, Ban, Trash2, Heart, Shield, Star, Award, Search, MessageSquare, ExternalLink, Flag, Pencil, Twitter, Facebook, MessageCircle, Send, Copy } from "lucide-react"
+import { Share2, Calendar, ChevronDown, User, X, Camera, MoreHorizontal, Settings, Ban, Trash2, Heart, Shield, Star, Award, Search, MessageSquare, ExternalLink, Flag, Pencil, Twitter, Facebook, MessageCircle, Send, Copy, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { useRouter } from "next/navigation"
@@ -10,6 +10,7 @@ import { getAllEntries, deleteEntry } from "@/redux/actions/entryActions"
 import { createReport } from "@/redux/actions/reportActions"
 import { EntryCard } from "./entry-card"
 import { getFollowedTopics } from "@/redux/actions/topicActions"
+import { Skeleton } from "./ui/skeleton"
 
 interface Badge {
     type: string
@@ -49,14 +50,15 @@ interface UserProfileData {
 }
 
 interface UserProfileProps {
-    userData: UserProfileData
+    userData: UserProfileData | null | undefined
     noteText?: string
     setNoteText?: (text: string) => void
     handleSaveNote?: (e?: any) => void
     showSavedMessage?: boolean
+    isLoading?: boolean
 }
 
-export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, showSavedMessage }: UserProfileProps) {
+export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, showSavedMessage, isLoading }: UserProfileProps) {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const { user, isAuthenticated } = useAppSelector((state) => state.user)
@@ -81,10 +83,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
         followerCount: 0,
         followingCount: 0
     })
-    const [profilePhoto, setProfilePhoto] = useState<string | null>(userData.picture || null)
+    const [profilePhoto, setProfilePhoto] = useState<string | null>(userData?.picture || null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [showPhotoMenu, setShowPhotoMenu] = useState(false)
-    const [bioText, setBioText] = useState(userData.bio || "")
+    const [bioText, setBioText] = useState(userData?.bio || "")
     const [entries, setEntries] = useState<any[]>([])
     const [followedTopics, setFollowedTopics] = useState<any[]>([])
     const [loadingEntries, setLoadingEntries] = useState(false)
@@ -94,19 +96,20 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
     const reportModalRef = useRef<HTMLDivElement>(null)
 
     const fetchTabEntries = async () => {
-        if (!userData.id) return
+        const userId = userData?.id;
+        if (!userId) return;
         setLoadingEntries(true)
         try {
             let params: any = { isActive: true }
 
             if (activeTab === "entry'ler") {
-                params.author = userData.id
+                params.author = userId
             } else if (activeTab === "beğeniler") {
-                params.likedBy = userData.id
+                params.likedBy = userId
             } else if (activeTab === "beğenilmeyenler") {
-                params.dislikedBy = userData.id
+                params.dislikedBy = userId
             } else if (activeTab === "favoriler") {
-                params.favoritedBy = userData.id
+                params.favoritedBy = userId
             } else if (activeTab === "takip edilen başlıklar") {
                 // Fetch followed topics
                 const result = await dispatch(getFollowedTopics()).unwrap()
@@ -130,8 +133,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
     }
 
     const fetchFollowers = async () => {
+        const userId = userData?.id;
+        if (!userId) return;
         try {
-            const result = await dispatch(getFollowers(userData.id)).unwrap();
+            const result = await dispatch(getFollowers(userId)).unwrap();
             setFollowersList(result);
         } catch (error) {
             console.error("Followers fetching error:", error);
@@ -139,8 +144,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
     }
 
     const fetchFollowing = async () => {
+        const userId = userData?.id;
+        if (!userId) return;
         try {
-            const result = await dispatch(getFollowing(userData.id)).unwrap();
+            const result = await dispatch(getFollowing(userId)).unwrap();
             setFollowingList(result);
         } catch (error) {
             console.error("Following fetching error:", error);
@@ -178,6 +185,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
         }
 
         try {
+            if (!userData?.id) return
             await dispatch(blockUser(userData.id)).unwrap()
             await dispatch(loadUser()).unwrap() // Reload user data to sync blocked users
             setIsBlocked(true)
@@ -192,6 +200,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
     }
 
     const handleUnblock = async () => {
+        if (!userData?.id) return
         try {
             await dispatch(unblockUser(userData.id)).unwrap()
             await dispatch(loadUser()).unwrap() // Reload user data to sync blocked users
@@ -209,7 +218,7 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
         // Scroll to top when component mounts
         window.scrollTo({ top: 0, behavior: 'smooth' })
 
-        if (isAuthenticated && user) {
+        if (isAuthenticated && user && userData) {
             setIsOwnProfile(user.nick?.toLowerCase() === userData.nick?.toLowerCase())
 
             if (user.following && user.following.includes(userData.id)) {
@@ -228,16 +237,18 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
         }
 
         // Initial fetch
-        fetchTabEntries()
+        if (userData?.id) {
+            fetchTabEntries()
 
-        // Sync dynamic stats initial
-        setDynamicStats({
-            entryCount: userData.stats?.entryCount || 0,
-            followerCount: userData.stats?.followerCount || 0,
-            followingCount: userData.stats?.followingCount || 0
-        })
+            // Sync dynamic stats initial
+            setDynamicStats({
+                entryCount: userData.stats?.entryCount || 0,
+                followerCount: userData.stats?.followerCount || 0,
+                followingCount: userData.stats?.followingCount || 0
+            })
 
-        if (userData.bio) setBioText(userData.bio)
+            if (userData.bio) setBioText(userData.bio)
+        }
 
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement
@@ -257,24 +268,78 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
 
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [userData.id, userData.nick, isAuthenticated, user, isMounted])
+    }, [userData?.id, userData?.nick, isAuthenticated, user, isMounted])
 
     useEffect(() => {
-        if (isMounted) {
+        if (isMounted && userData) {
             // Reset displayed count and scroll to top when tab changes
             setDisplayedEntryCount(10)
             window.scrollTo({ top: 0, behavior: 'smooth' })
             fetchTabEntries()
         }
-    }, [activeTab])
+    }, [activeTab, isMounted, userData?.id])
 
     useEffect(() => {
-        if (!isMounted) return
+        if (!isMounted || !userData) return
         const savedPhoto = localStorage.getItem(`profilePhoto_${userData.nick}`)
         if (savedPhoto) setProfilePhoto(savedPhoto)
-    }, [userData.nick, isMounted])
+    }, [userData?.nick, isMounted])
 
     if (!isMounted) return null
+
+    if (isLoading || !userData) {
+        return (
+            <div className="w-full flex flex-col p-6 lg:p-10 pt-16">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Skeleton className="h-8 w-48" />
+                        </div>
+                        <Skeleton className="h-4 w-32 mb-6" />
+                        <div className="flex gap-2 mb-6">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                        <div className="flex gap-4 mb-8">
+                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-4 w-16" />
+                        </div>
+                        <div className="space-y-2 mb-8">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                        </div>
+                        <div className="flex gap-2">
+                            <Skeleton className="h-10 w-32 rounded-full" />
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                    </div>
+                    <div className="relative ml-6">
+                        <Skeleton className="w-36 h-36 rounded-full" />
+                    </div>
+                </div>
+
+                <div className="border-b border-border mb-6">
+                    <div className="flex gap-6">
+                        <Skeleton className="h-8 w-20" />
+                        <Skeleton className="h-8 w-20" />
+                        <Skeleton className="h-8 w-20" />
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="space-y-3">
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-20 w-full" />
+                            <Skeleton className="h-4 w-1/4" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )
+    }
 
     if (isBlocked && !isOwnProfile) {
         return (
@@ -300,11 +365,14 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
             return
         }
 
+        const userId = userData?.id
+        if (!userId) return
+
         if (isFollowing) {
-            await dispatch(unfollowUser(userData.id))
+            await dispatch(unfollowUser(userId))
             setDynamicStats(prev => ({ ...prev, followerCount: prev.followerCount - 1 }))
         } else {
-            await dispatch(followUser(userData.id))
+            await dispatch(followUser(userId))
             setDynamicStats(prev => ({ ...prev, followerCount: prev.followerCount + 1 }))
         }
         setIsFollowing(!isFollowing)
@@ -321,9 +389,12 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
         }
 
         try {
+            const userId = userData?.id
+            if (!userId) return
+
             await dispatch(createReport({
                 reportType: 'user',
-                reportedUserId: userData.id,
+                reportedUserId: userId,
                 reason: reportReason,
                 description: reportText
             })).unwrap()
@@ -387,36 +458,31 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                         <div className="space-y-3 mb-4">
                             <button
                                 onClick={() => setReportReason("spam")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "spam" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
-                                    }`}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "spam" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"}`}
                             >
                                 Spam
                             </button>
                             <button
                                 onClick={() => setReportReason("harassment")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "harassment" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
-                                    }`}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "harassment" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"}`}
                             >
                                 Hakaret Veya Nefret
                             </button>
                             <button
                                 onClick={() => setReportReason("inappropriate")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "inappropriate" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
-                                    }`}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "inappropriate" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"}`}
                             >
                                 Uygunsuz İçerik
                             </button>
                             <button
                                 onClick={() => setReportReason("copyright")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "copyright" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
-                                    }`}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "copyright" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"}`}
                             >
                                 Copyright
                             </button>
                             <button
                                 onClick={() => setReportReason("other")}
-                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "other" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"
-                                    }`}
+                                className={`w-full text-left px-4 py-3 border rounded-md transition-colors ${reportReason === "other" ? "border-[#ff6600] bg-[#ff6600]/5" : "border-border hover:bg-secondary"}`}
                             >
                                 Other
                             </button>
@@ -449,11 +515,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                         </div>
                     </div>
                 </div>
-            )
-            }
+            )}
 
-            <div className="p-4 px-0 lg:p-6">
-                <div className="flex items-start justify-between">
+            <div className="w-full flex flex-col p-6 lg:p-10 pt-16">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
                     <div className="flex-1">
                         {/* 1. Nick */}
                         <div className="flex items-center gap-3 mb-1">
@@ -538,7 +603,10 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                             <div className="flex items-center gap-2">
                                 <div className="relative share-menu-container">
                                     <button
-                                        onClick={() => setShowShareMenu(!showShareMenu)}
+                                        onClick={() => {
+                                            setShowShareMenu(!showShareMenu);
+                                            setShowMoreMenu(false); // Close other menu
+                                        }}
                                         className="w-10 h-10 flex items-center justify-center border border-border rounded-full hover:bg-secondary transition-colors text-muted-foreground"
                                     >
                                         <Share2 className="w-4.5 h-4.5" />
@@ -893,6 +961,6 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     )
 }

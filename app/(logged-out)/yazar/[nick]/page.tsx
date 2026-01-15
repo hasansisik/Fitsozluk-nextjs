@@ -168,50 +168,53 @@ export default function UserProfilePage({ params }: PageProps) {
     }, [isAuthenticated, loading])
 
     // FINAL RENDER LOGIC - Early returns only AFTER all hooks
-    if (loading || !nick || isInitialAuthLoading || userLoading) {
-        return (
-            <div className="w-full flex items-center justify-center min-h-[calc(100vh-6.5rem)] bg-white">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-4 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
-                    <div className="text-[#ff6600] font-medium animate-pulse">yükleniyor...</div>
-                </div>
-            </div>
-        )
-    }
-
     // If user is blocked, show warning
-    if (isBlockedProfile) {
-        return (
-            <div className="w-full bg-white">
-                <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
-                    <div className="flex min-h-[calc(100vh-6.5rem)]">
-                        <div className="hidden lg:block">
-                            <TopicsSidebar />
-                        </div>
-                        <main className="flex-1 flex flex-col items-center justify-center py-24 text-center">
-                            <div className="bg-secondary/20 p-8 rounded-xl border border-border max-w-md w-full">
-                                <h2 className="text-xl font-bold mb-4">Bu profile erişilemiyor</h2>
-                                <p className="text-muted-foreground mb-6">
-                                    Bu kullanıcı ile aranızda bir engelleme var.
-                                    Profili görmek için ayarlar sayfasından engeli kaldırabilirsiniz.
-                                </p>
-                                <Link
-                                    href="/ayarlar"
-                                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#ff6600] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#e65c00]"
-                                >
-                                    Ayarlar'a Git
-                                </Link>
-                            </div>
-                        </main>
-                    </div>
-                </div>
-            </div>
-        )
-    }
+    const renderContent = () => {
+        if (loading || !nick || isInitialAuthLoading || userLoading) {
+            return (
+                <UserProfile
+                    userData={userData}
+                    isLoading={true}
+                />
+            )
+        }
 
-    // If user not found, show 404
-    if (!userData) {
-        notFound()
+        if (isBlockedProfile) {
+            return (
+                <main className="flex-1 flex flex-col items-center justify-center py-24 text-center">
+                    <div className="bg-secondary/20 p-8 rounded-xl border border-border max-w-md w-full">
+                        <h2 className="text-xl font-bold mb-4">Bu profile erişilemiyor</h2>
+                        <p className="text-muted-foreground mb-6">
+                            Bu kullanıcı ile aranızda bir engelleme var.
+                            Profili görmek için ayarlar sayfasından engeli kaldırabilirsiniz.
+                        </p>
+                        <Link
+                            href="/ayarlar"
+                            className="inline-flex h-10 items-center justify-center rounded-md bg-[#ff6600] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#e65c00]"
+                        >
+                            Ayarlar'a Git
+                        </Link>
+                    </div>
+                </main>
+            )
+        }
+
+        if (!userData) {
+            notFound()
+        }
+
+        return (
+            <main className="flex-1 w-full lg:max-w-4xl lg:mx-auto bg-white">
+                <UserProfile
+                    userData={userData}
+                    noteText={noteText}
+                    setNoteText={setNoteText}
+                    handleSaveNote={handleSaveNote}
+                    showSavedMessage={showSavedMessage}
+                    isLoading={false}
+                />
+            </main>
+        )
     }
 
     return (
@@ -223,16 +226,8 @@ export default function UserProfilePage({ params }: PageProps) {
                         <TopicsSidebar />
                     </div>
 
-                    {/* Main Content Area - User Profile */}
-                    <main className="flex-1 w-full lg:max-w-4xl lg:mx-auto bg-white">
-                        <UserProfile
-                            userData={userData}
-                            noteText={noteText}
-                            setNoteText={setNoteText}
-                            handleSaveNote={handleSaveNote}
-                            showSavedMessage={showSavedMessage}
-                        />
-                    </main>
+                    {/* Content Area */}
+                    {renderContent()}
 
                     {/* Right Sidebar - Notes (Desktop only) */}
                     <div className="hidden xl:block w-80">
