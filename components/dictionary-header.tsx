@@ -656,7 +656,7 @@ export function DictionaryHeader() {
                                 })}
 
                                 {/* Mobile User Actions - Visible only on mobile */}
-                                <div className="flex lg:hidden items-center space-x-4">
+                                <div className="flex lg:hidden items-center space-x-2">
                                     {(loading || isInitialLoading) ? (
                                         <Skeleton className="w-14 h-4 rounded" />
                                     ) : isAuthenticated && user ? (
