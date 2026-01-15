@@ -106,7 +106,8 @@ function CallbackContent() {
 
                 // If in a popup, notify the opener and close immediately
                 if (isPopup) {
-                    console.log('[Callback] Detected popup, sending message and closing...');
+                    console.log('[Callback] Detected popup, sending message...');
+                    console.log('[Callback] 🔴 POPUP CLOSE DISABLED FOR DEBUGGING - CHECK LOGS HERE');
 
                     if (window.opener && !window.opener.closed) {
                         window.opener.postMessage(
@@ -122,40 +123,44 @@ function CallbackContent() {
                         console.log('[Callback] Message sent to opener');
                     }
 
-                    // Multiple strategies to close the popup
-                    console.log('[Callback] Attempting to close window...');
+                    // TEMPORARILY DISABLED FOR DEBUGGING
+                    console.log('[Callback] ⚠️ Window close is DISABLED - manually close this popup after checking logs');
+                    authChannel.close();
 
-                    // Strategy 1: Direct close
-                    setTimeout(() => {
-                        authChannel.close();
-                        window.close();
-                        console.log('[Callback] window.close() called');
+                    // // Multiple strategies to close the popup
+                    // console.log('[Callback] Attempting to close window...');
 
-                        // Strategy 2: If still open after 200ms, try blank page with auto-close
-                        setTimeout(() => {
-                            if (!window.closed) {
-                                console.log('[Callback] Window still open, redirecting to blank page...');
-                                document.body.innerHTML = `
-                                    <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f5f5f5;">
-                                        <div style="text-align: center;">
-                                            <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
-                                            <div style="font-size: 18px; color: #16a34a; font-weight: 500;">Giriş başarılı!</div>
-                                            <div style="font-size: 14px; color: #666; margin-top: 10px;">Bu pencere otomatik kapanacak...</div>
-                                        </div>
-                                    </div>
-                                    <script>
-                                        setTimeout(() => {
-                                            window.close();
-                                            // If close doesn't work, try opener focus
-                                            if (window.opener && !window.opener.closed) {
-                                                window.opener.focus();
-                                            }
-                                        }, 1000);
-                                    </script>
-                                `;
-                            }
-                        }, 200);
-                    }, 100);
+                    // // Strategy 1: Direct close
+                    // setTimeout(() => {
+                    //     authChannel.close();
+                    //     window.close();
+                    //     console.log('[Callback] window.close() called');
+
+                    //     // Strategy 2: If still open after 200ms, try blank page with auto-close
+                    //     setTimeout(() => {
+                    //         if (!window.closed) {
+                    //             console.log('[Callback] Window still open, redirecting to blank page...');
+                    //             document.body.innerHTML = `
+                    //                 <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f5f5f5;">
+                    //                     <div style="text-align: center;">
+                    //                         <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
+                    //                         <div style="font-size: 18px; color: #16a34a; font-weight: 500;">Giriş başarılı!</div>
+                    //                         <div style="font-size: 14px; color: #666; margin-top: 10px;">Bu pencere otomatik kapanacak...</div>
+                    //                     </div>
+                    //                 </div>
+                    //                 <script>
+                    //                     setTimeout(() => {
+                    //                         window.close();
+                    //                         // If close doesn't work, try opener focus
+                    //                         if (window.opener && !window.opener.closed) {
+                    //                             window.opener.focus();
+                    //                         }
+                    //                     }, 1000);
+                    //                 </script>
+                    //             `;
+                    //         }
+                    //     }, 200);
+                    // }, 100);
                     return;
                 }
 
