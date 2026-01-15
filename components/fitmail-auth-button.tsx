@@ -76,15 +76,58 @@ export function FitmailAuthButton({ mode = "login", className }: FitmailAuthButt
         const left = ((windowWidth / 2) - (width / 2)) + dualScreenLeft;
         const top = ((windowHeight / 2) - (height / 2)) + dualScreenTop;
 
-        // Open window with a local loading page first to avoid cross-domain 404 flash
+        // Open window first
         const popup = window.open(
-            "/loading",
+            "about:blank",
             "FitmailAuth",
             `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
         );
 
         if (popup) {
-            // Give the local loading page a moment to render before redirecting
+            // Inject a loading UI immediately to avoid any 404 flash
+            popup.document.write(`
+                <html>
+                    <head>
+                        <title>Yönlendiriliyorsunuz...</title>
+                        <style>
+                            body { 
+                                margin: 0; 
+                                display: flex; 
+                                flex-direction: column; 
+                                align-items: center; 
+                                justify-content: center; 
+                                min-h: 100vh; 
+                                height: 100vh;
+                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                                background: white;
+                            }
+                            .loader {
+                                border: 3px solid #f3f3f3;
+                                border-top: 3px solid #ff6600;
+                                border-radius: 50%;
+                                width: 40px;
+                                height: 40px;
+                                animation: spin 1s linear infinite;
+                                margin-bottom: 20px;
+                            }
+                            @keyframes spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                            }
+                            .text {
+                                color: #ff6600;
+                                font-weight: 500;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="loader"></div>
+                        <div class="text">Fitmail'e yönlendiriliyorsunuz...</div>
+                    </body>
+                </html>
+            `);
+
+            // Redirect after a tiny delay
             setTimeout(() => {
                 popup.location.href = authUrl;
                 popup.focus();
