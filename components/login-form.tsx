@@ -112,11 +112,8 @@ export function LoginForm({
           <FitmailAuthButton mode="login" />
         </Field>
         <Field>
-          <FieldDescription className="text-center">
-            Hesabınız yok mu?{" "}
-            <Link href="/kayitol" className="underline underline-offset-4">
-              Kayıt ol
-            </Link>
+          <FieldDescription className="text-center text-xs text-muted-foreground mt-2">
+            Giriş yaparak kullanım koşullarını kabul etmiş olursunuz.
           </FieldDescription>
         </Field>
       </FieldGroup>

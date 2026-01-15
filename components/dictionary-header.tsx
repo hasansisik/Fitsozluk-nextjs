@@ -540,17 +540,9 @@ export function DictionaryHeader() {
                         {/* User Actions - Desktop Only */}
                         <div className="hidden lg:flex items-center space-x-3 ml-auto flex-shrink-0 min-w-[150px] justify-end">
                             {(loading || isInitialLoading) ? (
-                                <div className="flex items-center gap-4">
-                                    <Skeleton className="w-14 h-4 rounded" />
-                                    <Skeleton className="w-20 h-9 rounded-md" />
-                                </div>
+                                <Skeleton className="w-8 h-8 rounded-full" />
                             ) : isAuthenticated && user && (user.nick || user.name) ? (
                                 <>
-                                    <AccountSwitcher currentUser={{
-                                        name: user.name || user.nick || "Kullanıcı",
-                                        email: user.email || "",
-                                        picture: user.picture || user.profile?.picture || ""
-                                    }} />
                                     <Link
                                         href={`/yazar/${user.nick || user._id}`}
                                         className="p-2 text-foreground hover:text-[#ff6600] transition-colors"
@@ -565,6 +557,11 @@ export function DictionaryHeader() {
                                     >
                                         <Settings className="h-5 w-5" />
                                     </Link>
+                                    <AccountSwitcher currentUser={{
+                                        name: user.name || user.nick || "Kullanıcı",
+                                        email: user.email || "",
+                                        picture: user.picture || user.profile?.picture || ""
+                                    }} />
                                 </>
                             ) : (
                                 <button
@@ -635,7 +632,7 @@ export function DictionaryHeader() {
                                         <Skeleton className="w-14 h-4 rounded" />
                                     ) : isAuthenticated && user ? (
                                         <>
-            
+
                                             <Link
                                                 href={`/yazar/${user.nick}`}
                                                 className="text-foreground hover:text-[#ff6600] transition-colors"
