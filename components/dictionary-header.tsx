@@ -93,15 +93,20 @@ export function DictionaryHeader() {
         // Fitmail Auth Success Listener
         const authChannel = new BroadcastChannel("fitmail_auth_channel");
         const handleAuthMessage = (event: MessageEvent) => {
+            console.log('[Header] BroadcastChannel message received:', event.data);
             if (event.data.type === "FITMAIL_AUTH_SUCCESS") {
+                console.log('[Header] Auth success! Processing...');
                 if (event.data.user && event.data.user.token) {
                     const token = event.data.user.token;
                     localStorage.setItem("accessToken", token);
                     document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+                    console.log('[Header] Token stored in localStorage and cookie');
                 }
                 // Dispatch verifyOAuthToken to fetch user data from Fitmail
+                console.log('[Header] Dispatching verifyOAuthToken...');
                 dispatch(verifyOAuthToken());
                 // Reload page to update UI
+                console.log('[Header] Reloading page...');
                 window.location.reload();
             }
         };
@@ -109,13 +114,18 @@ export function DictionaryHeader() {
 
         // Also listen for window messages as fallback
         const handleWindowMessage = (event: MessageEvent) => {
+            console.log('[Header] Window message received:', event.data);
             if (event.data.type === "FITMAIL_AUTH_SUCCESS") {
+                console.log('[Header] Auth success via window message! Processing...');
                 if (event.data.user && event.data.user.token) {
                     const token = event.data.user.token;
                     localStorage.setItem("accessToken", token);
                     document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+                    console.log('[Header] Token stored in localStorage and cookie');
                 }
+                console.log('[Header] Dispatching verifyOAuthToken...');
                 dispatch(verifyOAuthToken());
+                console.log('[Header] Reloading page...');
                 window.location.reload();
             }
         };

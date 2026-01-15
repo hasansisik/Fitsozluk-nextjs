@@ -15,12 +15,22 @@ function CallbackContent() {
     useEffect(() => {
         const handleCallback = async () => {
             try {
+                console.log('[Callback] Starting callback handler...');
                 const code = searchParams.get('code');
                 const state = searchParams.get('state');
                 const error = searchParams.get('error');
 
+                console.log('[Callback] URL params:', {
+                    hasCode: !!code,
+                    hasState: !!state,
+                    hasError: !!error,
+                    code: code?.substring(0, 10) + '...',
+                    state
+                });
+
                 // Check for OAuth errors
                 if (error) {
+                    console.error('[Callback] OAuth error:', error);
                     const isIframe = typeof window !== 'undefined' && window.self !== window.top;
 
                     if (isIframe) {
@@ -35,7 +45,14 @@ function CallbackContent() {
 
                 // Validate state (CSRF protection)
                 const savedState = localStorage.getItem('oauth_state');
+                console.log('[Callback] State validation:', {
+                    receivedState: state,
+                    savedState,
+                    matches: state === savedState
+                });
+
                 if (!code || !state || state !== savedState) {
+                    console.error('[Callback] Validation failed!');
                     setStatus('error');
                     setTimeout(() => router.push('/'), 500);
                     return;
@@ -45,7 +62,12 @@ function CallbackContent() {
                 localStorage.removeItem('oauth_state');
 
                 // Exchange code for token using Redux action
+                console.log('[Callback] Calling exchangeOAuthCode...');
                 const result = await dispatch(exchangeOAuthCode({ code })).unwrap();
+                console.log('[Callback] exchangeOAuthCode completed:', {
+                    hasToken: !!result.token,
+                    hasUser: !!result.user
+                });
 
                 setStatus('success');
 

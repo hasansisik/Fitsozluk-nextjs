@@ -244,8 +244,10 @@ export const exchangeOAuthCode = createAsyncThunk(
   "user/exchangeOAuthCode",
   async (payload: { code: string }, thunkAPI) => {
     try {
+      console.log('[exchangeOAuthCode] Starting with code:', payload.code.substring(0, 10) + '...');
       const { endpoints, oauthConfig } = await import('@/config');
 
+      console.log('[exchangeOAuthCode] Calling token endpoint:', endpoints.oauth.token);
       const { data } = await axios.post(endpoints.oauth.token, {
         grant_type: 'authorization_code',
         code: payload.code,
@@ -254,12 +256,20 @@ export const exchangeOAuthCode = createAsyncThunk(
         client_secret: oauthConfig.clientSecret
       });
 
+      console.log('[exchangeOAuthCode] Token response received:', {
+        hasAccessToken: !!data.access_token,
+        hasUser: !!data.user,
+        userEmail: data.user?.email
+      });
+
       localStorage.setItem("accessToken", data.access_token);
       localStorage.setItem("user", JSON.stringify(data.user));
       document.cookie = `token=${data.access_token}; path=/; max-age=${365 * 24 * 60 * 60}`;
 
+      console.log('[exchangeOAuthCode] Success! Token stored.');
       return { token: data.access_token, user: data.user };
     } catch (error: any) {
+      console.error('[exchangeOAuthCode] Error:', error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
