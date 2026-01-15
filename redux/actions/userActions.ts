@@ -284,11 +284,14 @@ export const verifyOAuthToken = createAsyncThunk(
   "user/verifyOAuthToken",
   async (_, thunkAPI) => {
     try {
+      console.log('[verifyOAuthToken] Starting...');
       const token = localStorage.getItem("accessToken");
       if (!token) {
+        console.log('[verifyOAuthToken] No token found');
         return thunkAPI.rejectWithValue('No token found');
       }
 
+      console.log('[verifyOAuthToken] Token found, verifying with Fitmail...');
       // Verify token with Fitmail OAuth API (like Fitnews does)
       const fitmailApiUrl = process.env.NEXT_PUBLIC_FITMAIL_API_URL || 'https://api.fitmail.com';
       const { data } = await axios.get(`${fitmailApiUrl}/v1/oauth/verify`, {
@@ -297,10 +300,17 @@ export const verifyOAuthToken = createAsyncThunk(
         }
       });
 
+      console.log('[verifyOAuthToken] Fitmail response:', {
+        hasUserId: !!(data.sub || data.userId),
+        email: data.email,
+        hasPicture: !!data.picture
+      });
+
       let picture = data.picture;
 
       // Fallback: If verify endpoint didn't return picture, try sessions endpoint
       if (!picture) {
+        console.log('[verifyOAuthToken] No picture, trying sessions fallback...');
         try {
           const sessionsResponse = await axios.get(`${fitmailApiUrl}/v1/oauth/sessions`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -311,6 +321,7 @@ export const verifyOAuthToken = createAsyncThunk(
               s.email === data.email || s.userId === (data.sub || data.userId)
             );
             if (mySession && mySession.picture) {
+              console.log('[verifyOAuthToken] Found picture in sessions');
               picture = mySession.picture;
             }
           }
@@ -330,9 +341,15 @@ export const verifyOAuthToken = createAsyncThunk(
         isVerified: data.isVerified !== false
       };
 
+      console.log('[verifyOAuthToken] User data prepared:', {
+        email: user.email,
+        hasPicture: !!user.picture
+      });
+
       localStorage.setItem("user", JSON.stringify(user));
       document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
 
+      console.log('[verifyOAuthToken] Success! Returning user.');
       return user;
     } catch (error: any) {
       console.error('[verifyOAuthToken] Error:', error.message, error.response?.status);
