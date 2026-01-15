@@ -42,6 +42,14 @@ export function EntryForm({
         value2: '',
     })
 
+    const [selectedCategory, setSelectedCategory] = useState("gündem")
+
+    const categories = [
+        "gündem", "soruinsal", "spor", "ilişkiler", "siyaset",
+        "teknoloji", "edebiyat", "müzik", "sinema", "televizyon",
+        "bilim", "oyun", "tarih", "din", "yeme-içme", "eğitim"
+    ]
+
     const insertFormatting = (before: string, after: string = "", customText?: string) => {
         const textarea = textareaRef.current
         if (!textarea) return
@@ -144,19 +152,21 @@ export function EntryForm({
             return
         }
 
-        if (mode === 'create-topic' && !newTopicTitle) {
-            alert("Başlık ismi bulunamadı!")
-            return
+        if (mode === 'create-topic') {
+            if (!newTopicTitle) {
+                alert("Başlık ismi bulunamadı!")
+                return
+            }
+            if (!selectedCategory) {
+                alert("Lütfen bir kategori seçiniz!")
+                return
+            }
         }
 
         setIsSubmitting(true)
         try {
             if (mode === 'create-topic') {
                 // Create Topic Logic
-                // We need slugify logic here or let backend handle it. Usually backend handles it or we send a generated one.
-                // Assuming createTopicPayload has { title, slug, firstEntry, ... }
-                // Let's generate a simple slug for frontend or rely on backend. 
-                // Fitsozluk backend likely needs slug. Let's create a basic one.
                 const slug = newTopicTitle
                     .toLowerCase()
                     .replace(/ /g, '-')
@@ -165,7 +175,8 @@ export function EntryForm({
                 const result = await dispatch(createTopic({
                     title: newTopicTitle,
                     slug: slug,
-                    firstEntry: content.trim()
+                    firstEntry: content.trim(),
+                    category: selectedCategory
                 })).unwrap()
 
                 if (result) {
@@ -201,7 +212,7 @@ export function EntryForm({
     return (
         <div className="p-0">
             {/* Formatting toolbar */}
-            <div className="flex gap-2 mb-3 flex-wrap">
+            <div className="flex gap-2 mb-3 flex-wrap items-center">
                 <button
                     onClick={() => openHelper('bkz')}
                     className="px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium"
@@ -235,6 +246,19 @@ export function EntryForm({
                 >
                     http://
                 </button>
+
+                {/* Category Selection - Only show in create-topic mode */}
+                {mode === 'create-topic' && (
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="ml-auto px-3 py-1.5 text-xs border border-border bg-white rounded hover:bg-secondary transition-colors font-medium outline-none focus:ring-1 focus:ring-[#ff6600]"
+                    >
+                        {categories.map((cat) => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                )}
             </div>
 
             {/* Helper Modal */}

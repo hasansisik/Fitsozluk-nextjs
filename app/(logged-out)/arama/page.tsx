@@ -182,7 +182,7 @@ function SearchContent() {
                                                     <span className="font-semibold text-foreground">"{query}"</span> başlığı henüz oluşturulmamış
                                                 </p>
                                                 {isAuthenticated ? (
-                                                    <div className="text-left bg-gray-50 p-4 rounded-lg border border-border mt-4">
+                                                    <div className="text-left mt-4">
                                                         <h3 className="text-sm font-semibold mb-3">"{query}" başlığını oluştur ve ilk entry'yi gir:</h3>
                                                         <EntryForm
                                                             topicTitle={query}
