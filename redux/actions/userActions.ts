@@ -242,16 +242,21 @@ export const loadUser = createAsyncThunk(
 // OAuth SSO Actions
 export const exchangeOAuthCode = createAsyncThunk(
   "user/exchangeOAuthCode",
-  async (payload: { code: string }, thunkAPI) => {
+  async (payload: { code: string; redirectUri?: string }, thunkAPI) => {
     try {
       console.log('[exchangeOAuthCode] Starting with code:', payload.code.substring(0, 10) + '...');
       const { endpoints, oauthConfig } = await import('@/config');
+
+      // Use the provided redirectUri or fall back to default
+      // This is important because the redirect_uri must match exactly what was used in authorization
+      const redirectUri = payload.redirectUri || oauthConfig.redirectUri;
+      console.log('[exchangeOAuthCode] Using redirect_uri:', redirectUri);
 
       console.log('[exchangeOAuthCode] Calling token endpoint:', endpoints.oauth.token);
       const { data } = await axios.post(endpoints.oauth.token, {
         grant_type: 'authorization_code',
         code: payload.code,
-        redirect_uri: oauthConfig.redirectUri,
+        redirect_uri: redirectUri,
         client_id: oauthConfig.clientId,
         client_secret: oauthConfig.clientSecret
       });

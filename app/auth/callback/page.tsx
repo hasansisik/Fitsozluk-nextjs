@@ -61,9 +61,16 @@ function CallbackContent() {
                 // Clear state
                 localStorage.removeItem('oauth_state');
 
+                // Reconstruct the redirect_uri that was used during authorization
+                // This MUST match exactly what was sent to /oauth/authorize
+                const displayParam = searchParams.get('display');
+                const baseUrl = `${window.location.origin}${window.location.pathname}`;
+                const redirectUri = displayParam ? `${baseUrl}?display=${displayParam}` : baseUrl;
+                console.log('[Callback] Reconstructed redirect_uri:', redirectUri);
+
                 // Exchange code for token using Redux action
                 console.log('[Callback] Calling exchangeOAuthCode...');
-                const result = await dispatch(exchangeOAuthCode({ code })).unwrap();
+                const result = await dispatch(exchangeOAuthCode({ code, redirectUri })).unwrap();
                 console.log('[Callback] exchangeOAuthCode completed:', {
                     hasToken: !!result.token,
                     hasUser: !!result.user
@@ -74,7 +81,7 @@ function CallbackContent() {
                 // Check if we're in a popup or iframe
                 // Use display=popup parameter as primary indicator since window.opener
                 // may be lost during cross-origin navigation to Fitmail
-                const displayParam = searchParams.get('display');
+                // displayParam already defined above when reconstructing redirectUri
                 const isPopup = displayParam === 'popup' || window.opener || window.name === 'FitmailAuth';
                 const isIframe = typeof window !== 'undefined' && window.self !== window.top;
 
