@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { List, BookOpen, MessageSquare, Megaphone, FileText, Users, Flag } from "lucide-react"
+import { List, BookOpen, MessageSquare, Megaphone, FileText, Users, Flag, Award } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import AccountSwitcher from "@/components/AccountSwitcher"
 import { useAppSelector } from "@/redux/hook"
@@ -60,6 +60,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Kullanıcılar",
       url: "/dashboard/kullanicilar",
       icon: Users,
+      isActive: false,
+    },
+    {
+      title: "Rozetler",
+      url: "/dashboard/rozetler",
+      icon: Award,
       isActive: false,
     },
     {
