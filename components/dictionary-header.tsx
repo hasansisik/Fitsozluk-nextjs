@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import axios from "axios"
 import { server } from "@/config"
-import { loadUser, logout } from "@/redux/actions/userActions"
+import { loadUser, logout, verifyOAuthToken } from "@/redux/actions/userActions"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getFeaturedMenus } from "@/redux/actions/menuActions"
 import AccountSwitcher from "@/components/AccountSwitcher"
@@ -99,15 +99,31 @@ export function DictionaryHeader() {
                     localStorage.setItem("accessToken", token);
                     document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
                 }
-                // Reload page to update UI and close popup
-                authChannel.close();
+                // Dispatch verifyOAuthToken to fetch user data from Fitmail
+                dispatch(verifyOAuthToken());
+                // Reload page to update UI
                 window.location.reload();
             }
         };
         authChannel.onmessage = handleAuthMessage;
 
+        // Also listen for window messages as fallback
+        const handleWindowMessage = (event: MessageEvent) => {
+            if (event.data.type === "FITMAIL_AUTH_SUCCESS") {
+                if (event.data.user && event.data.user.token) {
+                    const token = event.data.user.token;
+                    localStorage.setItem("accessToken", token);
+                    document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+                }
+                dispatch(verifyOAuthToken());
+                window.location.reload();
+            }
+        };
+        window.addEventListener("message", handleWindowMessage);
+
         return () => {
             document.removeEventListener("mousedown", handleClickOutside)
+            window.removeEventListener("message", handleWindowMessage);
             authChannel.close();
         }
     }, [dispatch, isAuthenticated])

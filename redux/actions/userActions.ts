@@ -271,20 +271,49 @@ export const verifyOAuthToken = createAsyncThunk(
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        throw new Error("No token found");
+        return thunkAPI.rejectWithValue('No token found');
       }
 
-      const { data } = await axios.get(`${server}/auth/me`, {
+      // Verify token with Fitmail OAuth API (like Fitnews does)
+      const fitmailApiUrl = process.env.NEXT_PUBLIC_FITMAIL_API_URL || 'https://api.fitmail.com';
+      const { data } = await axios.get(`${fitmailApiUrl}/v1/oauth/verify`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          'Authorization': `Bearer ${token}`
+        }
       });
 
-      if (!data.user) {
-        throw new Error("User not found in Fitsözlük");
+      let picture = data.picture;
+
+      // Fallback: If verify endpoint didn't return picture, try sessions endpoint
+      if (!picture) {
+        try {
+          const sessionsResponse = await axios.get(`${fitmailApiUrl}/v1/oauth/sessions`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          if (sessionsResponse.data && sessionsResponse.data.sessions) {
+            const mySession = sessionsResponse.data.sessions.find((s: any) =>
+              s.email === data.email || s.userId === (data.sub || data.userId)
+            );
+            if (mySession && mySession.picture) {
+              picture = mySession.picture;
+            }
+          }
+        } catch (err) {
+          console.warn('[verifyOAuthToken] Sessions fallback failed', err);
+        }
       }
 
-      const user = data.user;
+      // Transform Fitmail user data to match Fitsözlük user structure
+      const user = {
+        _id: data.sub || data.userId,
+        name: data.name,
+        nick: data.name, // Use name as nick for Fitmail users
+        email: data.email,
+        picture: picture,
+        role: data.role || 'user',
+        isVerified: data.isVerified !== false
+      };
 
       localStorage.setItem("user", JSON.stringify(user));
       document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
@@ -292,9 +321,12 @@ export const verifyOAuthToken = createAsyncThunk(
       return user;
     } catch (error: any) {
       console.error('[verifyOAuthToken] Error:', error.message, error.response?.status);
+      // Token invalid, clear it
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
-      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Kimlik doğrulaması başarısız');
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.error_description || 'Token verification failed'
+      );
     }
   }
 );
