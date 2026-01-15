@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select"
 import { Trash2, Loader2, Search, ChevronLeft, ChevronRight, X, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { BadgeManagementModal } from "@/components/badge-management-modal"
 
 interface User {
     _id: string
@@ -476,95 +477,18 @@ export default function KullanicilarPage() {
             </Dialog>
 
             {/* Badge Management Modal */}
-            <Dialog open={badgeModalOpen} onOpenChange={setBadgeModalOpen}>
-                <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle>Rozet Yönetimi - {selectedUserForBadge?.nick}</DialogTitle>
-                        <DialogDescription>
-                            Kullanıcıya rozet ekleyin veya mevcut rozetleri kaldırın
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="space-y-4">
-                        {/* User's Current Badges */}
-                        {selectedUserForBadge?.badges && selectedUserForBadge.badges.length > 0 && (
-                            <div>
-                                <h4 className="text-sm font-medium mb-2">Mevcut Rozetler</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedUserForBadge.badges.map((badge: any) => (
-                                        <div
-                                            key={badge._id}
-                                            className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-md"
-                                        >
-                                            <img
-                                                src={badge.icon}
-                                                alt={badge.name}
-                                                className="w-6 h-6 rounded-full"
-                                            />
-                                            <span className="text-sm">{badge.name}</span>
-                                            <button
-                                                onClick={async () => {
-                                                    try {
-                                                        await dispatch(removeBadgeFromUser({
-                                                            userId: selectedUserForBadge._id,
-                                                            badgeId: badge._id
-                                                        })).unwrap()
-                                                        dispatch(getAllUsers({ page: currentPage.toString(), limit: itemsPerPage.toString() }))
-                                                    } catch (error: any) {
-                                                        alert(error || "Rozet kaldırılamadı")
-                                                    }
-                                                }}
-                                                className="ml-2 text-red-600 hover:text-red-700"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Available Badges */}
-                        <div>
-                            <h4 className="text-sm font-medium mb-2">Rozet Ekle</h4>
-                            <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto">
-                                {badges
-                                    .filter((badge: any) => !selectedUserForBadge?.badges?.some((b: any) => b._id === badge._id))
-                                    .map((badge: any) => (
-                                        <button
-                                            key={badge._id}
-                                            onClick={async () => {
-                                                try {
-                                                    await dispatch(assignBadgeToUser({
-                                                        userId: selectedUserForBadge!._id,
-                                                        badgeId: badge._id
-                                                    })).unwrap()
-                                                    dispatch(getAllUsers({ page: currentPage.toString(), limit: itemsPerPage.toString() }))
-                                                } catch (error: any) {
-                                                    alert(error || "Rozet eklenemedi")
-                                                }
-                                            }}
-                                            className="flex items-center gap-2 px-3 py-2 border border-border rounded-md hover:bg-secondary transition-colors"
-                                        >
-                                            <img
-                                                src={badge.icon}
-                                                alt={badge.name}
-                                                className="w-6 h-6 rounded-full"
-                                            />
-                                            <span className="text-sm">{badge.name}</span>
-                                        </button>
-                                    ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setBadgeModalOpen(false)}>
-                            Kapat
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <BadgeManagementModal
+                open={badgeModalOpen}
+                onOpenChange={setBadgeModalOpen}
+                selectedUser={selectedUserForBadge}
+                badges={badges}
+                dispatch={dispatch}
+                assignBadgeToUser={assignBadgeToUser}
+                removeBadgeFromUser={removeBadgeFromUser}
+                getAllUsers={getAllUsers}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+            />
         </div>
     )
 }
