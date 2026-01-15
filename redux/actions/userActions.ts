@@ -306,6 +306,52 @@ export const verifyOAuthToken = createAsyncThunk(
         hasPicture: !!data.picture
       });
 
+      // Now fetch user data from Fitsözlük backend after Fitmail verification to get updated picture
+      console.log('[verifyOAuthToken] Fetching user data from Fitsözlük backend...');
+      const server = process.env.NEXT_PUBLIC_API_URL;
+      try {
+        const backendResponse = await axios.get(`${server}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (backendResponse.data && backendResponse.data.user) {
+          const backendUser = backendResponse.data.user;
+          console.log('[verifyOAuthToken] Backend user data:', {
+            email: backendUser.email,
+            hasPicture: !!backendUser.picture
+          });
+
+          // Use backend user data (which has the updated picture from fitmailAuth)
+          const user = {
+            _id: backendUser._id,
+            name: backendUser.name || backendUser.nick,
+            nick: backendUser.nick,
+            email: backendUser.email,
+            picture: backendUser.picture, // This is the updated picture from Fitmail
+            role: backendUser.role || 'user',
+            isVerified: backendUser.isVerified !== false,
+            followers: backendUser.followers,
+            following: backendUser.following,
+            blockedUsers: backendUser.blockedUsers,
+            badges: backendUser.badges,
+            bio: backendUser.bio,
+            title: backendUser.title,
+            profile: backendUser.profile
+          };
+
+          localStorage.setItem("user", JSON.stringify(user));
+          document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
+
+          console.log('[verifyOAuthToken] Success! Returning backend user with updated picture.');
+          return user;
+        }
+      } catch (backendError: any) {
+        console.warn('[verifyOAuthToken] Backend fetch failed, falling back to Fitmail data:', backendError.message);
+      }
+
+      // Fallback to Fitmail data if backend fails or doesn't return user
       let picture = data.picture;
 
       // Fallback: If verify endpoint didn't return picture, try sessions endpoint
