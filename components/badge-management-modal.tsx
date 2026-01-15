@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button"
 export function BadgeManagementModal({
     open,
     onOpenChange,
-    selectedUser,
+    selectedUserId,
+    allUsers,
     badges,
     dispatch,
     assignBadgeToUser,
@@ -22,6 +23,8 @@ export function BadgeManagementModal({
     currentPage,
     itemsPerPage
 }: any) {
+    const selectedUser = allUsers?.find((u: any) => u._id === selectedUserId)
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
@@ -39,7 +42,10 @@ export function BadgeManagementModal({
                         </p>
                     ) : (
                         badges.map((badge: any) => {
-                            const isAssigned = selectedUser?.badges?.some((b: any) => b._id === badge._id)
+                            const userBadges = selectedUser?.badges || []
+                            const isAssigned = userBadges.some((b: any) =>
+                                (typeof b === 'string' ? b : b._id) === badge._id
+                            )
 
                             return (
                                 <div

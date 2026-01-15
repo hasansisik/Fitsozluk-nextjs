@@ -56,7 +56,7 @@ export default function KullanicilarPage() {
     const [pendingChanges, setPendingChanges] = useState<Record<string, { role?: string; status?: string; title?: string }>>({})
     const [isSaving, setIsSaving] = useState(false)
     const [badgeModalOpen, setBadgeModalOpen] = useState(false)
-    const [selectedUserForBadge, setSelectedUserForBadge] = useState<User | null>(null)
+    const [selectedUserIdForBadge, setSelectedUserIdForBadge] = useState<string | null>(null)
 
     const itemsPerPage = 20
 
@@ -75,7 +75,7 @@ export default function KullanicilarPage() {
 
         // Listen for badge modal events
         const handleBadgeModal = (event: any) => {
-            setSelectedUserForBadge(event.detail)
+            setSelectedUserIdForBadge(event.detail._id)
             setBadgeModalOpen(true)
         }
 
@@ -480,7 +480,8 @@ export default function KullanicilarPage() {
             <BadgeManagementModal
                 open={badgeModalOpen}
                 onOpenChange={setBadgeModalOpen}
-                selectedUser={selectedUserForBadge}
+                selectedUserId={selectedUserIdForBadge}
+                allUsers={allUsers}
                 badges={badges}
                 dispatch={dispatch}
                 assignBadgeToUser={assignBadgeToUser}
