@@ -8,6 +8,7 @@ import { getAllMenus, Menu } from "@/redux/actions/menuActions"
 import { TopicsSidebar } from "@/components/topics-sidebar"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
 
 function CreateTopicContent() {
@@ -146,8 +147,27 @@ function CreateTopicContent() {
 
     if (!user) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
+            <div className="w-full bg-white">
+                <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
+                    <div className="flex min-h-[calc(100vh-6.5rem)] gap-8">
+                        <div className="hidden lg:block">
+                            <TopicsSidebar />
+                        </div>
+                        <div className="flex-1 flex flex-col min-w-0">
+                            <TopAd />
+                            <main className="flex-1 min-w-0 pt-4">
+                                <Skeleton className="h-8 w-1/3 mb-6" />
+                                <div className="space-y-4">
+                                    <Skeleton className="h-10 w-full" />
+                                    <Skeleton className="h-40 w-full" />
+                                    <div className="flex justify-end">
+                                        <Skeleton className="h-10 w-32" />
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -295,12 +315,9 @@ function CreateTopicContent() {
 export default function CreateTopicPage() {
     return (
         <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
-            </div>
+            <div className="w-full h-screen bg-white" />
         }>
             <CreateTopicContent />
         </Suspense>
     )
 }
-

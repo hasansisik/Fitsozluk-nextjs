@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { likeEntry, dislikeEntry, toggleFavorite } from "@/redux/actions/entryActions"
 import { createReport } from "@/redux/actions/reportActions"
+import { Skeleton } from "./ui/skeleton"
 
 interface EntryCardProps {
     id: string
@@ -596,6 +597,35 @@ export function EntryCard({
                     </div>
                 </div>
             )}
+        </div>
+    )
+}
+
+export function EntryCardSkeleton() {
+    return (
+        <div className="pb-8 border-b border-border/40 last:border-0">
+            <div className="mb-4">
+                <Skeleton className="h-6 w-1/3 mb-4" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-2/3" />
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                    <div className="flex gap-4">
+                        <Skeleton className="h-4 w-8" />
+                        <Skeleton className="h-4 w-8" />
+                        <Skeleton className="h-4 w-8" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex flex-col items-end gap-1">
+                            <Skeleton className="h-3 w-16" />
+                            <Skeleton className="h-2 w-20" />
+                        </div>
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

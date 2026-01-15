@@ -1,7 +1,8 @@
 "use client"
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
-import { EntryCard } from "@/components/entry-card"
+import { EntryCard, EntryCardSkeleton } from "@/components/entry-card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
 import { useEffect } from "react"
@@ -48,8 +49,8 @@ export default function DebePage() {
                                 </div>
 
                                 {loading ? (
-                                    <div className="flex items-center justify-center py-12">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff6600]"></div>
+                                    <div className="space-y-8">
+                                        {[1, 2, 3].map(i => <EntryCardSkeleton key={i} />)}
                                     </div>
                                 ) : debeTopics && debeTopics.length > 0 ? (
                                     <div className="space-y-8">

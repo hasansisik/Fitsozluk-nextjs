@@ -145,8 +145,13 @@ export function TopicsSidebar(props: TopicsSidebarProps) {
     return (
         <Suspense fallback={
             <aside className={`${props.isMobile ? 'w-full h-full' : 'w-64 h-[calc(100vh-6.5rem)] sticky top-[6.5rem]'} bg-white ${props.isMobile ? 'p-4' : 'py-4 pr-4'}`}>
-                <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-5 w-5 animate-spin text-[#ff6600]" />
+                <div className="space-y-3">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                        <div key={i} className="flex items-center justify-between py-2 pr-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-6" />
+                        </div>
+                    ))}
                 </div>
             </aside>
         }>

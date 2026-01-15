@@ -1,7 +1,7 @@
 "use client"
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
-import { EntryCard } from "@/components/entry-card"
+import { EntryCard, EntryCardSkeleton } from "@/components/entry-card"
 import { EntryForm } from "@/components/entry-form"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
@@ -14,6 +14,7 @@ import { getEntriesByTopic, deleteEntry } from "@/redux/actions/entryActions"
 import { followTopic, unfollowTopic } from "@/redux/actions/topicActions"
 import { useParams, notFound } from "next/navigation"
 import { Loader2, MessageSquare } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function TopicPage() {
     const params = useParams()
@@ -166,10 +167,28 @@ export default function TopicPage() {
     const currentEntries = entries.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
 
     // Show loading if topic is being loaded or not available
-    if (!currentTopic) {
+    if (!currentTopic && topicLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
+            <div className="w-full bg-white">
+                <div className="max-w-[1300px] mx-auto px-6 lg:px-8">
+                    <div className="flex min-h-[calc(100vh-6.5rem)] gap-8">
+                        <div className="hidden lg:block">
+                            <TopicsSidebar />
+                        </div>
+                        <div className="flex-1 flex flex-col min-w-0">
+                            <TopAd />
+                            <div className="flex gap-8">
+                                <main className="flex-1 min-w-0 pt-4">
+                                    <Skeleton className="h-8 w-1/2 mb-6" />
+                                    <div className="space-y-12">
+                                        {[1, 2, 3].map(i => <EntryCardSkeleton key={i} />)}
+                                    </div>
+                                </main>
+                                <SidebarAd />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -230,8 +249,8 @@ export default function TopicPage() {
                                 {/* Entries List */}
                                 <div className="space-y-12">
                                     {entriesLoading && entries.length === 0 ? (
-                                        <div className="flex items-center justify-center py-12">
-                                            <Loader2 className="h-6 w-6 animate-spin text-[#ff6600]" />
+                                        <div className="space-y-12">
+                                            {[1, 2, 3].map(i => <EntryCardSkeleton key={i} />)}
                                         </div>
                                     ) : currentEntries.length > 0 ? (
                                         currentEntries.map((entry) => (

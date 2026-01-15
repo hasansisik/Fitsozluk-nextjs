@@ -7,7 +7,8 @@ import { useEffect, useState, useMemo } from "react"
 import { useAppSelector, useAppDispatch } from "@/redux/hook"
 import { getUserByNick } from "@/redux/actions/userActions"
 import { getAllBadges } from "@/redux/actions/badgeActions"
-import { Loader2, Award } from "lucide-react"
+import { Award } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface PageProps {
     params: Promise<{
@@ -53,10 +54,34 @@ export default function UserBadgesPage({ params }: PageProps) {
 
     if (userLoading || badgesLoading) {
         return (
-            <div className="w-full flex items-center justify-center min-h-[calc(100vh-6.5rem)] bg-white">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-[#ff6600] animate-spin" />
-                    <div className="text-[#ff6600] font-medium animate-pulse">yükleniyor...</div>
+            <div className="w-full bg-white">
+                <div className="max-w-[1300px] mx-auto px-4 lg:px-8">
+                    <div className="flex min-h-[calc(100vh-6.5rem)]">
+                        <div className="hidden lg:block">
+                            <TopicsSidebar />
+                        </div>
+                        <main className="flex-1 w-full lg:max-w-4xl lg:ml-8 py-8">
+                            <Skeleton className="h-10 w-48 mb-8" />
+                            <div className="bg-white border border-border rounded-xl p-6 mb-8">
+                                <Skeleton className="h-4 w-32 mb-6" />
+                                <div className="flex gap-6">
+                                    <Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-full" />
+                                    <Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-full" />
+                                </div>
+                            </div>
+                            <div className="bg-white border border-border rounded-xl p-6">
+                                <Skeleton className="h-4 w-32 mb-8" />
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-10 gap-x-6">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+                                        <div key={i} className="flex flex-col items-center gap-3">
+                                            <Skeleton className="w-16 h-16 rounded-full" />
+                                            <Skeleton className="h-3 w-12" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </main>
+                    </div>
                 </div>
             </div>
         )
@@ -124,8 +149,8 @@ export default function UserBadgesPage({ params }: PageProps) {
                                                     src={badge.icon}
                                                     alt={badge.name}
                                                     className={`w-16 h-16 rounded-full border-2 transition-all duration-300 object-cover ${hasBadge
-                                                            ? "border-[#ff6600] opacity-100 shadow-sm"
-                                                            : "border-border opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-60"
+                                                        ? "border-[#ff6600] opacity-100 shadow-sm"
+                                                        : "border-border opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-60"
                                                         }`}
                                                 />
                                                 {!hasBadge && (

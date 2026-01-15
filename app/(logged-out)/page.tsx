@@ -1,7 +1,7 @@
 "use client"
 
 import { TopicsSidebar } from "@/components/topics-sidebar"
-import { EntryCard } from "@/components/entry-card"
+import { EntryCard, EntryCardSkeleton } from "@/components/entry-card"
 import { TopAd } from "@/components/ads/top-ad"
 import { SidebarAd } from "@/components/ads/sidebar-ad"
 import { useEffect, Suspense } from "react"
@@ -67,8 +67,10 @@ function HomeContent() {
               {/* Left Column: Listing */}
               <main className="flex-1 min-w-0">
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-24">
-                    <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
+                  <div className="space-y-6">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <EntryCardSkeleton key={i} />
+                    ))}
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -127,11 +129,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={
-      <div className="w-full h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#ff6600]" />
-      </div>
-    }>
+    <Suspense fallback={<div className="w-full bg-white h-screen" />}>
       <HomeContent />
     </Suspense>
   )
