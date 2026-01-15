@@ -7,8 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import axios from "axios"
 import { server } from "@/config"
-import { getAllTopics } from "@/redux/actions/topicActions"
-import { searchUsers, loadUser, logout } from "@/redux/actions/userActions"
+import { loadUser, logout } from "@/redux/actions/userActions"
 import { useAppDispatch, useAppSelector } from "@/redux/hook"
 import { getFeaturedMenus } from "@/redux/actions/menuActions"
 import AccountSwitcher from "@/components/AccountSwitcher"
@@ -100,8 +99,9 @@ export function DictionaryHeader() {
                     localStorage.setItem("accessToken", token);
                     document.cookie = `token=${token}; path=/; max-age=${365 * 24 * 60 * 60}`;
                 }
-                // No reload needed, AuthProvider will handle state update
+                // Reload page to update UI and close popup
                 authChannel.close();
+                window.location.reload();
             }
         };
         authChannel.onmessage = handleAuthMessage;
