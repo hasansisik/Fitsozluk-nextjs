@@ -53,14 +53,20 @@ function CallbackContent() {
                 const authChannel = new BroadcastChannel("fitmail_auth_channel");
                 authChannel.postMessage({
                     type: "FITMAIL_AUTH_SUCCESS",
-                    user: result.user
+                    user: {
+                        ...result.user,
+                        token: result.token // Include the access token
+                    }
                 });
 
                 if (window.opener) {
                     window.opener.postMessage(
                         {
                             type: "FITMAIL_AUTH_SUCCESS",
-                            user: result.user
+                            user: {
+                                ...result.user,
+                                token: result.token // Include the access token
+                            }
                         },
                         window.location.origin
                     );
@@ -77,7 +83,10 @@ function CallbackContent() {
                     // postMessage to parent
                     window.parent.postMessage({
                         type: "FITMAIL_AUTH_SUCCESS",
-                        user: result.user
+                        user: {
+                            ...result.user,
+                            token: result.token
+                        }
                     }, window.location.origin);
 
                     return;
