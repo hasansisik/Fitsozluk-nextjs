@@ -545,39 +545,14 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                             </div>
 
                             {/* Mobile Profile Picture - Next to name */}
-                            <div ref={photoMenuRef} className="relative md:hidden flex-shrink-0 ml-4">
-                                <div
-                                    className={`w-20 h-20 rounded-full bg-muted flex items-center justify-center border-4 border-white shadow-sm overflow-hidden ${isOwnProfile ? 'cursor-pointer hover:opacity-80' : ''}`}
-                                    onClick={() => isOwnProfile && setShowPhotoMenu(!showPhotoMenu)}
-                                >
+                            <div className="relative md:hidden flex-shrink-0 ml-4">
+                                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                                     {(profilePhoto || userData.picture) ? (
                                         <img src={profilePhoto || userData.picture || ''} className="w-full h-full object-cover" alt={userData.nick} referrerPolicy="no-referrer" />
                                     ) : (
                                         <User className="w-10 h-10 text-muted-foreground" />
                                     )}
                                 </div>
-                                {isOwnProfile && showPhotoMenu && (
-                                    <div className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg py-2 z-50 w-48">
-                                        <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-secondary">{profilePhoto ? 'Fotoğrafı Değiştir' : 'Fotoğraf Yükle'}</button>
-                                        {profilePhoto && <button onClick={() => {
-                                            setProfilePhoto(null);
-                                            localStorage.removeItem(`profilePhoto_${userData.nick}`);
-                                            setShowPhotoMenu(false);
-                                            window.dispatchEvent(new Event('profilePhotoUpdated'));
-                                        }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-secondary">Fotoğrafı Kaldır</button>}
-                                    </div>
-                                )}
-                                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
-                                    const file = e.target.files?.[0]; if (file) {
-                                        const reader = new FileReader(); reader.onloadend = () => {
-                                            const base64 = reader.result as string;
-                                            setProfilePhoto(base64);
-                                            localStorage.setItem(`profilePhoto_${userData.nick}`, base64);
-                                            setShowPhotoMenu(false);
-                                            window.dispatchEvent(new Event('profilePhotoUpdated'));
-                                        }; reader.readAsDataURL(file);
-                                    }
-                                }} />
                             </div>
                         </div>
 
@@ -761,39 +736,14 @@ export function UserProfile({ userData, noteText, setNoteText, handleSaveNote, s
                     </div>
 
                     {/* Desktop Profile Picture - On the right */}
-                    <div ref={photoMenuRef} className="relative ml-6 hidden md:block">
-                        <div
-                            className={`w-36 h-36 rounded-full bg-muted flex items-center justify-center border-4 border-white shadow-sm overflow-hidden ${isOwnProfile ? 'cursor-pointer hover:opacity-80' : ''}`}
-                            onClick={() => isOwnProfile && setShowPhotoMenu(!showPhotoMenu)}
-                        >
+                    <div className="relative ml-6 hidden md:block">
+                        <div className="w-36 h-36 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                             {(profilePhoto || userData.picture) ? (
                                 <img src={profilePhoto || userData.picture || ''} className="w-full h-full object-cover" alt={userData.nick} referrerPolicy="no-referrer" />
                             ) : (
                                 <User className="w-16 h-16 text-muted-foreground" />
                             )}
                         </div>
-                        {isOwnProfile && showPhotoMenu && (
-                            <div className="absolute top-full right-0 mt-2 bg-white border rounded-lg shadow-lg py-2 z-50 w-48">
-                                <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-secondary">{profilePhoto ? 'Fotoğrafı Değiştir' : 'Fotoğraf Yükle'}</button>
-                                {profilePhoto && <button onClick={() => {
-                                    setProfilePhoto(null);
-                                    localStorage.removeItem(`profilePhoto_${userData.nick}`);
-                                    setShowPhotoMenu(false);
-                                    window.dispatchEvent(new Event('profilePhotoUpdated'));
-                                }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-secondary">Fotoğrafı Kaldır</button>}
-                            </div>
-                        )}
-                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
-                            const file = e.target.files?.[0]; if (file) {
-                                const reader = new FileReader(); reader.onloadend = () => {
-                                    const base64 = reader.result as string;
-                                    setProfilePhoto(base64);
-                                    localStorage.setItem(`profilePhoto_${userData.nick}`, base64);
-                                    setShowPhotoMenu(false);
-                                    window.dispatchEvent(new Event('profilePhotoUpdated'));
-                                }; reader.readAsDataURL(file);
-                            }
-                        }} />
                     </div>
                 </div>
             </div>
