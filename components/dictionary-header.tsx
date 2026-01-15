@@ -125,16 +125,19 @@ export function DictionaryHeader() {
         const left = ((windowWidth / 2) - (width / 2)) + dualScreenLeft;
         const top = ((windowHeight / 2) - (height / 2)) + dualScreenTop;
 
-        // Open empty window first to avoid 404 flash and focus issues
+        // Open window with a local loading page first to avoid cross-domain 404 flash
         const popup = window.open(
-            "",
+            "/loading",
             "FitmailAuth",
             `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
         );
 
         if (popup) {
-            popup.location.href = authUrl;
-            popup.focus();
+            // Give the local loading page a moment to render before redirecting
+            setTimeout(() => {
+                popup.location.href = authUrl;
+                popup.focus();
+            }, 100);
         }
     };
 
